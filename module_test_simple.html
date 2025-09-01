@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块加载测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .module-test {
+            margin: 15px 0;
+            padding: 10px;
+            border-left: 4px solid #ccc;
+            background: #f9f9f9;
+        }
+        .success {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        .error {
+            border-color: #f44336;
+            background: #ffebee;
+            color: #c62828;
+        }
+        .loading {
+            border-color: #ff9800;
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        .log {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+        }
+        .log-success { color: #4CAF50; }
+        .log-error { color: #f44336; }
+        .log-info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 南北朝坞堡模拟器 - 模块加载测试</h1>
+        
+        <p>这个测试页面将帮助您诊断模块加载问题。</p>
+        
+        <div class="controls">
+            <button onclick="testModuleLoading()">🚀 测试模块加载</button>
+            <button onclick="clearLog()">🗑️ 清空日志</button>
+            <button onclick="showFileStructure()">📁 检查文件结构</button>
+        </div>
+
+        <div id="module-status">
+            <h3>📦 模块状态</h3>
+            <div id="module-list"></div>
+        </div>
+
+        <div class="log" id="test-log">
+            <div class="log-entry log-info">等待测试开始...</div>
+        </div>
+
+        <div id="recommendations" style="margin-top: 20px;">
+            <h3>💡 问题解决建议</h3>
+            <ul>
+                <li>确保所有 .js 文件都在与 HTML 文件相同的目录下</li>
+                <li>检查文件名是否正确（区分大小写）</li>
+                <li>确认使用 HTTP 服务器而不是直接打开 file:// 协议</li>
+                <li>检查浏览器控制台是否有错误信息</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 要测试的模块列表
+        const MODULES_TO_TEST = [
+            { name: 'gameConfig', file: './gameConfig.js' },
+            { name: 'utils_module', file: './utils_module.js' },
+            { name: 'character_module', file: './character_module.js' },
+            { name: 'time_system', file: './time_system.js' },
+            { name: 'resource_system', file: './resource_system.js' },
+            { name: 'relationship_system', file: './relationship_system.js' },
+            { name: 'behavior_system', file: './behavior_system.js' },
+            { name: 'decision_engine', file: './decision_engine.js' },
+            { name: 'memory_system', file: './memory_system.js' },
+            { name: 'action_processor', file: './action_processor.js' },
+            { name: 'game_engine', file: './game_engine.js' }
+        ];
+
+        let testResults = {};
+        
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('test-log');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('test-log').innerHTML = '';
+            log('日志已清空', 'info');
+        }
+
+        function updateModuleStatus() {
+            const moduleList = document.getElementById('module-list');
+            moduleList.innerHTML = '';
+            
+            MODULES_TO_TEST.forEach(module => {
+                const div = document.createElement('div');
+                div.className = 'module-test';
+                div.id = `module-${module.name}`;
+                
+                const result = testResults[module.name];
+                if (result === 'success') {
+                    div.className += ' success';
+                    div.innerHTML = `✅ ${module.name} - 加载成功`;
+                } else if (result === 'error') {
+                    div.className += ' error';
+                    div.innerHTML = `❌ ${module.name} - 加载失败`;
+                } else {
+                    div.className += ' loading';
+                    div.innerHTML = `⏳ ${module.name} - 等待测试`;
+                }
+                
+                moduleList.appendChild(div);
+            });
+        }
+
+        async function testModuleLoading() {
+            log('开始测试模块加载...', 'info');
+            testResults = {};
+            updateModuleStatus();
+            
+            for (const module of MODULES_TO_TEST) {
+                try {
+                    log(`正在测试: ${module.name}`, 'info');
+                    
+                    // 使用fetch测试文件是否存在
+                    const response = await fetch(module.file);
+                    
+                    if (response.ok) {
+                        const content = await response.text();
+                        if (content.length > 0) {
+                            testResults[module.name] = 'success';
+                            log(`✅ ${module.name} 文件存在且有内容 (${content.length} 字符)`, 'success');
+                        } else {
+                            testResults[module.name] = 'error';
+                            log(`❌ ${module.name} 文件存在但为空`, 'error');
+                        }
+                    } else {
+                        testResults[module.name] = 'error';
+                        log(`❌ ${module.name} HTTP ${response.status}: ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    testResults[module.name] = 'error';
+                    log(`❌ ${module.name} 错误: ${error.message}`, 'error');
+                }
+                
+                updateModuleStatus();
+                await new Promise(resolve => setTimeout(resolve, 200)); // 添加小延迟
+            }
+            
+            // 测试完成后的总结
+            const successCount = Object.values(testResults).filter(r => r === 'success').length;
+            const totalCount = MODULES_TO_TEST.length;
+            
+            log(`测试完成: ${successCount}/${totalCount} 个模块可访问`, successCount === totalCount ? 'success' : 'error');
+            
+            if (successCount === totalCount) {
+                log('🎉 所有模块文件都可以正常访问！', 'success');
+                log('现在可以尝试运行主游戏界面了', 'info');
+            } else {
+                log('⚠️ 部分模块文件无法访问，请检查文件是否存在', 'error');
+                showFileStructure();
+            }
+        }
+
+        function showFileStructure() {
+            log('📁 期望的文件结构:', 'info');
+            log('project/', 'info');
+            log('├── game_interface_integrated.html', 'info');
+            MODULES_TO_TEST.forEach(module => {
+                const status = testResults[module.name];
+                const icon = status === 'success' ? '✅' : status === 'error' ? '❌' : '❓';
+                log(`├── ${module.file.replace('./', '')} ${icon}`, status === 'error' ? 'error' : 'info');
+            });
+            log('', 'info');
+            log('请确保所有 .js 文件都在 HTML 文件的同一目录下', 'info');
+        }
+
+        async function testESModules() {
+            log('测试 ES6 模块导入...', 'info');
+            
+            try {
+                // 尝试动态导入一个模块
+                const module = await import('./gameConfig.js');
+                log('✅ ES6 模块导入成功', 'success');
+                console.log('导入的模块:', module);
+            } catch (error) {
+                log(`❌ ES6 模块导入失败: ${error.message}`, 'error');
+                log('这可能是因为模块文件格式不正确或缺少 export 语句', 'error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 模块测试工具已加载', 'info');
+            log('点击"测试模块加载"按钮开始检查', 'info');
+            updateModuleStatus();
+        });
+
+        // 全局错误处理
+        window.addEventListener('error', (event) => {
+            log(`全局错误: ${event.error.message}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            log(`未处理的Promise拒绝: ${event.reason}`, 'error');
+        });
+    </script>
+</body>
+</html>
