@@ -17,6 +17,7 @@
  */
 
 import { Utils } from './utils_module.js';
+import { PopulationRules } from './population_rules.js';
 import { DEFAULT_CONFIG } from './gameConfig.js';
 
 /**
@@ -106,476 +107,468 @@ class FamilySystem {
     // 家族数据存储
     this.families = new Map();           // 家族数据
     this.bloodRelations = new Map();     // 血缘关系映射
-    this.familyTrees = new Map();        // 家族树结构
+    // 删除 this.familyTrees = new Map(); 因为相关方法已删除
     
     // 血缘关系配置
     this.generationConfig = this._initGenerationConfig();
     this.kinshipTitles = BloodRelationTitles;
     
-    // 家族命名初始化
-    this.familyNames = null;
+    // 删除不再使用的家族命名配置
+    // this.familyNames = null; 因为姓名生成已移至FamilyNetworkService
     
     console.log('✅ FamilySystem 血缘关系系统初始化完成');
   }
 
 
-  /**
-   * 从CSV加载家族姓氏配置
-   */
-  async loadConfigurations(dataTableManager) {
-    try {
-      const csvData = await dataTableManager.getCharacterNamesConfig();
-      
-      // 提取所有unique的surname
-      const surnameSet = new Set();
-      csvData.forEach(row => {
-        if (row.surname) {
-          surnameSet.add(row.surname);
-        }
-      });
-      
-      this.familyNames = Array.from(surnameSet);
-      console.log(`✅ FamilySystem加载到 ${this.familyNames.length} 个姓氏`);
-      
-    } catch (error) {
-      console.warn('⚠️ FamilySystem配置加载失败，使用备用姓氏:', error);
-      this.familyNames = ['王', '李', '张', '刘', '陈']; // 备用方案
-    }
-  }
-
-  /**
-   * 从已加载的姓氏中随机选择一个
-   */
-  _selectRandomSurname() {
-    if (!this.familyNames || this.familyNames.length === 0) {
-      console.warn('⚠️ 姓氏数据未加载，使用默认姓氏');
-      return '李'; // 默认姓氏
-    }
-    
-    const randomIndex = Math.floor(Math.random() * this.familyNames.length);
-    return this.familyNames[randomIndex];
-  }
   
 
-  /**
-   * 创建五代同堂家族
-   * @param {string} familyName - 家族姓氏
-   * @param {number} targetSize - 目标人数
-   * @param {string} familyType - 家族类型
-   * @returns {Object} 家族结构
-   */
-  createFiveGenerationFamily(familyName, targetSize = 8, familyType = 'balanced') {
-    const familyId = `family_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // 创建家族结构
-    const familyStructure = {
-      id: familyId,
-      familyName: familyName,
-      familyType: familyType,
-      createdAt: Date.now(),
-      
-      // 五代成员
-      generations: {
-        first: [],    // 高祖辈
-        second: [],   // 曾祖辈  
-        third: [],    // 祖辈
-        fourth: [],   // 父母辈
-        fifth: []     // 子女辈
-      },
-      
-      // 血缘关系网络
-      bloodRelations: new Map(),
-      
-      // 家族统计
-      totalMembers: 0,
-      familyHead: null,
-      familyReputation: 50
-    };
-
-    // 按概率生成各代成员
-    this._generateFamilyMembers(familyStructure, targetSize);
-    
-    // 建立血缘关系网络
-    this._establishBloodRelationships(familyStructure);
-    
-    // 设定家族族长
-    this._assignFamilyHead(familyStructure);
-    
-    // 存储家族数据
-    this.families.set(familyName, familyStructure);
-    this.familyTrees.set(familyName, this._buildFamilyTree(familyStructure));
-    
-    // 记录创建日志
-    this._logFamilyCreation(familyStructure);
-
-    // 将所有世代成员合并到 members 数组中  
-    familyStructure.members = [];
-    Object.values(familyStructure.generations).forEach(generation => {
-      familyStructure.members.push(...generation);
-    });
-    
-    return familyStructure;
-  }
-
-  /**
-   * 生成家族成员
-   * @param {Object} familyStructure - 家族结构
-   * @param {number} targetSize - 目标人数
-   */
-  _generateFamilyMembers(familyStructure, targetSize) {
-    const { generations } = familyStructure;
-    let memberCount = 0;
-    
-    // 按代数和角色生成成员
-    Object.entries(this.generationConfig).forEach(([role, config]) => {
-      if (memberCount >= targetSize) return;
-      
-      // 根据概率决定是否生成该角色
-      if (Math.random() < config.probability) {
-        const member = this._createFamilyMember(familyStructure.familyName, {
-          role: role,
-          config: config,
-          age: Utils.Math.randomInt(config.minAge, config.maxAge)
-        }, this._getGenerationKey(config.generation), memberCount);
-        
-        // 分配到对应的代
-        const generationKey = this._getGenerationKey(config.generation);
-        generations[generationKey].push(member);
-        
-        memberCount++;
-      }
-    });
-    
-    familyStructure.totalMembers = memberCount;
-  }
-
-  /**
-   * 创建家族成员数据（不创建角色对象）
-   */
-  _createFamilyMember(familyName, memberPlan, generation, index) {
-    const { role, config, age } = memberPlan;
-    // 使用传递进来的surname（从createFamily传递）
-    const familyStructure = this.families.get(familyName);
-    const surname = familyStructure ? familyStructure.surname : familyName.replace(/[家氏族]$/, '');
-
-
-    // 通过NameGenerator生成真正的姓名
-    let memberName = surname + '郎'; // 默认值，用姓氏而不是familyName
-    
-    if (this.gameEngine && this.gameEngine.nameGenerator) {
-      try {
-        const nameResult = this.gameEngine.nameGenerator.generateName({
-          gender: config.gender,
-          socialClass: '门阀士族',
-          surname: surname,
-          generation: config.generation,
-          role: role
-        });
-        memberName = nameResult.fullName;
-      } catch (error) {
-        console.warn('姓名生成失败，使用默认值:', error);
-        memberName = familyName + (config.gender === '男' ? '郎' : '娘');
-      }
-    }
-    
-    return {
-      id: `${familyName}_member_${index}`,
-      name: memberName,
-      surname: nameResult.surname,
-      age: age,
-      gender: config.gender,
-      role: role,
-      generation: config.generation,
-      familyName: familyName,
-      bloodRelations: new Map(),
-      familyStatus: {
-        generation: config.generation,
-        seniority: age,
-        authority: config.generation <= 3 ? 80 : 50
-      }
-    };
-  }
-
-  /**
-   * 建立血缘关系网络
-   * @param {Object} familyStructure - 家族结构
-   */
-  _establishBloodRelationships(familyStructure) {
-    const { generations, bloodRelations } = familyStructure;
-    
-    // 1. 建立直系血亲关系（祖孙关系）
-    this._establishDirectLineage(generations, bloodRelations);
-    
-    // 2. 建立配偶关系
-    this._establishSpouseRelationships(generations, bloodRelations);
-    
-    // 3. 建立兄弟姐妹关系
-    this._establishSiblingRelationships(generations, bloodRelations);
-    
-    // 4. 建立旁系血亲关系（叔侄等）
-    this._establishCollateralRelationships(generations, bloodRelations);
-    
-    // 存储到系统级血缘关系映射
-    this.bloodRelations.set(familyStructure.familyName, bloodRelations);
-  }
-
-  /**
-   * 建立直系血亲关系
-   * @param {Object} generations - 各代成员
-   * @param {Map} bloodRelations - 血缘关系映射
-   */
-  _establishDirectLineage(generations, bloodRelations) {
-    const genArray = [
-      generations.first,
-      generations.second, 
-      generations.third,
-      generations.fourth,
-      generations.fifth
-    ];
-    
-    // 建立上下代之间的直系血亲关系
-    for (let i = 0; i < genArray.length - 1; i++) {
-      const upperGen = genArray[i];
-      const lowerGen = genArray[i + 1];
-      
-      upperGen.forEach(ancestor => {
-        lowerGen.forEach(descendant => {
-          // 创建祖先-后代关系
-          this._setBloodRelation(
-            bloodRelations,
-            ancestor,
-            descendant,
-            BloodRelationType.ANCESTOR,
-            i + 1  // 代数差
-          );
-          
-          // 创建后代-祖先关系
-          this._setBloodRelation(
-            bloodRelations,
-            descendant,
-            ancestor,
-            BloodRelationType.DESCENDANT,
-            i + 1  // 代数差
-          );
-        });
-      });
-    }
-  }
-
-  /**
-   * 建立配偶关系
-   * @param {Object} generations - 各代成员
-   * @param {Map} bloodRelations - 血缘关系映射
-   */
-  _establishSpouseRelationships(generations, bloodRelations) {
-    // 各代的配偶配对模式
-    const spousePatterns = [
-      { gen: 'first', pairs: [['great_great_grandfather', 'great_great_grandmother']] },
-      { gen: 'second', pairs: [['great_grandfather', 'great_grandmother']] },
-      { gen: 'third', pairs: [['grandfather', 'grandmother']] },
-      { gen: 'fourth', pairs: [['father', 'mother']] }
-    ];
-    
-    spousePatterns.forEach(({ gen, pairs }) => {
-      const generationMembers = generations[gen];
-      
-      pairs.forEach(([maleRole, femaleRole]) => {
-        const husband = generationMembers.find(m => m.role === maleRole);
-        const wife = generationMembers.find(m => m.role === femaleRole);
-        
-        if (husband && wife) {
-          // 建立配偶关系（双向）
-          this._setBloodRelation(bloodRelations, husband, wife, BloodRelationType.SPOUSE, 0);
-          this._setBloodRelation(bloodRelations, wife, husband, BloodRelationType.SPOUSE, 0);
-        }
-      });
-    });
-  }
-
-  /**
-   * 建立兄弟姐妹关系
-   * @param {Object} generations - 各代成员
-   * @param {Map} bloodRelations - 血缘关系映射
-   */
-  _establishSiblingRelationships(generations, bloodRelations) {
-    Object.values(generations).forEach(generationMembers => {
-      // 同代成员之间建立兄弟姐妹关系
-      for (let i = 0; i < generationMembers.length; i++) {
-        for (let j = i + 1; j < generationMembers.length; j++) {
-          const member1 = generationMembers[i];
-          const member2 = generationMembers[j];
-          
-          // 排除配偶关系
-          if (this._isSpousePair(member1.role, member2.role)) {
-            continue;
-          }
-          
-          // 建立兄弟姐妹关系（双向）
-          this._setBloodRelation(bloodRelations, member1, member2, BloodRelationType.SIBLING, 0);
-          this._setBloodRelation(bloodRelations, member2, member1, BloodRelationType.SIBLING, 0);
-        }
-      }
-    });
-  }
-
-  /**
-   * 建立旁系血亲关系
-   * @param {Object} generations - 各代成员
-   * @param {Map} bloodRelations - 血缘关系映射
-   */
-  _establishCollateralRelationships(generations, bloodRelations) {
-    // 叔侄关系：第四代（叔伯）与第五代（侄甥）
-    const unclesAunts = generations.fourth?.filter(m => 
-      ['uncle', 'aunt'].includes(m.role)
-    ) || [];
-    
-    const nephewsNieces = generations.fifth || [];
-    
-    unclesAunts.forEach(uncleAunt => {
-      nephewsNieces.forEach(nephewNiece => {
-        // 叔伯-侄甥关系
-        this._setBloodRelation(
-          bloodRelations,
-          uncleAunt,
-          nephewNiece,
-          BloodRelationType.UNCLE_AUNT,
-          1
-        );
-        
-        // 侄甥-叔伯关系
-        this._setBloodRelation(
-          bloodRelations,
-          nephewNiece,
-          uncleAunt,
-          BloodRelationType.NEPHEW_NIECE,
-          1
-        );
-      });
-    });
-  }
-
-  /**
-   * 设置血缘关系
-   * @param {Map} bloodRelations - 血缘关系映射
-   * @param {Object} person1 - 第一个人
-   * @param {Object} person2 - 第二个人
-   * @param {string} relationType - 血缘关系类型
-   * @param {number} generationGap - 代数差距
-   */
-  _setBloodRelation(bloodRelations, person1, person2, relationType, generationGap = 0) {
-    const relationKey = `${person1.id}_${person2.id}`;
-    
-    const relationData = {
-      fromId: person1.id,
-      toId: person2.id,
-      fromPerson: person1,
-      toPerson: person2,
-      bloodRelationType: relationType,
-      generationGap: generationGap,
-      establishedAt: Date.now(),
-      
-      // 血缘关系强度（纯血缘，不含情感）
-      bloodlineStrength: this._calculateBloodlineStrength(relationType, generationGap)
-    };
-    
-    // 存储血缘关系
-    bloodRelations.set(relationKey, relationData);
-    
-    // 同时添加到个人的血缘关系列表
-    person1.bloodRelations.set(person2.id, relationData);
-  }
-
-  /**
-   * 计算血缘关系强度
-   * @param {string} relationType - 关系类型
-   * @param {number} generationGap - 代数差
-   * @returns {number} 血缘强度
-   */
-  _calculateBloodlineStrength(relationType, generationGap) {
-    const baseStrengths = {
-      [BloodRelationType.SPOUSE]: 90,
-      [BloodRelationType.SIBLING]: 85,
-      [BloodRelationType.ANCESTOR]: 80 - (generationGap * 10),
-      [BloodRelationType.DESCENDANT]: 80 - (generationGap * 10),
-      [BloodRelationType.UNCLE_AUNT]: 60,
-      [BloodRelationType.NEPHEW_NIECE]: 60,
-      [BloodRelationType.COUSIN]: 50,
-      [BloodRelationType.IN_LAW]: 40
-    };
-    
-    return Math.max(10, baseStrengths[relationType] || 10);
-  }
-
-  /**
-   * 计算家族辈分
-   * @param {number} generation - 世代数
-   * @param {number} age - 年龄
-   * @returns {number} 辈分权重
-   */
-  _calculateSeniority(generation, age) {
-    // 世代越高，年龄越大，辈分越高
-    return (6 - generation) * 20 + age * 0.5;
-  }
-
-  /**
-   * 计算家族权威
-   * @param {string} role - 角色
-   * @param {number} generation - 世代数
-   * @returns {number} 权威等级
-   */
-  _calculateAuthority(role, generation) {
-    const roleAuthority = {
-      'great_great_grandfather': 100,
-      'great_great_grandmother': 95,
-      'great_grandfather': 90,
-      'great_grandmother': 85,
-      'grandfather': 80,
-      'grandmother': 75,
-      'father': 70,
-      'mother': 65,
-      'uncle': 60,
-      'aunt': 55,
-      'son': 40,
-      'daughter': 35
-    };
-    
-    return roleAuthority[role] || (100 - generation * 10);
-  }
-
-  /**
-   * 获取血缘关系称谓
-   * @param {string} familyName - 家族名
-   * @param {string} fromCharId - 询问者ID
-   * @param {string} toCharId - 被询问者ID
-   * @returns {Object|null} 血缘关系信息
-   */
-  getKinship(familyName, fromCharId, toCharId) {
-    if (fromCharId === toCharId) {
-      return { title: '自己', type: 'self', strength: 100 };
-    }
+  //更新血缘关系数据
+  updateBloodRelationIds(familyName, idMapping) {
+    console.log(`🔧 开始更新血缘关系ID: ${familyName}`);
+    console.log(`🔧 ID映射表:`, Array.from(idMapping.entries()));
     
     const familyBloodRelations = this.bloodRelations.get(familyName);
     if (!familyBloodRelations) {
+      console.log(`🔧 未找到${familyName}的血缘关系`);
+      return;
+    }
+    
+    console.log(`🔧 更新前关系键:`, Array.from(familyBloodRelations.keys()));
+    const newRelations = new Map();
+    
+    for (const [relationKey, relation] of familyBloodRelations) {
+      const [fromCharacterId, toCharacterId] = relationKey.split('_');
+      const newFromCharacterId = idMapping.get(fromCharacterId) || fromCharacterId;
+      const newToCharacterId = idMapping.get(toCharacterId) || toCharacterId;
+      const newKey = `${newFromCharacterId}_${newToCharacterId}`;
+      
+      console.log(`🔧 关系键更新: ${relationKey} → ${newKey}`);
+  
+      // 深度更新关系对象中的所有ID引用
+      const updatedRelation = {
+        ...relation,
+        fromCharacterId: newFromCharacterId,
+        toCharacterId: newToCharacterId
+      };
+      
+      // 更新人员引用中的ID
+      if (updatedRelation.fromPerson) {
+        updatedRelation.fromPerson = {
+          ...updatedRelation.fromPerson,
+          characterId: newFromCharacterId,
+          id: newFromCharacterId
+        };
+      }
+      
+      if (updatedRelation.toPerson) {
+        updatedRelation.toPerson = {
+          ...updatedRelation.toPerson,
+          characterId: newToCharacterId,
+          id: newToCharacterId
+        };
+      }
+      
+      newRelations.set(newKey, updatedRelation);
+    }
+    
+    this.bloodRelations.set(familyName, newRelations);
+    console.log(`🔧 更新后关系键:`, Array.from(newRelations.keys()));
+    
+    // 同时更新families中的成员ID
+    const family = this.families.get(familyName);
+    if (family && family.members) {
+      family.members.forEach(member => {
+        const oldId = member.characterId || member.id;
+        if (idMapping.has(oldId)) {
+          const newId = idMapping.get(oldId);
+          member.characterId = newId;
+          member.id = newId;
+        }
+      });
+      console.log(`🔧 家族成员ID同步更新完成`);
+    }
+  }
+
+
+  /**
+   * 从FamilyNetworkService接收并存储血缘关系数据
+   * @param {Array} characters - 角色列表
+   * @param {Object} relationshipData - 关系数据 {bloodRelations: [...]}
+   */
+  storeBloodRelationsFromService(characters, relationshipData) {
+    console.log('🔗 接收FamilyNetworkService完整数据并存储');
+    // 添加数据验证
+    if (!characters || !Array.isArray(characters)) {
+      console.warn('characters数据无效:', characters);
+      return;
+    }
+    
+    if (!relationshipData) {
+      console.warn('relationshipData数据为空');
+      return;
+    }
+    
+    // 确保bloodRelations存在
+    const bloodRelations = relationshipData.bloodRelations || [];
+    console.log('血缘关系数据:', bloodRelations.length, '条');
+    
+    // 按家族分组
+    const familyGroups = new Map();
+    characters.forEach(character => {
+      const familyName = character.familyName || character.surname || '未知';
+      if (!familyGroups.has(familyName)) {
+        familyGroups.set(familyName, []);
+      }
+      familyGroups.get(familyName).push(character);
+    });
+    
+    // 存储血缘关系和家族成员数据
+    for (const [familyName, familyMembers] of familyGroups) {
+      // 存储血缘关系
+      const familyBloodRelations = this._convertServiceDataToFamilyFormat(
+        familyMembers, 
+        relationshipData.bloodRelations || []
+      );
+      this.bloodRelations.set(familyName, familyBloodRelations);
+      
+      // 存储家族成员数据（简化结构，供getFamilyMembers使用）
+      const familyData = {
+        familyName: familyName,
+        members: familyMembers,  // 直接存储成员列表
+        totalMembers: familyMembers.length,
+        createdAt: Date.now(),
+        source: 'FamilyNetworkService'
+      };
+      this.families.set(familyName, familyData);
+      
+      console.log(`✅ ${familyName}家族数据存储完成: ${familyMembers.length}成员, ${familyBloodRelations.size}关系`);
+    }
+  }
+  
+  
+  /**
+   * 转换服务数据为FamilySystem格式
+   * @param {Array} familyMembers - 家族成员
+   * @param {Array} serviceBloodRelations - 服务层血缘关系数据
+   * @returns {Map} FamilySystem格式的血缘关系
+   */
+  _convertServiceDataToFamilyFormat(familyMembers, serviceBloodRelations) {
+    const familyBloodRelations = new Map();
+    const processedRelations = new Set();
+
+    const memberMap = new Map();
+    familyMembers.forEach(member => {
+      const id = member.characterId || member.id;
+      if (id) {
+        memberMap.set(id, member);
+      }
+    });
+
+    const familyMemberIds = new Set(memberMap.keys());
+    const parentToChildren = new Map();
+    const childToParents = new Map();
+    const siblingMap = new Map();
+
+    console.log('🔍 [FamilySystem] 开始转换关系数据');
+    console.log(`🔍 [FamilySystem] 家族成员数: ${familyMembers.length}`);
+    console.log(`🔍 [FamilySystem] 原始关系数: ${serviceBloodRelations.length}`);
+
+    const registerParentChild = (parentId, childId) => {
+      if (!parentId || !childId) return;
+      if (!parentToChildren.has(parentId)) parentToChildren.set(parentId, new Set());
+      parentToChildren.get(parentId).add(childId);
+      if (!childToParents.has(childId)) childToParents.set(childId, new Set());
+      childToParents.get(childId).add(parentId);
+    };
+
+    const trackSiblings = (idA, idB) => {
+      if (!idA || !idB) return;
+      if (!siblingMap.has(idA)) siblingMap.set(idA, new Set());
+      if (!siblingMap.has(idB)) siblingMap.set(idB, new Set());
+      siblingMap.get(idA).add(idB);
+      siblingMap.get(idB).add(idA);
+    };
+
+    serviceBloodRelations.forEach(relation => {
+      if (relation.type === 'parent_child') {
+        const { father, mother, child } = relation.data;
+        const fatherMember = memberMap.get(father);
+        const motherMember = memberMap.get(mother);
+        const childMember = memberMap.get(child);
+
+        if (!familyMemberIds.has(child)) return;
+
+        registerParentChild(father, child);
+        registerParentChild(mother, child);
+
+        const addParentRelation = (parentId, parentMember, label) => {
+          if (!familyMemberIds.has(parentId)) return;
+          const key = `${parentId}_${child}`;
+          if (processedRelations.has(key)) return;
+          processedRelations.add(key);
+          familyBloodRelations.set(key, {
+            fromCharacterId: parentId,
+            toCharacterId: child,
+            bloodRelationType: label,
+            generationGap: 1,
+            bloodlineStrength: 100,
+            fromPerson: parentMember,
+            toPerson: childMember,
+            establishedAt: Date.now()
+          });
+        };
+
+        addParentRelation(father, fatherMember, 'father_child');
+        addParentRelation(mother, motherMember, 'mother_child');
+      } else if (relation.type === 'siblings') {
+        const siblings = relation.participants || [];
+        console.log(`🔍 [Siblings] 关系: ${siblings.length}个兄弟姐妹`);
+
+        for (let i = 0; i < siblings.length; i++) {
+          for (let j = i + 1; j < siblings.length; j++) {
+            const sibling1 = siblings[i];
+            const sibling2 = siblings[j];
+            if (!familyMemberIds.has(sibling1) || !familyMemberIds.has(sibling2)) continue;
+
+            const key = `${sibling1}_${sibling2}`;
+            if (!processedRelations.has(key)) {
+              processedRelations.add(key);
+              familyBloodRelations.set(key, {
+                fromCharacterId: sibling1,
+                toCharacterId: sibling2,
+                bloodRelationType: BloodRelationType.SIBLING,
+                generationGap: 0,
+                bloodlineStrength: 100,
+                fromPerson: memberMap.get(sibling1),
+                toPerson: memberMap.get(sibling2),
+                establishedAt: Date.now()
+              });
+            }
+
+            trackSiblings(sibling1, sibling2);
+          }
+        }
+      } else if (relation.type === 'marriage') {
+        const [husband, wife] = relation.participants || [];
+        if (!familyMemberIds.has(husband) || !familyMemberIds.has(wife)) return;
+
+        const key = `${husband}_${wife}`;
+        if (!processedRelations.has(key)) {
+          processedRelations.add(key);
+          familyBloodRelations.set(key, {
+            fromCharacterId: husband,
+            toCharacterId: wife,
+            bloodRelationType: 'marriage',
+            generationGap: 0,
+            bloodlineStrength: 100,
+            fromPerson: memberMap.get(husband),
+            toPerson: memberMap.get(wife),
+            establishedAt: Date.now()
+          });
+        }
+      } else {
+        const fromId = relation.fromCharacterId || relation.participants?.[0];
+        const toId = relation.toCharacterId || relation.participants?.[1];
+        if (!fromId || !toId || !familyMemberIds.has(fromId) || !familyMemberIds.has(toId)) return;
+
+        const key = `${fromId}_${toId}`;
+        if (processedRelations.has(key)) return;
+
+        processedRelations.add(key);
+        familyBloodRelations.set(key, {
+          fromCharacterId: fromId,
+          toCharacterId: toId,
+          bloodRelationType: relation.type || relation.bloodRelationType,
+          generationGap: relation.generationGap || 0,
+          bloodlineStrength: relation.strength || relation.bloodlineStrength || 100,
+          fromPerson: memberMap.get(fromId),
+          toPerson: memberMap.get(toId),
+          establishedAt: relation.establishedAt || Date.now()
+        });
+      }
+    });
+
+    this._addDerivedRelations({
+      familyBloodRelations,
+      memberMap,
+      parentToChildren,
+      childToParents,
+      siblingMap,
+      processedRelations,
+      familyMemberIds
+    });
+
+    console.log(`🔄 转换血缘关系: ${serviceBloodRelations.length}条原始 -> ${familyBloodRelations.size}条去重后`);
+    return familyBloodRelations;
+  }
+
+  _addDerivedRelations({
+    familyBloodRelations,
+    memberMap,
+    parentToChildren,
+    childToParents,
+    siblingMap,
+    processedRelations,
+    familyMemberIds
+  }) {
+    const addRelation = (fromId, toId, type, strength = 80, generationOverride = null) => {
+      if (!fromId || !toId) return;
+      if (!familyMemberIds.has(fromId) || !familyMemberIds.has(toId)) return;
+
+      const key = `${fromId}_${toId}`;
+      if (processedRelations.has(key)) return;
+
+      const fromPerson = memberMap.get(fromId);
+      const toPerson = memberMap.get(toId);
+      if (!fromPerson || !toPerson) return;
+
+      let generationGap = generationOverride ?? 0;
+      if (generationOverride === null && Number.isFinite(fromPerson.generation) && Number.isFinite(toPerson.generation)) {
+        generationGap = Math.abs((toPerson.generation || 0) - (fromPerson.generation || 0));
+      }
+
+      processedRelations.add(key);
+      familyBloodRelations.set(key, {
+        fromCharacterId: fromId,
+        toCharacterId: toId,
+        bloodRelationType: type,
+        generationGap,
+        bloodlineStrength: strength,
+        fromPerson,
+        toPerson,
+        establishedAt: Date.now()
+      });
+    };
+
+    const addBidirectional = (idA, idB, typeAB, typeBA, strength = 70) => {
+      addRelation(idA, idB, typeAB, strength);
+      addRelation(idB, idA, typeBA, strength);
+    };
+
+    parentToChildren.forEach((children, parentId) => {
+      if (!children || children.size === 0) return;
+      const siblings = siblingMap.get(parentId);
+      if (!siblings || siblings.size === 0) return;
+
+      children.forEach(childId => {
+        siblings.forEach(uncleId => {
+          addBidirectional(childId, uncleId, BloodRelationType.UNCLE_AUNT, BloodRelationType.NEPHEW_NIECE, 65);
+
+          const cousinChildren = parentToChildren.get(uncleId);
+          if (!cousinChildren || cousinChildren.size === 0) return;
+
+          cousinChildren.forEach(cousinId => {
+            if (cousinId === childId) return;
+            addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
+          });
+        });
+      });
+    });
+
+    childToParents.forEach((parents, childId) => {
+      if (!parents || parents.size === 0) return;
+      parents.forEach(parentId => {
+        const grandParents = childToParents.get(parentId);
+        if (!grandParents || grandParents.size === 0) return;
+
+        grandParents.forEach(grandParentId => {
+          addRelation(grandParentId, childId, BloodRelationType.ANCESTOR, 75, 2);
+          addRelation(childId, grandParentId, BloodRelationType.DESCENDANT, 75, 2);
+        });
+      });
+    });
+  }
+
+   /**
+   * 获取血缘关系称谓
+   * @param {string} familyName - 家族名
+   * @param {string} fromCharacterId - 询问者ID
+   * @param {string} toCharacterId - 被询问者ID
+   * @returns {Object|null} 血缘关系信息
+   */
+   getKinship(familyName, fromCharacterId, toCharacterId) {
+    console.log('family_system.js getKinship 被调用');
+    console.log('参数:', {familyName, fromCharacterId, toCharacterId});
+    
+    const familyBloodRelations = this.bloodRelations.get(familyName);
+    console.log('家族关系数据存在:', !!familyBloodRelations);
+    
+    if (!familyBloodRelations) {
+      console.log('未找到家族关系数据');
       return null;
     }
     
-    const relationKey = `${fromCharId}_${toCharId}`;
-    const bloodRelation = familyBloodRelations.get(relationKey);
+    // 尝试正向和反向查询
+    let relationKey = `${fromCharacterId}_${toCharacterId}`;
+    let bloodRelation = familyBloodRelations.get(relationKey);
+    let isReversed = false;
     
     if (!bloodRelation) {
-      return { title: '族人', type: BloodRelationType.NO_RELATION, strength: 0 };
+      // 尝试反向查询
+      relationKey = `${toCharacterId}_${fromCharacterId}`;
+      bloodRelation = familyBloodRelations.get(relationKey);
+      isReversed = true;
     }
     
-    // 获取血缘称谓
-    const title = this._getBloodRelationTitle(bloodRelation);
+    console.log('查询关系键:', relationKey, isReversed ? '(反向)' : '');
+    
+    if (!bloodRelation) {
+      console.log('未找到关系数据，尝试所有关系键:', Array.from(familyBloodRelations.keys()));
+      return null;
+    }
+    
+    console.log('关系数据:', bloodRelation);
+    
+    // 处理反向关系的称谓
+    const relationForTitle = isReversed ? {
+      ...bloodRelation,
+      fromPerson: bloodRelation.toPerson,
+      toPerson: bloodRelation.fromPerson,
+      bloodRelationType: this._reverseRelationType(bloodRelation.bloodRelationType)
+    } : bloodRelation;
+    
+    const title = this._getBloodRelationTitle(relationForTitle);
+    console.log('生成的称谓:', title);
     
     return {
       title: title,
-      type: bloodRelation.bloodRelationType,
-      strength: bloodRelation.bloodlineStrength,
+      type: relationForTitle.bloodRelationType,
+      strength: bloodRelation.bloodlineStrength || 100,
       generationGap: bloodRelation.generationGap,
       establishedAt: bloodRelation.establishedAt
     };
+  }
+  
+  /**
+   * 反转血缘关系类型（用于反向查询）
+   * @param {string} relationType - 原始关系类型
+   * @returns {string} 反转后的关系类型
+   */
+  _reverseRelationType(relationType) {
+    const reverseMap = {
+      [BloodRelationType.ANCESTOR]: BloodRelationType.DESCENDANT,
+      [BloodRelationType.DESCENDANT]: BloodRelationType.ANCESTOR,
+      [BloodRelationType.UNCLE_AUNT]: BloodRelationType.NEPHEW_NIECE,
+      [BloodRelationType.NEPHEW_NIECE]: BloodRelationType.UNCLE_AUNT,
+      father_child: BloodRelationType.DESCENDANT,
+      mother_child: BloodRelationType.DESCENDANT
+    };
+    
+    return reverseMap[relationType] || relationType;
+  }
+
+
+  /**
+   * 检查是否为同一家族
+   */
+  _isSameFamily(familyName1, familyName2) {
+    if (familyName1 === familyName2) return true;
+    
+    // 去掉"氏"字比较
+    const surname1 = familyName1.replace(/氏$/, '');
+    const surname2 = familyName2.replace(/氏$/, '');
+    
+    return surname1 === surname2;
   }
 
   /**
@@ -584,164 +577,265 @@ class FamilySystem {
    * @returns {string} 称谓
    */
   _getBloodRelationTitle(bloodRelation) {
-    const { bloodRelationType, generationGap, fromPerson, toPerson } = bloodRelation;
-    
+    if (!bloodRelation) {
+      console.warn('血缘关系数据为空');
+      return '未知关系';
+    }
+
+    let { bloodRelationType, generationGap = 0, fromPerson, toPerson } = bloodRelation;
+    if (!bloodRelationType) {
+      console.warn('血缘关系类型缺失:', bloodRelation);
+      return '族人';
+    }
+
+    const fromGender = fromPerson?.gender || '未知';
+    const toGender = toPerson?.gender || '未知';
+    const toGenderKey = toGender === '男' ? 'male' : (toGender === '女' ? 'female' : 'male');
+    const fromGen = Number.isFinite(fromPerson?.generation) ? fromPerson.generation : null;
+    const toGen = Number.isFinite(toPerson?.generation) ? toPerson.generation : null;
+    const generationDiff = fromGen !== null && toGen !== null ? toGen - fromGen : null;
+
+    const resolveAncestorTitle = gap => {
+      const cfg = this.kinshipTitles.ancestor_titles[Math.abs(gap)] || this.kinshipTitles.ancestor_titles[1];
+      if (cfg) return cfg[toGenderKey] || (toGender === '男' ? '父亲' : '母亲');
+      return toGender === '男' ? '父亲' : '母亲';
+    };
+
+    const resolveDescendantTitle = gap => {
+      const cfg = this.kinshipTitles.descendant_titles[Math.abs(gap)] || this.kinshipTitles.descendant_titles[1];
+      if (cfg) return cfg[toGenderKey] || (toGender === '男' ? '儿子' : '女儿');
+      return toGender === '男' ? '儿子' : '女儿';
+    };
+
+    const resolveSiblingTitle = () => {
+      if (!fromPerson || !toPerson) return toGender === '男' ? '兄弟' : '姐妹';
+      const ageDiff = (toPerson.age ?? 0) - (fromPerson.age ?? 0);
+      let isOlder;
+      if (Math.abs(ageDiff) >= 1) {
+        isOlder = ageDiff > 0;
+      } else if (Number.isFinite(toPerson.birthOrder) && Number.isFinite(fromPerson.birthOrder)) {
+        if (toPerson.birthOrder === fromPerson.birthOrder && Number.isFinite(toPerson.birthIndex) && Number.isFinite(fromPerson.birthIndex)) {
+          isOlder = (toPerson.birthIndex ?? 0) < (fromPerson.birthIndex ?? 0);
+        } else {
+          isOlder = toPerson.birthOrder < fromPerson.birthOrder;
+        }
+      } else {
+        isOlder = ageDiff > 0;
+      }
+      const category = isOlder ? 'older' : 'younger';
+      const cfg = this.kinshipTitles.sibling_titles[category];
+      if (cfg) return cfg[toGenderKey] || (toGender === '男' ? '兄弟' : '姐妹');
+      return toGender === '男' ? '兄弟' : '姐妹';
+    };
+
+    const resolveCousinTitle = () => {
+      if (!fromPerson || !toPerson) return toGender === '男' ? '堂兄弟' : '堂姐妹';
+      const ageDiff = (toPerson.age ?? 0) - (fromPerson.age ?? 0);
+      let isOlder;
+      if (Math.abs(ageDiff) >= 1) {
+        isOlder = ageDiff > 0;
+      } else if (Number.isFinite(toPerson.birthOrder) && Number.isFinite(fromPerson.birthOrder)) {
+        if (toPerson.birthOrder === fromPerson.birthOrder && Number.isFinite(toPerson.birthIndex) && Number.isFinite(fromPerson.birthIndex)) {
+          isOlder = (toPerson.birthIndex ?? 0) < (fromPerson.birthIndex ?? 0);
+        } else {
+          isOlder = toPerson.birthOrder < fromPerson.birthOrder;
+        }
+      } else {
+        isOlder = ageDiff > 0;
+      }
+      const category = isOlder ? 'older' : 'younger';
+      const cfg = this.kinshipTitles.collateral_titles.cousin_titles[category];
+      if (cfg) return cfg[toGenderKey] || '堂亲';
+      return '堂亲';
+    };
+
     switch (bloodRelationType) {
-      case BloodRelationType.SPOUSE:
-        return this.kinshipTitles.spouse_titles[toPerson.gender === '男' ? 'male' : 'female'];
-        
-      case BloodRelationType.ANCESTOR:
-        const ancestorTitle = this.kinshipTitles.ancestor_titles[generationGap];
-        return ancestorTitle ? ancestorTitle[toPerson.gender === '男' ? 'male' : 'female'] : '祖先';
-        
-      case BloodRelationType.DESCENDANT:
-        const descendantTitle = this.kinshipTitles.descendant_titles[generationGap];
-        return descendantTitle ? descendantTitle[toPerson.gender === '男' ? 'male' : 'female'] : '后代';
-        
+      case 'father_child':
+      case 'mother_child': {
+        if (generationDiff !== null && generationDiff <= 0) {
+          return resolveAncestorTitle(Math.abs(generationDiff) || 1);
+        }
+        return resolveDescendantTitle(Math.abs(generationDiff) || 1);
+      }
+      case 'marriage':
+      case BloodRelationType.SPOUSE: {
+        const titles = this.kinshipTitles.spouse_titles || {};
+        return titles[toGenderKey] || (toGender === '男' ? '夫君' : '妻子');
+      }
+      case BloodRelationType.ANCESTOR: {
+        const gap = generationDiff !== null && generationDiff <= 0 ? Math.abs(generationDiff) : generationGap || 1;
+        return resolveAncestorTitle(gap);
+      }
+      case BloodRelationType.DESCENDANT: {
+        if (generationDiff !== null && generationDiff <= 0) {
+          return resolveAncestorTitle(Math.abs(generationDiff) || generationGap || 1);
+        }
+        const gap = generationDiff !== null && generationDiff > 0 ? generationDiff : generationGap || 1;
+        return resolveDescendantTitle(gap);
+      }
       case BloodRelationType.SIBLING:
-        const isOlder = toPerson.age > fromPerson.age;
-        const siblingCategory = isOlder ? 'older' : 'younger';
-        return this.kinshipTitles.sibling_titles[siblingCategory][toPerson.gender === '男' ? 'male' : 'female'];
-        
+        return resolveSiblingTitle();
       case BloodRelationType.UNCLE_AUNT:
-        return toPerson.gender === '男' ? '叔父' : '姑母';
-        
+        return toGender === '男' ? '叔父' : '姑母';
       case BloodRelationType.NEPHEW_NIECE:
-        return toPerson.gender === '男' ? '侄子' : '侄女';
-        
+        return toGender === '男' ? '侄子' : '侄女';
       case BloodRelationType.COUSIN:
-        const isOlderCousin = toPerson.age > fromPerson.age;
-        const cousinCategory = isOlderCousin ? 'older' : 'younger';
-        return this.kinshipTitles.collateral_titles.cousin_titles[cousinCategory][toPerson.gender === '男' ? 'male' : 'female'];
-        
+        return resolveCousinTitle();
+      case BloodRelationType.NO_RELATION:
+        return '陌生人';
       default:
+        console.warn('未识别的血缘关系类型:', bloodRelationType);
         return '族人';
     }
-  }
-
-  /**
-   * 获取家族统计信息
-   * @param {string} familyName - 家族名
-   * @returns {Object|null} 统计信息
-   */
-  getFamilyStatistics(familyName) {
+  }  getFamilyStatistics(familyName) {
     const family = this.families.get(familyName);
     if (!family) return null;
     
+    // 获取血缘关系数据
+    const bloodRelations = this.bloodRelations.get(familyName);
+    
     const stats = {
       familyName: familyName,
-      totalMembers: family.totalMembers,
+      totalMembers: family.totalMembers || (family.members ? family.members.length : 0),
       generationCount: 0,
       generationBreakdown: {},
       averageAge: 0,
       oldestMember: null,
       youngestMember: null,
-      familyHead: family.familyHead,
-      bloodRelationsCount: family.bloodRelations.size,
-      familyReputation: family.familyReputation
+      familyHead: family.familyHead || null,
+      bloodRelationsCount: bloodRelations ? bloodRelations.size : 0,
+      familyReputation: family.familyReputation || 0
     };
     
     let totalAge = 0;
     let oldestAge = 0;
     let youngestAge = 100;
+    let memberCount = 0;
     
-    // 统计各代信息
-    Object.entries(family.generations).forEach(([genKey, members]) => {
-      if (members.length > 0) {
-        stats.generationCount++;
-        stats.generationBreakdown[genKey] = {
-          count: members.length,
-          members: members.map(m => ({
-            name: m.name,
-            role: m.role,
-            age: m.age,
-            gender: m.gender
-          }))
-        };
+    // 适配新的数据结构
+    if (family.members) {
+      // 新结构：直接从members数组统计
+      const generationGroups = {};
+      
+      family.members.forEach(member => {
+        const age = member.age || 0;
+        const generation = member.generation || this._inferGenerationFromAge(age);
+        const genKey = this._getGenerationKey(generation);
         
-        members.forEach(member => {
-          totalAge += member.age;
+        // 分组统计
+        if (!generationGroups[genKey]) {
+          generationGroups[genKey] = [];
+        }
+        generationGroups[genKey].push(member);
+        
+        // 年龄统计
+        totalAge += age;
+        memberCount++;
+        
+        if (age > oldestAge) {
+          oldestAge = age;
+          stats.oldestMember = member;
+        }
+        
+        if (age < youngestAge) {
+          youngestAge = age;
+          stats.youngestMember = member;
+        }
+      });
+      
+      // 构建代数分解
+      Object.entries(generationGroups).forEach(([genKey, members]) => {
+        if (members.length > 0) {
+          stats.generationCount++;
+          stats.generationBreakdown[genKey] = {
+            count: members.length,
+            members: members.map(m => ({
+              name: m.name || '未命名',
+              role: m.role || '成员',
+              age: m.age || 0,
+              gender: m.gender || '未知'
+            }))
+          };
+        }
+      });
+      
+    } else if (family.generations) {
+      // 旧结构：从generations对象统计
+      Object.entries(family.generations).forEach(([genKey, members]) => {
+        if (members && members.length > 0) {
+          stats.generationCount++;
+          stats.generationBreakdown[genKey] = {
+            count: members.length,
+            members: members.map(m => ({
+              name: m.name || '未命名',
+              role: m.role || '成员',
+              age: m.age || 0,
+              gender: m.gender || '未知'
+            }))
+          };
           
-          if (member.age > oldestAge) {
-            oldestAge = member.age;
-            stats.oldestMember = member;
-          }
-          
-          if (member.age < youngestAge) {
-            youngestAge = member.age;
-            stats.youngestMember = member;
-          }
-        });
-      }
-    });
+          members.forEach(member => {
+            const age = member.age || 0;
+            totalAge += age;
+            memberCount++;
+            
+            if (age > oldestAge) {
+              oldestAge = age;
+              stats.oldestMember = member;
+            }
+            
+            if (age < youngestAge) {
+              youngestAge = age;
+              stats.youngestMember = member;
+            }
+          });
+        }
+      });
+    }
     
-    stats.averageAge = Math.round(totalAge / family.totalMembers);
+    // 计算平均年龄
+    stats.averageAge = memberCount > 0 ? Math.round(totalAge / memberCount) : 0;
+    
+    // 更新实际成员计数
+    if (memberCount > 0) {
+      stats.totalMembers = memberCount;
+    }
     
     return stats;
+  }
+  
+  /**
+   * 根据年龄推断代数（辅助方法）
+   * @param {number} age - 年龄
+   * @returns {number} 推断的代数
+   */
+  _inferGenerationFromAge(age) {
+    if (age >= 75) return 1; // 高祖辈
+    if (age >= 55) return 2; // 曾祖辈
+    if (age >= 35) return 3; // 祖辈
+    if (age >= 17) return 4; // 父母辈
+    return 5; // 子女辈
   }
 
   /**
    * 辅助方法：初始化代数配置
    */
   _initGenerationConfig() {
-    return {
-      // 第一代：高祖父母
-      great_great_grandfather: { 
-        generation: 1, minAge: 80, maxAge: 95, gender: '男',
-        probability: 0.30, title: '高祖父'
-      },
-      great_great_grandmother: { 
-        generation: 1, minAge: 78, maxAge: 92, gender: '女',
-        probability: 0.25, title: '高祖母'
-      },
-      
-      // 第二代：曾祖父母
-      great_grandfather: { 
-        generation: 2, minAge: 65, maxAge: 80, gender: '男',
-        probability: 0.50, title: '曾祖父'
-      },
-      great_grandmother: { 
-        generation: 2, minAge: 62, maxAge: 77, gender: '女',
-        probability: 0.45, title: '曾祖母'
-      },
-      
-      // 第三代：祖父母
-      grandfather: { 
-        generation: 3, minAge: 45, maxAge: 65, gender: '男',
-        probability: 0.70, title: '祖父'
-      },
-      grandmother: { 
-        generation: 3, minAge: 42, maxAge: 62, gender: '女',
-        probability: 0.65, title: '祖母'
-      },
-      
-      // 第四代：父母
-      father: { 
-        generation: 4, minAge: 25, maxAge: 45, gender: '男',
-        probability: 0.95, title: '父亲'
-      },
-      mother: { 
-        generation: 4, minAge: 22, maxAge: 42, gender: '女',
-        probability: 0.90, title: '母亲'
-      },
-      uncle: { 
-        generation: 4, minAge: 20, maxAge: 50, gender: '男',
-        probability: 0.30, title: '叔父'
-      },
-      aunt: { 
-        generation: 4, minAge: 18, maxAge: 48, gender: '女',
-        probability: 0.25, title: '姑母'
-      },
-      
-      // 第五代：子女
-      son: { 
-        generation: 5, minAge: 1, maxAge: 25, gender: '男',
-        probability: 1.0, title: '儿子'
-      },
-      daughter: { 
-        generation: 5, minAge: 1, maxAge: 25, gender: '女',
-        probability: 1.0, title: '女儿'
+    try {
+      if (this.gameEngine?.PopulationRules?.initialized) {
+        return this.gameEngine.PopulationRules.getGenerationConfig();
       }
+    } catch (error) {
+      console.warn('PopulationRules 未就绪，使用默认世代配置');
+    }
+    
+    // 返回合理的默认配置
+    return {
+      "1": { "age_range": [75, 90], "survival_rate": 0.05, "name": "高祖辈" },
+      "2": { "age_range": [55, 75], "survival_rate": 0.3, "name": "曾祖辈" },
+      "3": { "age_range": [35, 55], "survival_rate": 0.6, "name": "祖父母辈" },
+      "4": { "age_range": [17, 40], "survival_rate": 0.8, "name": "父母辈" },
+      "5": { "age_range": [1, 17], "survival_rate": 0.4, "name": "子女辈" }
     };
   }
 
@@ -771,125 +865,76 @@ class FamilySystem {
     return Math.min(100, status);
   }
 
-  /**
-   * 辅助方法：生成成员姓名
-   */
-  _generateMemberName(gender, familyName) {
-    const maleNames = ['文', '武', '明', '华', '强', '军', '国', '建', '志', '勇'];
-    const femaleNames = ['芳', '丽', '娟', '英', '华', '秀', '玲', '红', '梅', '霞'];
+  updateMemberIds(familyName, oldId, newId) {
+    console.log(`开始更新成员ID: ${oldId} -> ${newId}`);
     
-    const namePool = gender === '男' ? maleNames : femaleNames;
-    const givenName = namePool[Math.floor(Math.random() * namePool.length)];
-    
-    return `${familyName}${givenName}`;
-  }
-
-  /**
-   * 辅助方法：判断是否为配偶对
-   */
-  _isSpousePair(role1, role2) {
-    const spousePairs = [
-      ['great_great_grandfather', 'great_great_grandmother'],
-      ['great_grandfather', 'great_grandmother'],
-      ['grandfather', 'grandmother'],
-      ['father', 'mother']
-    ];
-    
-    return spousePairs.some(([male, female]) => 
-      (role1 === male && role2 === female) || (role1 === female && role2 === male)
-    );
-  }
-
-  /**
-   * 辅助方法：分配家族族长
-   */
-  _assignFamilyHead(familyStructure) {
-    const { generations } = familyStructure;
-    
-    // 优先选择最高辈分的男性
-    for (const genKey of ['first', 'second', 'third', 'fourth']) {
-      const males = generations[genKey]?.filter(m => m.gender === '男') || [];
-      if (males.length > 0) {
-        familyStructure.familyHead = males[0];
-        return;
+    // 更新bloodRelations中的ID
+    const familyBloodRelations = this.bloodRelations.get(familyName);
+    if (familyBloodRelations) {
+      const newRelations = new Map();
+      for (const [relationKey, relation] of familyBloodRelations) {
+        const updatedKey = relationKey.replace(oldId, newId);
+        const updatedRelation = { ...relation };
+        
+        // 更新关系数据中的ID
+        if (updatedRelation.fromCharacterId === oldId) {
+          updatedRelation.fromCharacterId = newId;
+        }
+        if (updatedRelation.toCharacterId === oldId) {
+          updatedRelation.toCharacterId = newId;
+        }
+        
+        // 更新人员引用中的ID
+        if (updatedRelation.fromPerson && (updatedRelation.fromPerson.characterId === oldId || updatedRelation.fromPerson.id === oldId)) {
+          updatedRelation.fromPerson = { ...updatedRelation.fromPerson };
+          updatedRelation.fromPerson.characterId = newId;
+          if (updatedRelation.fromPerson.id === oldId) {
+            updatedRelation.fromPerson.id = newId;
+          }
+        }
+        
+        if (updatedRelation.toPerson && (updatedRelation.toPerson.characterId === oldId || updatedRelation.toPerson.id === oldId)) {
+          updatedRelation.toPerson = { ...updatedRelation.toPerson };
+          updatedRelation.toPerson.characterId = newId;
+          if (updatedRelation.toPerson.id === oldId) {
+            updatedRelation.toPerson.id = newId;
+          }
+        }
+        
+        newRelations.set(updatedKey, updatedRelation);
       }
+      
+      this.bloodRelations.set(familyName, newRelations);
+      console.log(`血缘关系ID更新完成: ${familyBloodRelations.size}条关系`);
     }
     
-    // 如果没有男性，选择最高辈分的女性
-    for (const genKey of ['first', 'second', 'third', 'fourth']) {
-      const females = generations[genKey]?.filter(m => m.gender === '女') || [];
-      if (females.length > 0) {
-        familyStructure.familyHead = females[0];
-        return;
+    // 更新families中的成员ID
+    const family = this.families.get(familyName);
+    if (family && family.members) {
+      family.members.forEach(member => {
+        if (member.characterId === oldId || member.id === oldId) {
+          member.characterId = newId;
+          if (member.id === oldId) {
+            member.id = newId;
+          }
+        }
+      });
+      
+      // 更新族长引用
+      if (family.familyHead && (family.familyHead.characterId === oldId || family.familyHead.id === oldId)) {
+        family.familyHead.characterId = newId;
+        if (family.familyHead.id === oldId) {
+          family.familyHead.id = newId;
+        }
       }
+      
+      console.log(`家族成员ID更新完成: ${family.members.length}个成员`);
     }
+    
+    console.log(`成员ID更新完成: ${oldId} -> ${newId}`);
   }
 
-  /**
-   * 辅助方法：计算代数排名
-   */
-  _calculateGenerationRank(generation, role) {
-    const rankMap = {
-      1: { great_great_grandfather: 1, great_great_grandmother: 2 },
-      2: { great_grandfather: 1, great_grandmother: 2 },
-      3: { grandfather: 1, grandmother: 2 },
-      4: { father: 1, mother: 2, uncle: 3, aunt: 4 },
-      5: { son: 1, daughter: 2 }
-    };
-    
-    return rankMap[generation]?.[role] || 99;
-  }
-
-  /**
-   * 辅助方法：构建家族树结构
-   */
-  _buildFamilyTree(familyStructure) {
-    const tree = {
-      familyName: familyStructure.familyName,
-      root: familyStructure.familyHead,
-      generations: {},
-      relationships: familyStructure.bloodRelations
-    };
-    
-    // 按代数组织家族树
-    Object.entries(familyStructure.generations).forEach(([genKey, members]) => {
-      tree.generations[genKey] = members.map(member => ({
-        id: member.id,
-        name: member.name,
-        role: member.role,
-        gender: member.gender,
-        age: member.age,
-        bloodlineTitle: member.bloodlineTitle
-      }));
-    });
-    
-    return tree;
-  }
-
-  /**
-   * 辅助方法：记录家族创建日志
-   */
-  _logFamilyCreation(familyStructure) {
-    console.log(`\n📊 ${familyStructure.familyName}家族血缘关系网络创建完成:`);
-    console.log(`   总人数: ${familyStructure.totalMembers}人`);
-    console.log(`   血缘关系: ${familyStructure.bloodRelations.size}条`);
-    console.log(`   族长: ${familyStructure.familyHead?.name || '未设定'}`);
-    
-    const genNames = {
-      first: '高祖辈', second: '曾祖辈', third: '祖辈',
-      fourth: '父母辈', fifth: '子女辈'
-    };
-    
-    Object.entries(familyStructure.generations).forEach(([genKey, members]) => {
-      if (members.length > 0) {
-        console.log(`   ${genNames[genKey]}: ${members.length}人`);
-        members.forEach(member => {
-          console.log(`     - ${member.name} (${member.age}岁, ${member.bloodlineTitle})`);
-        });
-      }
-    });
-  }
-
+  
   /**
    * 获取家族所有成员
    * @param {string} familyName - 家族名
@@ -899,12 +944,21 @@ class FamilySystem {
     const family = this.families.get(familyName);
     if (!family) return [];
     
-    const allMembers = [];
-    Object.values(family.generations).forEach(members => {
-      allMembers.push(...members);
-    });
+    // 适配新的数据结构
+    if (family.members) {
+      return family.members.sort((a, b) => (a.generation || 5) - (b.generation || 5) || a.age - b.age);
+    }
     
-    return allMembers.sort((a, b) => a.generation - b.generation || a.age - b.age);
+    // 兼容旧结构
+    if (family.generations) {
+      const allMembers = [];
+      Object.values(family.generations).forEach(members => {
+        allMembers.push(...members);
+      });
+      return allMembers.sort((a, b) => a.generation - b.generation || a.age - b.age);
+    }
+    
+    return [];
   }
 
   /**
@@ -920,16 +974,32 @@ class FamilySystem {
     const relations = [];
     
     for (const [relationKey, relationData] of familyBloodRelations) {
-      if (relationData.fromId === characterId) {
-        const kinshipInfo = this.getKinship(familyName, characterId, relationData.toId);
-        relations.push({
-          targetId: relationData.toId,
-          targetName: relationData.toPerson.name,
-          kinshipTitle: kinshipInfo.title,
-          relationType: kinshipInfo.type,
-          bloodlineStrength: kinshipInfo.strength,
-          generationGap: kinshipInfo.generationGap
-        });
+      let targetId = null;
+      let targetPerson = null;
+      
+      // 检查正向关系（当前角色为fromCharacterId）
+      if (relationData.fromCharacterId === characterId) {
+        targetId = relationData.toCharacterId;
+        targetPerson = relationData.toPerson;
+      }
+      // 检查反向关系（当前角色为toCharacterId）
+      else if (relationData.toCharacterId === characterId) {
+        targetId = relationData.fromCharacterId;
+        targetPerson = relationData.fromPerson;
+      }
+      
+      if (targetId && targetPerson) {
+        const kinshipInfo = this.getKinship(familyName, characterId, targetId);
+        if (kinshipInfo) {
+          relations.push({
+            targetId: targetId,
+            targetName: targetPerson.name,
+            kinshipTitle: kinshipInfo.title,
+            relationType: kinshipInfo.type,
+            bloodlineStrength: kinshipInfo.strength,
+            generationGap: kinshipInfo.generationGap
+          });
+        }
       }
     }
     
@@ -960,34 +1030,9 @@ class FamilySystem {
     return kinship ? kinship.strength : 0;
   }
 
-  /**
-   * 创建单个家族
-   * @param {Object} options - 创建选项
-   * @returns {Object} 创建的家族信息
-   */
-  createFamily(options = {}) {
-    // 从CSV获取surname，生成familyName  
-    const surname = options.surname || this._selectRandomSurname();
-    const familyName = options.familyName || (surname + "氏");
-    const familySize = options.size || 8;
-    const familyType = options.type || 'balanced';
-    
-    console.log(`🏠 创建${surname}家族 → ${familyName}`);
-    
-    const result = this.createFiveGenerationFamily(familyName, familySize, familyType);
-    // 确保familyStructure包含surname信息
-    result.surname = surname;
-    result.familyName = familyName;
-    
-    return result;
-  }
+  
 
-  /**
-   * 辅助方法：生成随机家族名
-   */
-  _generateRandomFamilyName() {
-    return this.familyNames[Math.floor(Math.random() * this.familyNames.length)];
-  }
+
 
   /**
    * 验证血缘关系数据完整性
@@ -1004,48 +1049,38 @@ class FamilySystem {
     const warnings = [];
     
     // 检查家族成员完整性
-    if (family.totalMembers === 0) {
+    const memberCount = family.members ? family.members.length : family.totalMembers || 0;
+    if (memberCount === 0) {
       errors.push('家族无成员');
     }
     
-    // 检查血缘关系完整性
-    if (family.bloodRelations.size === 0) {
+    // 检查血缘关系完整性（从bloodRelations Map获取）
+    const bloodRelations = this.bloodRelations.get(familyName);
+    if (!bloodRelations || bloodRelations.size === 0) {
       warnings.push('家族无血缘关系记录');
     }
     
-    // 检查族长设定
-    if (!family.familyHead) {
-      warnings.push('未设定族长');
-    }
-    
-    // 检查各代成员合理性
-    let hasValidGeneration = false;
-    Object.entries(family.generations).forEach(([genKey, members]) => {
-      if (members.length > 0) {
-        hasValidGeneration = true;
-        
-        // 检查成员数据完整性
-        members.forEach(member => {
-          if (!member.id || !member.name || !member.bloodlineTitle) {
-            errors.push(`成员 ${member.name || 'unknown'} 数据不完整`);
-          }
-          if (member.age < 0 || member.age > 100) {
-            warnings.push(`成员 ${member.name} 年龄异常: ${member.age}岁`);
-          }
-        });
-      }
-    });
-    
-    if (!hasValidGeneration) {
-      errors.push('家族无有效世代');
+    // 检查成员数据完整性（适配新结构）
+    if (family.members) {
+      family.members.forEach(member => {
+        if (!member.characterId && !member.id) {
+          errors.push(`成员 ${member.name || 'unknown'} 缺少ID`);
+        }
+        if (!member.name) {
+          errors.push(`成员ID ${member.characterId || member.id} 缺少姓名`);
+        }
+        if (member.age < 0 || member.age > 100) {
+          warnings.push(`成员 ${member.name} 年龄异常: ${member.age}岁`);
+        }
+      });
     }
     
     return {
       isValid: errors.length === 0,
       errors: errors,
       warnings: warnings,
-      memberCount: family.totalMembers,
-      relationCount: family.bloodRelations.size
+      memberCount: memberCount,
+      relationCount: bloodRelations ? bloodRelations.size : 0
     };
   }
 
@@ -1058,11 +1093,14 @@ class FamilySystem {
     const family = this.families.get(familyName);
     if (!family) return null;
     
+    // 获取独立存储的血缘关系数据
+    const bloodRelations = this.bloodRelations.get(familyName);
+    
     return {
       ...family,
-      bloodRelations: Array.from(family.bloodRelations.entries()),
+      bloodRelations: bloodRelations ? Array.from(bloodRelations.entries()) : [],
       exportedAt: Date.now(),
-      version: '1.0'
+      version: '2.0'  // 版本号升级，标识新数据格式
     };
   }
 
@@ -1081,16 +1119,17 @@ class FamilySystem {
       // 重建血缘关系Map
       const bloodRelations = new Map(familyData.bloodRelations || []);
       
+      // 移除bloodRelations字段，避免数据重复
       const family = {
         ...familyData,
-        bloodRelations: bloodRelations,
         importedAt: Date.now()
       };
+      delete family.bloodRelations; // 移除，因为现在独立存储
       
-      // 存储家族数据
+      // 分别存储家族数据和血缘关系
       this.families.set(family.familyName, family);
       this.bloodRelations.set(family.familyName, bloodRelations);
-      this.familyTrees.set(family.familyName, this._buildFamilyTree(family));
+      // 移除 familyTrees 存储，因为 _buildFamilyTree 方法已删除
       
       console.log(`✅ 家族 ${family.familyName} 数据导入成功`);
       return true;
@@ -1109,11 +1148,11 @@ class FamilySystem {
   removeFamilyData(familyName) {
     const deleted = {
       family: this.families.delete(familyName),
-      relations: this.bloodRelations.delete(familyName),
-      tree: this.familyTrees.delete(familyName)
+      relations: this.bloodRelations.delete(familyName)
+      // 移除 familyTrees 清理，因为不再使用
     };
     
-    const success = deleted.family || deleted.relations || deleted.tree;
+    const success = deleted.family || deleted.relations;
     
     if (success) {
       console.log(`✅ 家族 ${familyName} 数据已清理`);

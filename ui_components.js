@@ -662,7 +662,7 @@ export class CharacterCard extends UIComponent {
     console.log('🔄 updateDisplay 被调用:', this.character.name);
     const characterId = this.character?.id;
     const engineChar = characterId && window.gameEngine?.characters?.get(characterId);
-    console.log('德行系统存在:', !!engineChar?.virtueSystem);
+    //console.log('德行系统存在:', !!engineChar?.virtueSystem);
     // 同步引擎中的最新德行系统数据
     if (engineChar && engineChar.virtueSystem) {
       this.character.virtueSystem = engineChar.virtueSystem;
@@ -756,7 +756,7 @@ export class CharacterCard extends UIComponent {
   updateVirtueDisplay() {
     console.log('🌟 updateVirtueDisplay 开始执行');
     console.log('角色:', this.character?.name);
-    console.log('德行系统:', !!this.character?.virtueSystem);
+    //console.log('德行系统:', !!this.character?.virtueSystem);
     // 强制从引擎获取最新德行数据
     if (this.character?.id && window.gameEngine?.characters) {
       const engineChar = window.gameEngine.characters.get(this.character.id);
@@ -783,7 +783,7 @@ export class CharacterCard extends UIComponent {
     if (virtueSummary) {
       try {
         const dominantVirtues = this.character.virtueSystem.getDominantVirtues();
-        console.log('🔍 获取到的主导德行:', dominantVirtues);
+        //console.log('🔍 获取到的主导德行:', dominantVirtues);
         
         if (dominantVirtues && dominantVirtues.length > 0) {
           virtueSummary.innerHTML = `
@@ -794,7 +794,7 @@ export class CharacterCard extends UIComponent {
             </div>
           `;
           virtueSummary.style.display = 'block';
-          console.log('✅ 德行摘要已更新');
+          //console.log('✅ 德行摘要已更新');
         }
       } catch (error) {
         console.error('❌ 更新德行摘要失败:', error);
@@ -1746,41 +1746,153 @@ export class CharacterDetailModal extends UIComponent {
   
   loadRelationshipDetails() {
     const container = this.element.querySelector('#relationships-display');
-    
     const latestCharacter = window.gameEngine?.characters?.get(this.character.id);
+    const sanitizeName = (name) => typeof name === 'string' ? name.replace(/_\d+$/, '') : name;
+
+    console.log('角色ID对比:', {
+      thisCharacterId: this.character.id,
+      latestCharacterGameId: latestCharacter?.id,
+      latestCharacterCharacterId: latestCharacter?.characterId,
+      bloodRelationsKeys: latestCharacter?.bloodRelations ? 
+        Array.from(latestCharacter.bloodRelations.keys()) : []
+    });
     
-    if (latestCharacter && typeof latestCharacter.getAllRelationships === 'function') {
-      const relationships = latestCharacter.getAllRelationships();
+    let html = '';
+    
+    // 直接使用FamilySystem查询血缘关系
+    if (latestCharacter && latestCharacter.familyName) {
+      console.log('进入FamilySystem查询分支');
+      const fs = window.gameEngine.familySystem;
+      const family = fs.families.get(latestCharacter.familyName);
       
-      if (relationships && relationships.length > 0) {
-        let html = '';
-        relationships.forEach((rel, index) => {
-          // 调试输出
-          if (index < 3) {
-            console.log('关系数据:', rel);
+      if (family && family.members && family.members.length > 1) {
+        family.members.forEach(member => {
+          if (member.characterId !== latestCharacter.characterId) {
+            const kinshipData = fs.getKinship(
+              latestCharacter.familyName,
+              latestCharacter.characterId,
+              member.characterId
+            );
+            
+            if (kinshipData && kinshipData.title) {
+              const targetChar = Array.from(window.gameEngine.characters.values())
+                .find(c => c.characterId === member.characterId);
+              
+              if (targetChar) {
+                console.log('称谓查询结果:', {
+                  kinship: kinshipData.title,
+                  targetName: sanitizeName(targetChar.name),
+                  targetGender: targetChar.gender
+                });
+                
+                // 添加过滤逻辑：只显示存活成员和重要的已故亲属
+                const shouldDisplay = true;
+                  
+                if (shouldDisplay) {
+                  const displayName = sanitizeName(targetChar.name);
+                  const relationName = targetChar.vitalStatus === 'deceased' ? 
+                    `${kinshipData.title}(已故)` : kinshipData.title;
+                
+                  html += `<div>${displayName}: ${relationName}</div>`;
+                  console.log('显示关系:', displayName, relationName);
+                } else {
+                  console.log('跳过显示远亲已故成员:', sanitizeName(targetChar.name), kinshipData.title);
+                }
+              }
+            }
           }
-          
-          const targetChar = window.gameEngine?.characters?.get(rel.targetId || rel.toCharacterId);
-          const targetName = targetChar ? targetChar.name : `ID:${rel.targetId || rel.toCharacterId || '无ID'}`;
-          const relationType = rel.displayName || rel.type || rel.emotionalState || '未知关系';
-          
-          html += `<div>${targetName}: ${relationType}</div>`;
         });
-        container.innerHTML = html;
       } else {
-        container.innerHTML = '暂无人际关系记录';
+        console.log('家族成员查询失败:', {
+          hasFamily: !!family,
+          hasMembers: !!family?.members,
+          memberCount: family?.members?.length || 0
+        });
       }
     } else {
-      container.innerHTML = '关系系统未完全初始化';
+      console.log('FamilySystem查询失败:', {
+        hasCharacter: !!latestCharacter,
+        hasFamilyName: !!latestCharacter?.familyName,
+        familyName: latestCharacter?.familyName
+      });
+    }
+    
+    container.innerHTML = html || '暂无人际关系记录';
+  }
+
+  _manuallyCorrectRelation(relation, targetGender) {
+    // 修正配偶关系
+    if (relation === 'husband' && targetGender === '女') {
+      return '妻子';
+    } else if (relation === 'wife' && targetGender === '男') {
+      return '丈夫';
+    }
+    
+    // 修正父母关系
+    if (relation === 'father' && targetGender === '女') {
+      return '母亲';
+    } else if (relation === 'mother' && targetGender === '男') {
+      return '父亲';
+    }
+    
+    // 翻译其他关系
+    const translations = {
+      'father': '父亲',
+      'mother': '母亲', 
+      'son': '儿子',
+      'daughter': '女儿',
+      'husband': '丈夫',
+      'wife': '妻子',
+      'brother': '兄弟',
+      'sister': '姐妹',
+      'grandfather': '祖父',
+      'grandmother': '祖母',
+      'grandson': '孙子',
+      'granddaughter': '孙女'
+    };
+    
+    return translations[relation] || relation;
+  }
+
+
+
+  translateRelation(relation, category = 'blood_relations') {
+    try {
+      const gameEngine = window.gameEngine;
+      if (!gameEngine) return relation;
+      
+      const dataManager = gameEngine.dataManager;
+      if (!dataManager) return relation;
+      
+      const dataTableManager = dataManager.dataTableManager;
+      if (!dataTableManager) return relation;
+      
+      // 修复：直接检查方法是否存在，而不是调用可能出错的方法
+      if (typeof dataTableManager.getBalanceConfig !== 'function') {
+        console.warn('getBalanceConfig方法不存在，使用原始关系名');
+        return relation;
+      }
+      
+      const config = dataTableManager.getBalanceConfig();
+      if (!config || !config.relationship_translations) {
+        return relation;
+      }
+      
+      const categoryTranslations = config.relationship_translations[category];
+      if (!categoryTranslations) return relation;
+      
+      return categoryTranslations[relation] || relation;
+      
+    } catch (error) {
+      console.warn('获取关系翻译失败，使用原始名称:', error.message);
+      return relation;
     }
   }
 }
-
-
 /**
  * UI组件工厂
  */
-export class UIComponentFactory {
+class UIComponentFactory {
   static createCharacterCard(container, character, options = {}) {
     return new CharacterCard(container, character, options);
   }
@@ -1808,6 +1920,5 @@ export class UIComponentFactory {
 
 // 默认导出
 export default UIComponentFactory;
-
 
 
