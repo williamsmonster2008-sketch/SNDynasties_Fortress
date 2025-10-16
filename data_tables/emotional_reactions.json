@@ -1,0 +1,656 @@
+{
+  "emotionalReactionRules": {
+    "interactionOutcomes": {
+      "successful_cooperation": {
+        "name": "成功合作",
+        "description": "与他人成功完成合作任务",
+        "emotionalEffects": {
+          "happiness": 8,
+          "satisfaction": 10,
+          "confidence": 5,
+          "loneliness": -5
+        },
+        "relationshipEffects": {
+          "compatibility": 3,
+          "trust": 2,
+          "familiarity": 1
+        },
+        "virtueModifiers": {
+          "altruism_tendency": {
+            "positive": {
+              "happiness": 3,
+              "satisfaction": 2
+            }
+          },
+          "social_tendency": {
+            "positive": {
+              "loneliness": -3,
+              "confidence": 2
+            }
+          }
+        }
+      },
+
+      "failed_cooperation": {
+        "name": "合作失败",
+        "description": "与他人合作但任务失败",
+        "emotionalEffects": {
+          "frustration": 6,
+          "disappointment": 8,
+          "confidence": -3,
+          "anxiety": 4
+        },
+        "relationshipEffects": {
+          "compatibility": -1,
+          "trust": -1
+        },
+        "virtueModifiers": {
+          "perfectionism": {
+            "positive": {
+              "frustration": 3,
+              "disappointment": 4
+            }
+          },
+          "stubbornness": {
+            "positive": {
+              "anger": 2,
+              "blame_others": 3
+            }
+          }
+        }
+      },
+
+      "betrayal": {
+        "name": "被背叛",
+        "description": "被信任的人背叛或欺骗",
+        "emotionalEffects": {
+          "sadness": 15,
+          "anger": 12,
+          "trust": -20,
+          "confidence": -8,
+          "loneliness": 10
+        },
+        "relationshipEffects": {
+          "compatibility": -15,
+          "trust": -25,
+          "romance": -10
+        },
+        "longTermEffects": {
+          "trust_tendency": -5,
+          "suspicion_increase": 8,
+          "social_withdrawal": 0.3
+        },
+        "virtueModifiers": {
+          "forgiveness_tendency": {
+            "positive": {
+              "anger": -3,
+              "recovery_speed": 1.5
+            },
+            "negative": {
+              "anger": 5,
+              "revenge_desire": 8
+            }
+          }
+        }
+      },
+
+      "romantic_success": {
+        "name": "浪漫成功",
+        "description": "求偶或表达爱意获得积极回应",
+        "emotionalEffects": {
+          "happiness": 20,
+          "confidence": 10,
+          "excitement": 15,
+          "loneliness": -15
+        },
+        "relationshipEffects": {
+          "romance": 20,
+          "compatibility": 8,
+          "lust": 10
+        },
+        "physicalEffects": {
+          "energy": 10,
+          "charisma": 2
+        },
+        "virtueModifiers": {
+          "devotion_tendency": {
+            "positive": {
+              "happiness": 5,
+              "loyalty": 10
+            }
+          },
+          "shyness": {
+            "positive": {
+              "surprise": 8,
+              "overwhelm": 5
+            }
+          }
+        }
+      },
+
+      "romantic_rejection": {
+        "name": "浪漫拒绝",
+        "description": "求偶或表达爱意被拒绝",
+        "emotionalEffects": {
+          "sadness": 18,
+          "embarrassment": 12,
+          "confidence": -8,
+          "loneliness": 8
+        },
+        "relationshipEffects": {
+          "compatibility": -3,
+          "romance": -10,
+          "awkwardness": 15
+        },
+        "behavioralChanges": {
+          "social_avoidance": 0.3,
+          "self_improvement_motivation": 0.2
+        },
+        "virtueModifiers": {
+          "stubbornness": {
+            "positive": {
+              "persistence": 5,
+              "determination": 3
+            },
+            "negative": {
+              "acceptance": 2,
+              "move_on": 1.5
+            }
+          },
+          "sensitivity": {
+            "positive": {
+              "sadness": 5,
+              "embarrassment": 3
+            }
+          }
+        }
+      }
+    },
+
+    "workOutcomes": {
+      "excellent_work": {
+        "name": "工作出色",
+        "description": "工作表现非常出色，获得认可",
+        "emotionalEffects": {
+          "pride": 15,
+          "confidence": 10,
+          "happiness": 12,
+          "satisfaction": 18
+        },
+        "socialEffects": {
+          "reputation": 5,
+          "respect_from_others": 8
+        },
+        "virtueModifiers": {
+          "perfectionism": {
+            "positive": {
+              "satisfaction": 5,
+              "pride": 3
+            }
+          },
+          "humility": {
+            "positive": {
+              "pride": -2,
+              "gratitude": 4
+            }
+          }
+        }
+      },
+
+      "poor_work": {
+        "name": "工作糟糕",
+        "description": "工作表现很差，受到批评",
+        "emotionalEffects": {
+          "shame": 12,
+          "confidence": -8,
+          "anxiety": 10,
+          "frustration": 8
+        },
+        "socialEffects": {
+          "reputation": -3,
+          "respect_from_others": -5
+        },
+        "behavioralChanges": {
+          "work_avoidance": 0.2,
+          "skill_improvement_motivation": 0.4
+        },
+        "virtueModifiers": {
+          "perfectionism": {
+            "positive": {
+              "shame": 4,
+              "self_criticism": 6
+            }
+          },
+          "self_discipline": {
+            "positive": {
+              "improvement_motivation": 5
+            }
+          }
+        }
+      },
+
+      "work_injury": {
+        "name": "工作受伤",
+        "description": "在工作中受到身体伤害",
+        "emotionalEffects": {
+          "fear": 8,
+          "anxiety": 12,
+          "pain": 15,
+          "helplessness": 6
+        },
+        "physicalEffects": {
+          "health": -15,
+          "stamina": -20,
+          "work_ability": -30
+        },
+        "behavioralChanges": {
+          "work_caution": 0.8,
+          "dangerous_work_avoidance": 0.6
+        },
+        "socialEffects": {
+          "sympathy_from_others": 8,
+          "help_received": 10
+        }
+      }
+    },
+
+    "socialEvents": {
+      "public_praise": {
+        "name": "公开赞扬",
+        "description": "在众人面前被表扬",
+        "emotionalEffects": {
+          "pride": 18,
+          "happiness": 15,
+          "confidence": 12,
+          "social_acceptance": 10
+        },
+        "socialEffects": {
+          "reputation": 8,
+          "social_status": 3
+        },
+        "virtueModifiers": {
+          "humility": {
+            "positive": {
+              "embarrassment": 5,
+              "gratitude": 8
+            },
+            "negative": {
+              "arrogance": 3
+            }
+          },
+          "social_tendency": {
+            "positive": {
+              "happiness": 4,
+              "belonging": 6
+            }
+          }
+        }
+      },
+
+      "public_criticism": {
+        "name": "公开批评",
+        "description": "在众人面前被批评",
+        "emotionalEffects": {
+          "shame": 20,
+          "anger": 8,
+          "confidence": -12,
+          "social_anxiety": 15
+        },
+        "socialEffects": {
+          "reputation": -6,
+          "social_status": -2
+        },
+        "behavioralChanges": {
+          "social_avoidance": 0.5,
+          "public_speaking_fear": 0.4
+        },
+        "virtueModifiers": {
+          "anger_suppression": {
+            "positive": {
+              "anger": -4,
+              "inner_reflection": 5
+            },
+            "negative": {
+              "rage": 6
+            }
+          },
+          "sensitivity": {
+            "positive": {
+              "shame": 5,
+              "social_anxiety": 4
+            }
+          }
+        }
+      },
+
+      "group_inclusion": {
+        "name": "群体接纳",
+        "description": "被一个群体接纳为成员",
+        "emotionalEffects": {
+          "belonging": 20,
+          "happiness": 12,
+          "confidence": 8,
+          "loneliness": -15
+        },
+        "socialEffects": {
+          "social_network": 10,
+          "group_identity": 15
+        },
+        "virtueModifiers": {
+          "social_tendency": {
+            "positive": {
+              "belonging": 5,
+              "loyalty": 8
+            }
+          },
+          "independence": {
+            "negative": {
+              "belonging": 3,
+              "conformity_pressure": 5
+            }
+          }
+        }
+      },
+
+      "group_exclusion": {
+        "name": "群体排斥",
+        "description": "被群体排斥或孤立",
+        "emotionalEffects": {
+          "loneliness": 25,
+          "sadness": 18,
+          "anger": 10,
+          "self_worth": -15
+        },
+        "socialEffects": {
+          "social_isolation": 20,
+          "group_identity": -10
+        },
+        "behavioralChanges": {
+          "withdrawal": 0.6,
+          "group_seeking": 0.8
+        },
+        "longTermEffects": {
+          "social_anxiety": 5,
+          "trust_issues": 8
+        }
+      }
+    },
+
+    "lifeEvents": {
+      "death_of_loved_one": {
+        "name": "亲友去世",
+        "description": "重要的家人或朋友去世",
+        "emotionalEffects": {
+          "grief": 50,
+          "sadness": 40,
+          "loneliness": 30,
+          "meaninglessness": 20
+        },
+        "behavioralChanges": {
+          "social_withdrawal": 0.8,
+          "work_motivation": -0.5,
+          "appetite_loss": 0.6
+        },
+        "stages": {
+          "denial": {
+            "duration": [1, 7],
+            "emotions": {
+              "shock": 30,
+              "numbness": 25
+            }
+          },
+          "anger": {
+            "duration": [3, 14],
+            "emotions": {
+              "anger": 25,
+              "blame": 20
+            }
+          },
+          "bargaining": {
+            "duration": [2, 10],
+            "emotions": {
+              "hope": 15,
+              "desperation": 20
+            }
+          },
+          "depression": {
+            "duration": [7, 30],
+            "emotions": {
+              "sadness": 35,
+              "hopelessness": 30
+            }
+          },
+          "acceptance": {
+            "duration": [14, 60],
+            "emotions": {
+              "peace": 10,
+              "remembrance": 15
+            }
+          }
+        },
+        "recoveryFactors": {
+          "social_support": 0.3,
+          "spiritual_beliefs": 0.2,
+          "time_passage": 0.4,
+          "new_relationships": 0.1
+        }
+      },
+
+      "marriage": {
+        "name": "结婚",
+        "description": "与伴侣结为夫妻",
+        "emotionalEffects": {
+          "happiness": 35,
+          "love": 40,
+          "security": 25,
+          "anxiety": 8,
+          "responsibility": 15
+        },
+        "socialEffects": {
+          "social_status": 5,
+          "family_ties": 20,
+          "new_obligations": 15
+        },
+        "behavioralChanges": {
+          "couple_activities": 0.8,
+          "independence": -0.3,
+          "family_focus": 0.6
+        },
+        "virtueModifiers": {
+          "devotion_tendency": {
+            "positive": {
+              "happiness": 5,
+              "loyalty": 20
+            }
+          },
+          "independence": {
+            "negative": {
+              "anxiety": 5,
+              "loss_of_freedom": 8
+            }
+          }
+        }
+      },
+
+      "birth_of_child": {
+        "name": "孩子出生",
+        "description": "新生儿的诞生",
+        "emotionalEffects": {
+          "joy": 40,
+          "love": 45,
+          "pride": 25,
+          "anxiety": 15,
+          "overwhelming": 20
+        },
+        "behavioralChanges": {
+          "protective_behavior": 0.9,
+          "work_life_balance": -0.4,
+          "sleep_disruption": 0.8,
+          "financial_concern": 0.5
+        },
+        "responsibilities": {
+          "childcare": 0.8,
+          "provider_pressure": 0.6,
+          "education_planning": 0.3
+        },
+        "genderDifferences": {
+          "母亲": {
+            "bonding": 50,
+            "exhaustion": 30,
+            "hormonal_changes": 25
+          },
+          "父亲": {
+            "provider_pressure": 20,
+            "protectiveness": 30,
+            "adjustment_period": 15
+          }
+        }
+      }
+    }
+  },
+
+  "emotionalRecoveryRates": {
+    "happiness": {
+      "baseDecay": 0.02,
+      "maxValue": 100,
+      "recoveryFactors": {
+        "social_interaction": 0.05,
+        "successful_activities": 0.08,
+        "good_health": 0.03
+      }
+    },
+    "sadness": {
+      "baseDecay": 0.03,
+      "maxValue": 100,
+      "recoveryFactors": {
+        "time_passage": 0.02,
+        "social_support": 0.06,
+        "positive_activities": 0.04,
+        "new_experiences": 0.05
+      }
+    },
+    "anger": {
+      "baseDecay": 0.05,
+      "maxValue": 100,
+      "recoveryFactors": {
+        "expression": 0.08,
+        "resolution": 0.15,
+        "cooling_off": 0.06,
+        "apology": 0.12
+      }
+    },
+    "fear": {
+      "baseDecay": 0.04,
+      "maxValue": 100,
+      "recoveryFactors": {
+        "safety_confirmation": 0.10,
+        "gradual_exposure": 0.05,
+        "support": 0.06,
+        "success_experiences": 0.07
+      }
+    },
+    "anxiety": {
+      "baseDecay": 0.03,
+      "maxValue": 100,
+      "recoveryFactors": {
+        "problem_solving": 0.08,
+        "relaxation": 0.05,
+        "social_support": 0.04,
+        "routine": 0.03
+      }
+    },
+    "loneliness": {
+      "baseDecay": 0.01,
+      "maxValue": 100,
+      "recoveryFactors": {
+        "social_interaction": 0.12,
+        "meaningful_connections": 0.15,
+        "community_involvement": 0.08,
+        "pet_companionship": 0.03
+      }
+    }
+  },
+
+  "emotionalContagion": {
+    "description": "情绪在人群中的传播规则",
+    "transmissionRates": {
+      "happiness": 0.3,
+      "excitement": 0.4,
+      "sadness": 0.2,
+      "anger": 0.35,
+      "fear": 0.5,
+      "anxiety": 0.25
+    },
+    "factors": {
+      "proximity": 0.4,
+      "relationship_strength": 0.3,
+      "empathy_level": 0.2,
+      "emotional_intensity": 0.1
+    },
+    "resistance": {
+      "high_emotional_stability": -0.3,
+      "different_personality": -0.2,
+      "focused_activity": -0.2,
+      "emotional_distance": -0.4
+    }
+  },
+
+  "coping_mechanisms": {
+    "problem_focused": {
+      "name": "问题解决型",
+      "strategies": [
+        {
+          "name": "直接行动",
+          "effectiveness": 0.8,
+          "suitableFor": ["工作压力", "人际冲突", "资源不足"]
+        },
+        {
+          "name": "寻求帮助",
+          "effectiveness": 0.7,
+          "suitableFor": ["技能不足", "信息缺乏", "资源限制"]
+        },
+        {
+          "name": "制定计划",
+          "effectiveness": 0.6,
+          "suitableFor": ["复杂问题", "长期目标", "多重挑战"]
+        }
+      ]
+    },
+    "emotion_focused": {
+      "name": "情绪调节型",
+      "strategies": [
+        {
+          "name": "社交支持",
+          "effectiveness": 0.7,
+          "suitableFor": ["失落", "孤独", "压力"]
+        },
+        {
+          "name": "放松活动",
+          "effectiveness": 0.6,
+          "suitableFor": ["焦虑", "紧张", "疲劳"]
+        },
+        {
+          "name": "认知重构",
+          "effectiveness": 0.5,
+          "suitableFor": ["消极思维", "自我怀疑", "挫折"]
+        }
+      ]
+    },
+    "avoidance": {
+      "name": "回避型",
+      "strategies": [
+        {
+          "name": "转移注意",
+          "effectiveness": 0.4,
+          "suitableFor": ["轻度压力", "暂时困难"]
+        },
+        {
+          "name": "否认现实",
+          "effectiveness": 0.2,
+          "suitableFor": ["创伤事件", "重大损失"],
+          "negativeEffects": ["问题恶化", "适应困难"]
+        }
+      ]
+    }
+  }
+}

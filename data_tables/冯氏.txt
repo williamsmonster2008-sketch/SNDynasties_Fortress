@@ -1,0 +1,604 @@
+new Map([
+    [
+        "mf25cclk4wkvfqxfelb_mf25cclk154pbtsxrfh",
+        {
+            "fromId": "冯氏_member_0",
+            "toId": "冯氏_member_1",
+            "fromPerson": {
+                "id": "冯氏_member_0",
+                "name": "冯淑宁",
+                "surname": "冯",
+                "age": 75,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 75,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 2,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 60
+        }
+    ],
+    [
+        "mf25cclk154pbtsxrfh_mf25cclk4wkvfqxfelb",
+        {
+            "fromId": "冯氏_member_1",
+            "toId": "冯氏_member_0",
+            "fromPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_0",
+                "name": "冯淑宁",
+                "surname": "冯",
+                "age": 75,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 75,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 2,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 60
+        }
+    ],
+    [
+        "mf25cclk154pbtsxrfh_mf25ccll1cxx9mbet2sh",
+        {
+            "fromId": "冯氏_member_1",
+            "toId": "冯氏_member_2",
+            "fromPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_2",
+                "name": "冯文贵",
+                "surname": "冯",
+                "age": 41,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 41,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25ccll1cxx9mbet2sh_mf25cclk154pbtsxrfh",
+        {
+            "fromId": "冯氏_member_2",
+            "toId": "冯氏_member_1",
+            "fromPerson": {
+                "id": "冯氏_member_2",
+                "name": "冯文贵",
+                "surname": "冯",
+                "age": 41,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 41,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclk154pbtsxrfh_mf25ccllfn6xqmj58g",
+        {
+            "fromId": "冯氏_member_1",
+            "toId": "冯氏_member_3",
+            "fromPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_3",
+                "name": "冯婉德",
+                "surname": "冯",
+                "age": 24,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25ccllfn6xqmj58g_mf25cclk154pbtsxrfh",
+        {
+            "fromId": "冯氏_member_3",
+            "toId": "冯氏_member_1",
+            "fromPerson": {
+                "id": "冯氏_member_3",
+                "name": "冯婉德",
+                "surname": "冯",
+                "age": 24,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclk154pbtsxrfh_mf25cclmbu9bsgs8ynu",
+        {
+            "fromId": "冯氏_member_1",
+            "toId": "冯氏_member_4",
+            "fromPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_4",
+                "name": "冯文博",
+                "surname": "冯",
+                "age": 24,
+                "gender": "男",
+                "role": "uncle",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclmbu9bsgs8ynu_mf25cclk154pbtsxrfh",
+        {
+            "fromId": "冯氏_member_4",
+            "toId": "冯氏_member_1",
+            "fromPerson": {
+                "id": "冯氏_member_4",
+                "name": "冯文博",
+                "surname": "冯",
+                "age": 24,
+                "gender": "男",
+                "role": "uncle",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_1",
+                "name": "冯文瑞",
+                "surname": "冯",
+                "age": 60,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 60,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25ccll1cxx9mbet2sh_mf25ccllfn6xqmj58g",
+        {
+            "fromId": "冯氏_member_2",
+            "toId": "冯氏_member_3",
+            "fromPerson": {
+                "id": "冯氏_member_2",
+                "name": "冯文贵",
+                "surname": "冯",
+                "age": 41,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 41,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_3",
+                "name": "冯婉德",
+                "surname": "冯",
+                "age": 24,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 90
+        }
+    ],
+    [
+        "mf25ccllfn6xqmj58g_mf25ccll1cxx9mbet2sh",
+        {
+            "fromId": "冯氏_member_3",
+            "toId": "冯氏_member_2",
+            "fromPerson": {
+                "id": "冯氏_member_3",
+                "name": "冯婉德",
+                "surname": "冯",
+                "age": 24,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_2",
+                "name": "冯文贵",
+                "surname": "冯",
+                "age": 41,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 41,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 90
+        }
+    ],
+    [
+        "mf25ccll1cxx9mbet2sh_mf25cclmbu9bsgs8ynu",
+        {
+            "fromId": "冯氏_member_2",
+            "toId": "冯氏_member_4",
+            "fromPerson": {
+                "id": "冯氏_member_2",
+                "name": "冯文贵",
+                "surname": "冯",
+                "age": 41,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 41,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_4",
+                "name": "冯文博",
+                "surname": "冯",
+                "age": 24,
+                "gender": "男",
+                "role": "uncle",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "sibling",
+            "generationGap": 0,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 85
+        }
+    ],
+    [
+        "mf25cclmbu9bsgs8ynu_mf25ccll1cxx9mbet2sh",
+        {
+            "fromId": "冯氏_member_4",
+            "toId": "冯氏_member_2",
+            "fromPerson": {
+                "id": "冯氏_member_4",
+                "name": "冯文博",
+                "surname": "冯",
+                "age": 24,
+                "gender": "男",
+                "role": "uncle",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_2",
+                "name": "冯文贵",
+                "surname": "冯",
+                "age": 41,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 41,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "sibling",
+            "generationGap": 0,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 85
+        }
+    ],
+    [
+        "mf25ccllfn6xqmj58g_mf25cclmbu9bsgs8ynu",
+        {
+            "fromId": "冯氏_member_3",
+            "toId": "冯氏_member_4",
+            "fromPerson": {
+                "id": "冯氏_member_3",
+                "name": "冯婉德",
+                "surname": "冯",
+                "age": 24,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_4",
+                "name": "冯文博",
+                "surname": "冯",
+                "age": 24,
+                "gender": "男",
+                "role": "uncle",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "sibling",
+            "generationGap": 0,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 85
+        }
+    ],
+    [
+        "mf25cclmbu9bsgs8ynu_mf25ccllfn6xqmj58g",
+        {
+            "fromId": "冯氏_member_4",
+            "toId": "冯氏_member_3",
+            "fromPerson": {
+                "id": "冯氏_member_4",
+                "name": "冯文博",
+                "surname": "冯",
+                "age": 24,
+                "gender": "男",
+                "role": "uncle",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "冯氏_member_3",
+                "name": "冯婉德",
+                "surname": "冯",
+                "age": 24,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "冯氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 24,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "sibling",
+            "generationGap": 0,
+            "establishedAt": 1756793251783,
+            "bloodlineStrength": 85
+        }
+    ]
+])

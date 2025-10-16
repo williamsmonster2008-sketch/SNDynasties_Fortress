@@ -1,0 +1,349 @@
+new Map([
+    [
+        "mf25cclspp8iq7bvfcq_mf25ccltneq1ytndsvc",
+        {
+            "fromId": "慕容氏_member_1",
+            "toId": "慕容氏_member_3",
+            "fromPerson": {
+                "id": "慕容氏_member_1",
+                "name": "慕容志远",
+                "surname": "慕容",
+                "age": 49,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 49,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_3",
+                "name": "慕容清雅",
+                "surname": "慕容",
+                "age": 33,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 33,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25ccltneq1ytndsvc_mf25cclspp8iq7bvfcq",
+        {
+            "fromId": "慕容氏_member_3",
+            "toId": "慕容氏_member_1",
+            "fromPerson": {
+                "id": "慕容氏_member_3",
+                "name": "慕容清雅",
+                "surname": "慕容",
+                "age": 33,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 33,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_1",
+                "name": "慕容志远",
+                "surname": "慕容",
+                "age": 49,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 49,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclt3v1ilkam48v_mf25ccltneq1ytndsvc",
+        {
+            "fromId": "慕容氏_member_2",
+            "toId": "慕容氏_member_3",
+            "fromPerson": {
+                "id": "慕容氏_member_2",
+                "name": "慕容婉仪",
+                "surname": "慕容",
+                "age": 57,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 57,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_3",
+                "name": "慕容清雅",
+                "surname": "慕容",
+                "age": 33,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 33,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25ccltneq1ytndsvc_mf25cclt3v1ilkam48v",
+        {
+            "fromId": "慕容氏_member_3",
+            "toId": "慕容氏_member_2",
+            "fromPerson": {
+                "id": "慕容氏_member_3",
+                "name": "慕容清雅",
+                "surname": "慕容",
+                "age": 33,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 33,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_2",
+                "name": "慕容婉仪",
+                "surname": "慕容",
+                "age": 57,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 57,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25ccltneq1ytndsvc_mf25cclusch8dja9gw",
+        {
+            "fromId": "慕容氏_member_3",
+            "toId": "慕容氏_member_4",
+            "fromPerson": {
+                "id": "慕容氏_member_3",
+                "name": "慕容清雅",
+                "surname": "慕容",
+                "age": 33,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 33,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_4",
+                "name": "慕容文质",
+                "surname": "慕容",
+                "age": 6,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 6,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 4,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclusch8dja9gw_mf25ccltneq1ytndsvc",
+        {
+            "fromId": "慕容氏_member_4",
+            "toId": "慕容氏_member_3",
+            "fromPerson": {
+                "id": "慕容氏_member_4",
+                "name": "慕容文质",
+                "surname": "慕容",
+                "age": 6,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 6,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_3",
+                "name": "慕容清雅",
+                "surname": "慕容",
+                "age": 33,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 33,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 4,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclspp8iq7bvfcq_mf25cclt3v1ilkam48v",
+        {
+            "fromId": "慕容氏_member_1",
+            "toId": "慕容氏_member_2",
+            "fromPerson": {
+                "id": "慕容氏_member_1",
+                "name": "慕容志远",
+                "surname": "慕容",
+                "age": 49,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 49,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_2",
+                "name": "慕容婉仪",
+                "surname": "慕容",
+                "age": 57,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 57,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 90
+        }
+    ],
+    [
+        "mf25cclt3v1ilkam48v_mf25cclspp8iq7bvfcq",
+        {
+            "fromId": "慕容氏_member_2",
+            "toId": "慕容氏_member_1",
+            "fromPerson": {
+                "id": "慕容氏_member_2",
+                "name": "慕容婉仪",
+                "surname": "慕容",
+                "age": 57,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 57,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "慕容氏_member_1",
+                "name": "慕容志远",
+                "surname": "慕容",
+                "age": 49,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "慕容氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 49,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251792,
+            "bloodlineStrength": 90
+        }
+    ]
+])
+
+
+

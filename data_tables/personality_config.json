@@ -1,0 +1,460 @@
+{
+  "physicalTraits": {
+    "health": {
+      "name": "健康状态",
+      "range": [0, 100],
+      "default": 80,
+      "description": "身体健康程度",
+      "effects": {
+        "low": ["行动迟缓", "易疲劳", "抗病力差"],
+        "high": ["精力充沛", "动作敏捷", "抗病力强"]
+      }
+    },
+    "stamina": {
+      "name": "体力值",
+      "range": [0, 100], 
+      "default": 70,
+      "description": "当前体力储备",
+      "decayRate": 1.0,
+      "restoreActions": ["休息睡眠", "进食饮水"]
+    },
+    "hunger": {
+      "name": "饥饿度",
+      "range": [0, 100],
+      "default": 30,
+      "description": "饥饿程度，数值越高越饿",
+      "increaseRate": 0.8,
+      "effects": {
+        "high": ["注意力下降", "行动力减弱", "情绪烦躁"]
+      }
+    },
+    "thirst": {
+      "name": "口渴度", 
+      "range": [0, 100],
+      "default": 20,
+      "description": "口渴程度，数值越高越渴",
+      "increaseRate": 1.2,
+      "effects": {
+        "high": ["思维迟钝", "体力下降", "健康恶化"]
+      }
+    },
+    "sleep": {
+      "name": "困倦度",
+      "range": [0, 100], 
+      "default": 25,
+      "description": "睡眠需求程度",
+      "increaseRate": 1.5,
+      "effects": {
+        "high": ["反应迟缓", "决策能力下降", "情绪不稳"]
+      }
+    },
+    "cleanliness": {
+      "name": "清洁度",
+      "range": [0, 100],
+      "default": 60,
+      "description": "身体清洁程度",
+      "decreaseRate": 0.5,
+      "effects": {
+        "low": ["社交魅力下降", "易患病", "他人好感度降低"]
+      }
+    }
+  },
+
+  "emotionalStates": {
+    "happiness": {
+      "name": "快乐",
+      "range": [-100, 100],
+      "default": 0,
+      "description": "愉悦和满足感",
+      "triggers": {
+        "positive": ["成功完成工作", "获得赞美", "与好友聚会"],
+        "negative": ["遭受失败", "被人轻视", "孤独寂寞"]
+      }
+    },
+    "sadness": {
+      "name": "悲伤",
+      "range": [0, 100],
+      "default": 10,
+      "description": "沮丧和失落感",
+      "triggers": {
+        "increase": ["亲友离去", "重要失败", "被人背叛"],
+        "decrease": ["时间流逝", "获得安慰", "新的希望"]
+      }
+    },
+    "anger": {
+      "name": "愤怒", 
+      "range": [0, 100],
+      "default": 5,
+      "description": "生气和愤怒情绪",
+      "triggers": {
+        "increase": ["被人欺辱", "不公对待", "目标受阻"],
+        "decrease": ["发泄情绪", "获得道歉", "冷静思考"]
+      }
+    },
+    "fear": {
+      "name": "恐惧",
+      "range": [0, 100], 
+      "default": 15,
+      "description": "害怕和担忧情绪",
+      "triggers": {
+        "increase": ["面临危险", "未知威胁", "重大变故"],
+        "decrease": ["危险解除", "获得保护", "增强信心"]
+      }
+    },
+    "anxiety": {
+      "name": "焦虑",
+      "range": [0, 100],
+      "default": 20,
+      "description": "紧张和不安情绪",
+      "triggers": {
+        "increase": ["压力增大", "时间紧迫", "责任重大"],
+        "decrease": ["压力缓解", "获得支持", "问题解决"]
+      }
+    },
+    "loneliness": {
+      "name": "孤独",
+      "range": [0, 100],
+      "default": 25,
+      "description": "孤独和寂寞感",
+      "triggers": {
+        "increase": ["缺乏社交", "被人孤立", "失去伙伴"],
+        "decrease": ["社交互动", "建立友谊", "群体活动"]
+      }
+    },
+    "boredom": {
+      "name": "无聊",
+      "range": [0, 100],
+      "default": 30,
+      "description": "厌烦和乏味感",
+      "triggers": {
+        "increase": ["重复活动", "缺乏变化", "无所事事"],
+        "decrease": ["新鲜体验", "有趣活动", "学习新技能"]
+      }
+    }
+  },
+
+  "abilityTraits": {
+    "physical": {
+      "strength_burst": {
+        "name": "爆发力",
+        "range": [0, 100], 
+        "default": 50,
+        "description": "短时间内的力量输出能力",
+        "relatedSkills": ["武艺精进", "拓地伐林", "采石挖矿"]
+      },
+      "strength_endurance": {
+        "name": "持久力",
+        "range": [0, 100],
+        "default": 50, 
+        "description": "长时间保持体力的能力",
+        "relatedSkills": ["垦荒耕钟", "建造修缮", "长途跋涉"]
+      },
+      "dexterity": {
+        "name": "敏捷度",
+        "range": [0, 100],
+        "default": 50,
+        "description": "动作的灵活性和精确度", 
+        "relatedSkills": ["手工雕琢", "纺织缝纫", "射箭"]
+      }
+    },
+    "mental": {
+      "memory": {
+        "name": "记忆力",
+        "range": [0, 100],
+        "default": 50,
+        "description": "记住和回忆信息的能力",
+        "relatedSkills": ["经义研读", "诗词歌赋", "医术药理"]
+      },
+      "creativity": {
+        "name": "创造力",
+        "range": [0, 100], 
+        "default": 50,
+        "description": "产生新想法和解决方案的能力",
+        "relatedSkills": ["艺术创作", "工艺革新", "策略谋划"]
+      },
+      "logic": {
+        "name": "逻辑思维",
+        "range": [0, 100],
+        "default": 50,
+        "description": "理性分析和推理的能力",
+        "relatedSkills": ["赌博对弈", "商业经营", "法理辩论"]
+      },
+      "focus": {
+        "name": "专注力",
+        "range": [0, 100],
+        "default": 50,
+        "description": "集中注意力的能力",
+        "relatedSkills": ["经义研读", "手工雕琢", "医术诊治"]
+      }
+    },
+    "social": {
+      "charisma": {
+        "name": "魅力指数",
+        "range": [0, 100],
+        "default": 50,
+        "description": "吸引和影响他人的能力",
+        "relatedSkills": ["觅求好友", "摆摊交易", "起舞弄乐"]
+      },
+      "empathy": {
+        "name": "共情能力",
+        "range": [0, 100], 
+        "default": 50,
+        "description": "理解和感受他人情绪的能力",
+        "relatedSkills": ["照顾婴孺", "赡养老人", "化解纠纷"]
+      },
+      "leadership": {
+        "name": "领导力",
+        "range": [0, 100],
+        "default": 50,
+        "description": "组织和引导他人的能力",
+        "relatedSkills": ["组织生产", "军事指挥", "集体决策"]
+      }
+    }
+  },
+
+  "personalityGeneration": {
+    "socialClassModifiers": {
+      "门阀士族": {
+        "abilityBonuses": {
+          "memory": 15,
+          "creativity": 10, 
+          "charisma": 12,
+          "leadership": 15
+        },
+        "emotionalBaseline": {
+          "happiness": 10,
+          "anxiety": -5,
+          "loneliness": -10
+        },
+        "preferredVirtues": ["礼", "智", "信"]
+      },
+      "胡族": {
+        "abilityBonuses": {
+          "strength_burst": 15,
+          "strength_endurance": 12,
+          "dexterity": 10,
+          "leadership": 8
+        },
+        "emotionalBaseline": {
+          "anger": 10,
+          "fear": -8,
+          "boredom": 5
+        },
+        "preferredVirtues": ["勇", "忠", "直"]
+      },
+      "平民": {
+        "abilityBonuses": {
+          "strength_endurance": 10,
+          "dexterity": 8,
+          "empathy": 12,
+          "focus": 8
+        },
+        "emotionalBaseline": {
+          "anxiety": 10,
+          "sadness": 5,
+          "loneliness": 5
+        },
+        "preferredVirtues": ["仁", "义", "勤"]
+      },
+      "工匠": {
+        "abilityBonuses": {
+          "dexterity": 18,
+          "creativity": 15,
+          "focus": 12,
+          "logic": 10
+        },
+        "emotionalBaseline": {
+          "happiness": 5,
+          "boredom": -10,
+          "anxiety": 5
+        },
+        "preferredVirtues": ["巧", "专", "精"]
+      },
+      "商贾": {
+        "abilityBonuses": {
+          "charisma": 15,
+          "logic": 12,
+          "memory": 10,
+          "leadership": 8
+        },
+        "emotionalBaseline": {
+          "happiness": 8,
+          "anxiety": 8,
+          "loneliness": -5
+        },
+        "preferredVirtues": ["智", "信", "利"]
+      }
+    },
+
+    "ageModifiers": {
+      "young": {
+        "range": [15, 25],
+        "abilityModifiers": {
+          "strength_burst": 10,
+          "dexterity": 8,
+          "creativity": 5,
+          "memory": 5
+        },
+        "emotionalModifiers": {
+          "happiness": 10,
+          "boredom": 10,
+          "anxiety": 5
+        }
+      },
+      "adult": {
+        "range": [26, 45],
+        "abilityModifiers": {
+          "strength_endurance": 5,
+          "logic": 8,
+          "leadership": 10,
+          "empathy": 5
+        },
+        "emotionalModifiers": {
+          "happiness": 0,
+          "anxiety": 0,
+          "loneliness": 0
+        }
+      },
+      "middle_aged": {
+        "range": [46, 60],
+        "abilityModifiers": {
+          "memory": -5,
+          "dexterity": -8,
+          "strength_burst": -10,
+          "logic": 10,
+          "empathy": 10
+        },
+        "emotionalModifiers": {
+          "sadness": 5,
+          "anxiety": 5,
+          "loneliness": 5
+        }
+      },
+      "elderly": {
+        "range": [61, 80],
+        "abilityModifiers": {
+          "strength_burst": -20,
+          "strength_endurance": -15,
+          "dexterity": -15,
+          "memory": -10,
+          "empathy": 15,
+          "logic": 5
+        },
+        "emotionalModifiers": {
+          "sadness": 10,
+          "fear": 10,
+          "loneliness": 10,
+          "boredom": -5
+        }
+      }
+    },
+
+    "genderModifiers": {
+      "男": {
+        "abilityModifiers": {
+          "strength_burst": 8,
+          "strength_endurance": 5,
+          "leadership": 5,
+          "empathy": -3
+        },
+        "emotionalModifiers": {
+          "anger": 5,
+          "fear": -3,
+          "sadness": -2
+        }
+      },
+      "女": {
+        "abilityModifiers": {
+          "dexterity": 5,
+          "empathy": 8,
+          "charisma": 3,
+          "creativity": 3
+        },
+        "emotionalModifiers": {
+          "happiness": 3,
+          "sadness": 3,
+          "anxiety": 5,
+          "loneliness": 3
+        }
+      }
+    }
+  },
+
+  "behaviorInfluences": {
+    "physicalFactors": {
+      "health": {
+        "low": {
+          "actionPreferences": {
+            "休息睡眠": 4.0,
+            "盥洗沐浴": 2.0,
+            "进食饮水": 3.0
+          },
+          "emotionalEffects": {
+            "sadness": 2,
+            "anxiety": 3,
+            "boredom": 1
+          }
+        },
+        "high": {
+          "actionPreferences": {
+            "垦荒耕钟": 1.5,
+            "拓地伐林": 1.3,
+            "踏青出游": 1.2
+          },
+          "emotionalEffects": {
+            "happiness": 2,
+            "sadness": -1,
+            "anxiety": -1
+          }
+        }
+      },
+      "hunger": {
+        "high": {
+          "actionPreferences": {
+            "进食饮水": 5.0,
+            "摆摊交易": -1.0,
+            "经义研读": -2.0
+          },
+          "emotionalEffects": {
+            "anger": 3,
+            "anxiety": 2,
+            "happiness": -2
+          }
+        }
+      }
+    },
+
+    "emotionalFactors": {
+      "loneliness": {
+        "high": {
+          "actionPreferences": {
+            "觅求好友": 3.0,
+            "饮酒聚宴": 2.5,
+            "起舞弄乐": 2.0,
+            "追求伴侣": 2.5
+          }
+        }
+      },
+      "boredom": {
+        "high": {
+          "actionPreferences": {
+            "踏青出游": 2.0,
+            "赌博对弈": 1.8,
+            "艺术创作": 1.5,
+            "学习新技": 1.3
+          }
+        }
+      },
+      "anger": {
+        "high": {
+          "actionPreferences": {
+            "武艺精进": 2.0,
+            "体能锻炼": 1.5,
+            "独处思考": 1.3
+          },
+          "socialAvoidance": 0.5
+        }
+      }
+    }
+  }
+}

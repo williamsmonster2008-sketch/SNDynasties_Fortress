@@ -1,0 +1,518 @@
+new Map([
+    [
+        "mf25cclnjfwekn82j79_mf25ccloawb7m2b2ho",
+        {
+            "fromId": "欧阳氏_member_0",
+            "toId": "欧阳氏_member_1",
+            "fromPerson": {
+                "id": "欧阳氏_member_0",
+                "name": "欧阳文昭",
+                "surname": "欧阳",
+                "age": 89,
+                "gender": "男",
+                "role": "great_great_grandfather",
+                "generation": 1,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 1,
+                    "seniority": 89,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_1",
+                "name": "欧阳淑慧",
+                "surname": "欧阳",
+                "age": 64,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 64,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 1,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 70
+        }
+    ],
+    [
+        "mf25ccloawb7m2b2ho_mf25cclnjfwekn82j79",
+        {
+            "fromId": "欧阳氏_member_1",
+            "toId": "欧阳氏_member_0",
+            "fromPerson": {
+                "id": "欧阳氏_member_1",
+                "name": "欧阳淑慧",
+                "surname": "欧阳",
+                "age": 64,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 64,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_0",
+                "name": "欧阳文昭",
+                "surname": "欧阳",
+                "age": 89,
+                "gender": "男",
+                "role": "great_great_grandfather",
+                "generation": 1,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 1,
+                    "seniority": 89,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 1,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 70
+        }
+    ],
+    [
+        "mf25ccloawb7m2b2ho_mf25cclpbu24bmysii",
+        {
+            "fromId": "欧阳氏_member_1",
+            "toId": "欧阳氏_member_2",
+            "fromPerson": {
+                "id": "欧阳氏_member_1",
+                "name": "欧阳淑慧",
+                "surname": "欧阳",
+                "age": 64,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 64,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_2",
+                "name": "欧阳文质",
+                "surname": "欧阳",
+                "age": 45,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 45,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 2,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 60
+        }
+    ],
+    [
+        "mf25cclpbu24bmysii_mf25ccloawb7m2b2ho",
+        {
+            "fromId": "欧阳氏_member_2",
+            "toId": "欧阳氏_member_1",
+            "fromPerson": {
+                "id": "欧阳氏_member_2",
+                "name": "欧阳文质",
+                "surname": "欧阳",
+                "age": 45,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 45,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_1",
+                "name": "欧阳淑慧",
+                "surname": "欧阳",
+                "age": 64,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 64,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 2,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 60
+        }
+    ],
+    [
+        "mf25ccloawb7m2b2ho_mf25cclqp8qdd5oj77m",
+        {
+            "fromId": "欧阳氏_member_1",
+            "toId": "欧阳氏_member_3",
+            "fromPerson": {
+                "id": "欧阳氏_member_1",
+                "name": "欧阳淑慧",
+                "surname": "欧阳",
+                "age": 64,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 64,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_3",
+                "name": "欧阳淑宁",
+                "surname": "欧阳",
+                "age": 47,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 47,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 2,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 60
+        }
+    ],
+    [
+        "mf25cclqp8qdd5oj77m_mf25ccloawb7m2b2ho",
+        {
+            "fromId": "欧阳氏_member_3",
+            "toId": "欧阳氏_member_1",
+            "fromPerson": {
+                "id": "欧阳氏_member_3",
+                "name": "欧阳淑宁",
+                "surname": "欧阳",
+                "age": 47,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 47,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_1",
+                "name": "欧阳淑慧",
+                "surname": "欧阳",
+                "age": 64,
+                "gender": "女",
+                "role": "great_grandmother",
+                "generation": 2,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 64,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 2,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 60
+        }
+    ],
+    [
+        "mf25cclpbu24bmysii_mf25cclqmvznium1xgo",
+        {
+            "fromId": "欧阳氏_member_2",
+            "toId": "欧阳氏_member_4",
+            "fromPerson": {
+                "id": "欧阳氏_member_2",
+                "name": "欧阳文质",
+                "surname": "欧阳",
+                "age": 45,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 45,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_4",
+                "name": "欧阳文轩",
+                "surname": "欧阳",
+                "age": 34,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 34,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclqmvznium1xgo_mf25cclpbu24bmysii",
+        {
+            "fromId": "欧阳氏_member_4",
+            "toId": "欧阳氏_member_2",
+            "fromPerson": {
+                "id": "欧阳氏_member_4",
+                "name": "欧阳文轩",
+                "surname": "欧阳",
+                "age": 34,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 34,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_2",
+                "name": "欧阳文质",
+                "surname": "欧阳",
+                "age": 45,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 45,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclqp8qdd5oj77m_mf25cclqmvznium1xgo",
+        {
+            "fromId": "欧阳氏_member_3",
+            "toId": "欧阳氏_member_4",
+            "fromPerson": {
+                "id": "欧阳氏_member_3",
+                "name": "欧阳淑宁",
+                "surname": "欧阳",
+                "age": 47,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 47,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_4",
+                "name": "欧阳文轩",
+                "surname": "欧阳",
+                "age": 34,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 34,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclqmvznium1xgo_mf25cclqp8qdd5oj77m",
+        {
+            "fromId": "欧阳氏_member_4",
+            "toId": "欧阳氏_member_3",
+            "fromPerson": {
+                "id": "欧阳氏_member_4",
+                "name": "欧阳文轩",
+                "surname": "欧阳",
+                "age": 34,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 34,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_3",
+                "name": "欧阳淑宁",
+                "surname": "欧阳",
+                "age": 47,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 47,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclpbu24bmysii_mf25cclqp8qdd5oj77m",
+        {
+            "fromId": "欧阳氏_member_2",
+            "toId": "欧阳氏_member_3",
+            "fromPerson": {
+                "id": "欧阳氏_member_2",
+                "name": "欧阳文质",
+                "surname": "欧阳",
+                "age": 45,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 45,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_3",
+                "name": "欧阳淑宁",
+                "surname": "欧阳",
+                "age": 47,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 47,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 90
+        }
+    ],
+    [
+        "mf25cclqp8qdd5oj77m_mf25cclpbu24bmysii",
+        {
+            "fromId": "欧阳氏_member_3",
+            "toId": "欧阳氏_member_2",
+            "fromPerson": {
+                "id": "欧阳氏_member_3",
+                "name": "欧阳淑宁",
+                "surname": "欧阳",
+                "age": 47,
+                "gender": "女",
+                "role": "grandmother",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 47,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "欧阳氏_member_2",
+                "name": "欧阳文质",
+                "surname": "欧阳",
+                "age": 45,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "欧阳氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 45,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251787,
+            "bloodlineStrength": 90
+        }
+    ]
+])

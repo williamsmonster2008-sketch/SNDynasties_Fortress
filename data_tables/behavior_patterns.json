@@ -1,0 +1,721 @@
+{
+  "behaviorCategories": {
+    "basicNeeds": {
+      "name": "基本需求",
+      "description": "维持生存的基本行为",
+      "priority": "critical",
+      "behaviors": {
+        "进食饮水": {
+          "name": "进食饮水",
+          "description": "补充食物和水分",
+          "duration": [30, 60],
+          "requirements": {
+            "location": ["食堂", "厨房", "水井", "河边"],
+            "resources": ["食物", "水"]
+          },
+          "effects": {
+            "physical": {
+              "hunger": -50,
+              "thirst": -60,
+              "health": 2,
+              "stamina": 10
+            },
+            "emotional": {
+              "happiness": 5,
+              "anxiety": -2
+            }
+          },
+          "urgencyFactors": {
+            "hunger": 0.02,
+            "thirst": 0.03,
+            "health": 0.01
+          }
+        },
+        "休息睡眠": {
+          "name": "休息睡眠",
+          "description": "恢复体力和精神",
+          "duration": [240, 480],
+          "requirements": {
+            "location": ["卧房", "客房", "草屋"],
+            "timeOfDay": ["夜晚", "午时"]
+          },
+          "effects": {
+            "physical": {
+              "sleep": -80,
+              "stamina": 100,
+              "health": 5
+            },
+            "emotional": {
+              "anxiety": -5,
+              "anger": -3,
+              "sadness": -2
+            }
+          },
+          "urgencyFactors": {
+            "sleep": 0.025,
+            "stamina": 0.015
+          }
+        },
+        "盥洗沐浴": {
+          "name": "盥洗沐浴",
+          "description": "清洁身体，保持卫生",
+          "duration": [20, 45],
+          "requirements": {
+            "location": ["澡堂", "河边", "井边"],
+            "resources": ["水", "毛巾"]
+          },
+          "effects": {
+            "physical": {
+              "cleanliness": 80,
+              "health": 1
+            },
+            "emotional": {
+              "happiness": 3,
+              "confidence": 2
+            }
+          },
+          "urgencyFactors": {
+            "cleanliness": 0.01
+          }
+        }
+      }
+    },
+
+    "production": {
+      "name": "生产劳动",
+      "description": "创造财富和资源的工作",
+      "priority": "high",
+      "behaviors": {
+        "垦荒耕钟": {
+          "name": "垦荒耕钟",
+          "description": "开垦土地，种植作物",
+          "duration": [120, 300],
+          "requirements": {
+            "location": ["农田", "荒地"],
+            "tools": ["锄头", "种子"],
+            "weather": ["晴朗", "多云"],
+            "season": ["春季", "夏季"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -25,
+              "hunger": 5,
+              "thirst": 8,
+              "strength_endurance": 1
+            },
+            "emotional": {
+              "happiness": 3,
+              "boredom": -5
+            },
+            "skills": {
+              "farming": 3
+            }
+          },
+          "socialClassPreference": {
+            "平民": 1.5,
+            "工匠": 0.8,
+            "门阀士族": 0.3,
+            "胡族": 0.7
+          }
+        },
+        "拓地伐林": {
+          "name": "拓地伐林",
+          "description": "砍伐树木，获取木材",
+          "duration": [90, 240],
+          "requirements": {
+            "location": ["森林", "山地"],
+            "tools": ["斧头"],
+            "weather": ["晴朗", "多云"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -30,
+              "hunger": 8,
+              "thirst": 10,
+              "strength_burst": 1,
+              "dexterity": 1
+            },
+            "emotional": {
+              "boredom": -3,
+              "anxiety": -2
+            },
+            "skills": {
+              "logging": 4
+            }
+          },
+          "dangerLevel": 0.1,
+          "socialClassPreference": {
+            "平民": 1.3,
+            "胡族": 1.4,
+            "工匠": 1.1,
+            "门阀士族": 0.2
+          }
+        },
+        "手工雕琢": {
+          "name": "手工雕琢",
+          "description": "制作各种手工艺品",
+          "duration": [60, 180],
+          "requirements": {
+            "location": ["工坊", "家中"],
+            "tools": ["雕刻刀", "木材", "石材"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -15,
+              "dexterity": 2,
+              "focus": 1
+            },
+            "emotional": {
+              "happiness": 4,
+              "boredom": -8
+            },
+            "skills": {
+              "handicraft": 5
+            }
+          },
+          "socialClassPreference": {
+            "工匠": 2.0,
+            "平民": 1.2,
+            "门阀士族": 0.8,
+            "商贾": 1.3
+          }
+        }
+      }
+    },
+
+    "social": {
+      "name": "社交活动",
+      "description": "与他人互动的社会行为",
+      "priority": "medium",
+      "behaviors": {
+        "觅求好友": {
+          "name": "觅求好友",
+          "description": "主动寻找和结交朋友",
+          "duration": [60, 120],
+          "requirements": {
+            "location": ["集市", "茶馆", "广场"],
+            "socialContext": "有其他NPC在场"
+          },
+          "effects": {
+            "emotional": {
+              "loneliness": -15,
+              "happiness": 8,
+              "anxiety": -3
+            },
+            "social": {
+              "charisma": 1,
+              "empathy": 1
+            },
+            "relationships": {
+              "familiarity": 5,
+              "compatibility": 2
+            }
+          },
+          "successFactors": {
+            "charisma": 0.3,
+            "empathy": 0.2,
+            "appearance": 0.1,
+            "social_class_match": 0.2
+          }
+        },
+        "饮酒聚宴": {
+          "name": "饮酒聚宴",
+          "description": "与他人共饮聚餐",
+          "duration": [90, 180],
+          "requirements": {
+            "location": ["酒楼", "家中", "广场"],
+            "resources": ["酒", "食物"],
+            "socialContext": "至少2人在场"
+          },
+          "effects": {
+            "physical": {
+              "hunger": -30,
+              "thirst": -20,
+              "health": -1
+            },
+            "emotional": {
+              "happiness": 12,
+              "loneliness": -20,
+              "boredom": -10,
+              "sadness": -5
+            },
+            "relationships": {
+              "familiarity": 8,
+              "compatibility": 5
+            }
+          },
+          "virtueRequirements": {
+            "temperance": -20
+          }
+        },
+        "追求伴侣": {
+          "name": "追求伴侣",
+          "description": "向心仪对象表达爱意",
+          "duration": [30, 90],
+          "requirements": {
+            "targetGender": "异性",
+            "relationshipLevel": "acquaintance",
+            "age": [16, 60]
+          },
+          "effects": {
+            "emotional": {
+              "happiness": 10,
+              "anxiety": 5,
+              "loneliness": -5
+            }
+          },
+          "successFactors": {
+            "charisma": 0.4,
+            "appearance": 0.2,
+            "compatibility": 0.3,
+            "social_status": 0.1
+          },
+          "consequences": {
+            "success": {
+              "relationships": {
+                "romance": 15,
+                "compatibility": 8
+              },
+              "emotional": {
+                "happiness": 20,
+                "confidence": 5
+              }
+            },
+            "failure": {
+              "relationships": {
+                "compatibility": -5
+              },
+              "emotional": {
+                "sadness": 10,
+                "anxiety": 5,
+                "confidence": -3
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "cultural": {
+      "name": "文化活动",
+      "description": "学习和艺术相关的活动",
+      "priority": "low",
+      "behaviors": {
+        "经义研读": {
+          "name": "经义研读",
+          "description": "学习经典文献",
+          "duration": [90, 240],
+          "requirements": {
+            "location": ["书房", "学堂", "寺庙"],
+            "resources": ["书籍", "纸笔"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -10,
+              "focus": 2
+            },
+            "emotional": {
+              "boredom": -5,
+              "anxiety": -2
+            },
+            "mental": {
+              "memory": 2,
+              "logic": 1
+            },
+            "skills": {
+              "study": 6
+            }
+          },
+          "socialClassPreference": {
+            "门阀士族": 2.5,
+            "商贾": 1.2,
+            "平民": 0.6,
+            "胡族": 0.3,
+            "工匠": 0.4
+          }
+        },
+        "艺术创作": {
+          "name": "艺术创作",
+          "description": "进行绘画、雕塑等艺术创作",
+          "duration": [120, 300],
+          "requirements": {
+            "location": ["工坊", "书房", "花园"],
+            "tools": ["画笔", "颜料", "纸张"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -20,
+              "dexterity": 1
+            },
+            "emotional": {
+              "happiness": 8,
+              "boredom": -15,
+              "stress": -5
+            },
+            "mental": {
+              "creativity": 3
+            },
+            "skills": {
+              "calligraphy": 5
+            }
+          },
+          "abilityRequirements": {
+            "creativity": 30,
+            "dexterity": 25
+          }
+        },
+        "起舞弄乐": {
+          "name": "起舞弄乐",
+          "description": "跳舞和演奏音乐",
+          "duration": [45, 120],
+          "requirements": {
+            "location": ["广场", "庭院", "大厅"],
+            "tools": ["乐器"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -15,
+              "dexterity": 1,
+              "coordination": 1
+            },
+            "emotional": {
+              "happiness": 10,
+              "boredom": -12,
+              "loneliness": -8
+            },
+            "social": {
+              "charisma": 2
+            }
+          },
+          "socialContext": "观众越多效果越好"
+        }
+      }
+    },
+
+    "leisure": {
+      "name": "休闲娱乐",
+      "description": "消遣和放松的活动",
+      "priority": "low",
+      "behaviors": {
+        "踏青出游": {
+          "name": "踏青出游",
+          "description": "到户外游览散心",
+          "duration": [120, 300],
+          "requirements": {
+            "location": ["山林", "河边", "花园"],
+            "weather": ["晴朗", "多云"],
+            "season": ["春季", "秋季"]
+          },
+          "effects": {
+            "physical": {
+              "stamina": -10,
+              "health": 3
+            },
+            "emotional": {
+              "happiness": 8,
+              "boredom": -10,
+              "anxiety": -8,
+              "sadness": -5
+            },
+            "mental": {
+              "creativity": 1
+            }
+          },
+          "seasonalBonus": {
+            "spring": 1.5,
+            "autumn": 1.2
+          }
+        },
+        "赌博对弈": {
+          "name": "赌博对弈",
+          "description": "下棋、掷骰子等博弈游戏",
+          "duration": [60, 180],
+          "requirements": {
+            "location": ["茶馆", "赌场", "家中"],
+            "socialContext": "至少1个对手",
+            "resources": ["棋具", "骰子", "赌资"]
+          },
+          "effects": {
+            "emotional": {
+              "boredom": -15,
+              "excitement": 10
+            },
+            "mental": {
+              "logic": 2,
+              "focus": 1
+            },
+            "skills": {
+              "gambling": 3
+            }
+          },
+          "consequences": {
+            "win": {
+              "emotional": {
+                "happiness": 15,
+                "confidence": 5
+              },
+              "resources": {
+                "money": 10
+              }
+            },
+            "lose": {
+              "emotional": {
+                "sadness": 8,
+                "anger": 5,
+                "confidence": -3
+              },
+              "resources": {
+                "money": -15
+              }
+            }
+          },
+          "addictionRisk": 0.05
+        }
+      }
+    }
+  },
+
+  "contextualModifiers": {
+    "weather": {
+      "晴朗": {
+        "moodBonus": 5,
+        "outdoorActivityBonus": 1.2,
+        "workEfficiencyBonus": 1.1
+      },
+      "多云": {
+        "moodBonus": 0,
+        "outdoorActivityBonus": 1.0,
+        "workEfficiencyBonus": 1.0
+      },
+      "下雨": {
+        "moodBonus": -5,
+        "outdoorActivityBonus": 0.3,
+        "indoorActivityBonus": 1.3,
+        "workEfficiencyBonus": 0.8
+      },
+      "大雾": {
+        "moodBonus": -3,
+        "outdoorActivityBonus": 0.5,
+        "anxietyIncrease": 3,
+        "workEfficiencyBonus": 0.7
+      },
+      "风雪": {
+        "moodBonus": -8,
+        "outdoorActivityBonus": 0.2,
+        "indoorActivityBonus": 1.5,
+        "staminaDrain": 1.5,
+        "workEfficiencyBonus": 0.5
+      }
+    },
+
+    "timeOfDay": {
+      "黎明": {
+        "energy": 0.8,
+        "preferredActivities": ["盥洗沐浴", "晨练健身", "准备工作"]
+      },
+      "上午": {
+        "energy": 1.2,
+        "workEfficiency": 1.3,
+        "preferredActivities": ["垦荒耕钟", "手工雕琢", "经义研读"]
+      },
+      "午时": {
+        "energy": 1.0,
+        "socialActivity": 1.2,
+        "preferredActivities": ["进食饮水", "觅求好友", "休息片刻"]
+      },
+      "下午": {
+        "energy": 0.9,
+        "workEfficiency": 1.1,
+        "preferredActivities": ["继续工作", "商业交易", "艺术创作"]
+      },
+      "傍晚": {
+        "energy": 0.7,
+        "socialActivity": 1.4,
+        "preferredActivities": ["饮酒聚宴", "家庭聚会", "起舞弄乐"]
+      },
+      "夜晚": {
+        "energy": 0.5,
+        "restActivity": 2.0,
+        "preferredActivities": ["休息睡眠", "夜读思考", "私密谈话"]
+      }
+    },
+
+    "season": {
+      "春季": {
+        "moodBonus": 8,
+        "workMotivation": 1.3,
+        "socialActivity": 1.2,
+        "preferredActivities": ["垦荒耕钟", "踏青出游", "追求伴侣"]
+      },
+      "夏季": {
+        "moodBonus": 5,
+        "workMotivation": 1.1,
+        "staminaDrain": 1.2,
+        "preferredActivities": ["农田劳作", "河边嬉戏", "乘凉聊天"]
+      },
+      "秋季": {
+        "moodBonus": 3,
+        "workMotivation": 1.2,
+        "socialActivity": 1.1,
+        "preferredActivities": ["收获庆典", "艺术创作", "准备过冬"]
+      },
+      "冬季": {
+        "moodBonus": -5,
+        "indoorActivity": 1.5,
+        "socialGathering": 1.3,
+        "preferredActivities": ["经义研读", "手工雕琢", "饮酒取暖"]
+      }
+    },
+
+    "location": {
+      "农田": {
+        "workTypes": ["垦荒耕钟", "播种收割"],
+        "moodEffect": 2,
+        "staminaDrain": 1.2
+      },
+      "工坊": {
+        "workTypes": ["手工雕琢", "熔炼铸锻"],
+        "creativityBonus": 1.3,
+        "focusBonus": 1.2
+      },
+      "集市": {
+        "workTypes": ["摆摊交易", "商铺经营"],
+        "socialActivity": 1.5,
+        "charismaBonus": 1.2
+      },
+      "书房": {
+        "workTypes": ["经义研读", "艺术创作"],
+        "focusBonus": 1.4,
+        "memoryBonus": 1.2,
+        "quietBonus": 1.3
+      },
+      "酒楼": {
+        "socialActivities": ["饮酒聚宴", "觅求好友"],
+        "happinessBonus": 1.2,
+        "lonelinessReduction": 1.5
+      },
+      "寺庙": {
+        "spiritualActivities": ["冥想祈祷", "经义研读"],
+        "anxietyReduction": 1.3,
+        "peaceBonus": 1.4
+      }
+    }
+  },
+
+  "behaviorChains": {
+    "dailyRoutine": {
+      "name": "日常作息链",
+      "description": "正常的一天作息安排",
+      "sequence": [
+        {
+          "timeRange": ["黎明", "上午"],
+          "behaviors": ["盥洗沐浴", "进食饮水"],
+          "weight": 0.8
+        },
+        {
+          "timeRange": ["上午", "午时"],
+          "behaviors": ["垦荒耕钟", "手工雕琢", "经义研读"],
+          "weight": 0.9
+        },
+        {
+          "timeRange": ["午时"],
+          "behaviors": ["进食饮水", "休息片刻"],
+          "weight": 0.7
+        },
+        {
+          "timeRange": ["下午"],
+          "behaviors": ["继续工作", "觅求好友"],
+          "weight": 0.8
+        },
+        {
+          "timeRange": ["傍晚"],
+          "behaviors": ["进食饮水", "饮酒聚宴", "家庭时光"],
+          "weight": 0.6
+        },
+        {
+          "timeRange": ["夜晚"],
+          "behaviors": ["休息睡眠"],
+          "weight": 0.9
+        }
+      ]
+    },
+
+    "workDay": {
+      "name": "劳动日链",
+      "description": "专注工作的一天",
+      "triggers": ["高工作动机", "经济压力", "项目截止期"],
+      "sequence": [
+        {
+          "behaviors": ["早起准备"],
+          "weight": 0.9
+        },
+        {
+          "behaviors": ["集中工作4-6小时"],
+          "weight": 1.0
+        },
+        {
+          "behaviors": ["短暂休息"],
+          "weight": 0.8
+        },
+        {
+          "behaviors": ["继续工作2-3小时"],
+          "weight": 0.9
+        },
+        {
+          "behaviors": ["工作总结", "早休息"],
+          "weight": 0.7
+        }
+      ]
+    },
+
+    "socialDay": {
+      "name": "社交日链",
+      "description": "重点社交的一天",
+      "triggers": ["高孤独感", "节庆活动", "社交邀请"],
+      "sequence": [
+        {
+          "behaviors": ["精心打扮"],
+          "weight": 0.8
+        },
+        {
+          "behaviors": ["觅求好友", "拜访朋友"],
+          "weight": 1.0
+        },
+        {
+          "behaviors": ["集体活动", "饮酒聚宴"],
+          "weight": 0.9
+        },
+        {
+          "behaviors": ["深入交谈", "建立关系"],
+          "weight": 0.8
+        }
+      ]
+    }
+  },
+
+  "decisionWeights": {
+    "urgencyFactors": {
+      "physical_needs": 3.0,
+      "emotional_distress": 2.0,
+      "social_obligations": 1.5,
+      "work_deadlines": 1.8,
+      "seasonal_opportunities": 1.2
+    },
+
+    "personalityInfluence": {
+      "virtue_traits": 1.5,
+      "ability_match": 1.3,
+      "social_class": 1.2,
+      "age_appropriateness": 1.1,
+      "gender_norms": 0.8
+    },
+
+    "contextualFactors": {
+      "weather_suitability": 1.4,
+      "time_appropriateness": 1.6,
+      "location_availability": 1.3,
+      "social_context": 1.2,
+      "resource_availability": 1.7
+    }
+  }
+}

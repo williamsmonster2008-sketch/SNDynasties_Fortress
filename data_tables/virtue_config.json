@@ -1,0 +1,1385 @@
+{
+  "virtueCategories": {
+    "仁": {
+      "name": "仁德",
+      "description": "仁者爱人，关乎情感与人际",
+      "color": "#FF6B6B",
+      "importance": 9,
+      "traits": [
+        {
+          "id": "loving_tendency",
+          "name": "相爱倾向",
+          "negative": "不易坠入爱河",
+          "positive": "容易产生爱意",
+          "weight": 1.0,
+          "stability": 0.6,
+          "initialRange": [-20, 20],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "追求伴侣": 0.3,
+            "照顾他人": 0.2,
+            "浪漫行为": 0.4
+          }
+        },
+        {
+          "id": "hate_suppression",
+          "name": "抑憎倾向",
+          "negative": "易生仇恨",
+          "positive": "不易憎恨",
+          "weight": 1.2,
+          "stability": 0.7,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "化解冲突": 0.4,
+            "宽恕他人": 0.3,
+            "避免争吵": 0.2
+          }
+        },
+        {
+          "id": "jealousy_suppression",
+          "name": "抑妒倾向",
+          "negative": "容易嫉妒",
+          "positive": "不易嫉妒",
+          "weight": 1.1,
+          "stability": 0.5,
+          "initialRange": [-25, 25],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "支持他人成功": 0.3,
+            "合作共赢": 0.2
+          }
+        },
+        {
+          "id": "pleasing_tendency",
+          "name": "讨好倾向",
+          "negative": "不在意他人感受",
+          "positive": "努力取悦他人",
+          "weight": 0.9,
+          "stability": 0.4,
+          "initialRange": [-20, 40],
+          "developmentRate": 0.12,
+          "behaviorEffects": {
+            "服务他人": 0.4,
+            "迎合众人": 0.3,
+            "避免冲突": 0.2
+          }
+        },
+        {
+          "id": "devotion_tendency",
+          "name": "痴情倾向",
+          "negative": "感情淡漠",
+          "positive": "深情专一",
+          "weight": 1.0,
+          "stability": 0.8,
+          "initialRange": [-15, 35],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "忠诚伴侣": 0.5,
+            "长期承诺": 0.3
+          }
+        }
+      ]
+    },
+
+    "义": {
+      "name": "义德",
+      "description": "义者宜也，关乎道德与责任",
+      "color": "#4ECDC4",
+      "importance": 10,
+      "traits": [
+        {
+          "id": "gratitude_tendency",
+          "name": "感恩倾向",
+          "negative": "不知感恩",
+          "positive": "知恩图报",
+          "weight": 1.1,
+          "stability": 0.5,
+          "initialRange": [-25, 25],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "回报恩情": 0.4,
+            "感谢表达": 0.3,
+            "尊敬长者": 0.2
+          }
+        },
+        {
+          "id": "altruism_tendency",
+          "name": "利他倾向",
+          "negative": "自私自利",
+          "positive": "乐于助人",
+          "weight": 1.3,
+          "stability": 0.6,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "帮助他人": 0.5,
+            "赡养老人": 0.4,
+            "照顾婴孺": 0.4,
+            "慈善捐助": 0.3
+          }
+        },
+        {
+          "id": "courage_tendency",
+          "name": "勇敢倾向",
+          "negative": "胆小怯懦",
+          "positive": "勇敢无畏",
+          "weight": 1.2,
+          "stability": 0.7,
+          "initialRange": [-20, 40],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "面对危险": 0.5,
+            "保护他人": 0.4,
+            "挑战困难": 0.3
+          }
+        },
+        {
+          "id": "responsibility_tendency",
+          "name": "担责倾向",
+          "negative": "推卸责任",
+          "positive": "勇于担责",
+          "weight": 1.4,
+          "stability": 0.8,
+          "initialRange": [-25, 35],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "承担义务": 0.4,
+            "履行承诺": 0.5,
+            "领导他人": 0.3
+          }
+        },
+        {
+          "id": "forgiveness_tendency",
+          "name": "宽恕倾向",
+          "negative": "记仇报复",
+          "positive": "宽恕仇怨",
+          "weight": 1.2,
+          "stability": 0.6,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "化解仇怨": 0.5,
+            "主动和解": 0.4,
+            "放下过往": 0.3
+          }
+        }
+      ]
+    },
+
+    "礼": {
+      "name": "礼德",
+      "description": "礼者敬也，关乎秩序与和谐",
+      "color": "#45B7D1",
+      "importance": 8,
+      "traits": [
+        {
+          "id": "social_tendency",
+          "name": "合群倾向",
+          "negative": "孤僻独行",
+          "positive": "喜好合群",
+          "weight": 1.0,
+          "stability": 0.5,
+          "initialRange": [-25, 35],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "觅求好友": 0.4,
+            "群体活动": 0.5,
+            "饮酒聚宴": 0.3
+          }
+        },
+        {
+          "id": "perfectionism",
+          "name": "完美倾向",
+          "negative": "粗糙随意",
+          "positive": "追求完美",
+          "weight": 1.1,
+          "stability": 0.7,
+          "initialRange": [-20, 30],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "精工细作": 0.4,
+            "反复修改": 0.3,
+            "标准严格": 0.5
+          }
+        },
+        {
+          "id": "politeness_tendency",
+          "name": "尊礼倾向",
+          "negative": "不拘礼节",
+          "positive": "恪守礼仪",
+          "weight": 1.2,
+          "stability": 0.8,
+          "initialRange": [-15, 40],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "礼仪行为": 0.5,
+            "尊敬长幼": 0.4,
+            "社交礼节": 0.3
+          }
+        },
+        {
+          "id": "harmony_tendency",
+          "name": "和谐倾向",
+          "negative": "制造对立",
+          "positive": "促进和谐",
+          "weight": 1.3,
+          "stability": 0.6,
+          "initialRange": [-20, 35],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "调解纠纷": 0.5,
+            "避免冲突": 0.4,
+            "团队协作": 0.3
+          }
+        },
+        {
+          "id": "orderliness",
+          "name": "规范倾向",
+          "negative": "随性而为",
+          "positive": "遵守规范",
+          "weight": 1.1,
+          "stability": 0.7,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "按章办事": 0.4,
+            "维护秩序": 0.3,
+            "规划安排": 0.5
+          }
+        }
+      ]
+    },
+
+    "智": {
+      "name": "智德",
+      "description": "智者知也，关乎学识与思辨",
+      "color": "#9C88FF",
+      "importance": 8,
+      "traits": [
+        {
+          "id": "dominance_tendency",
+          "name": "主导倾向",
+          "negative": "缺乏主见",
+          "positive": "喜欢主导",
+          "weight": 1.0,
+          "stability": 0.6,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "领导群体": 0.5,
+            "决策制定": 0.4,
+            "指挥他人": 0.4
+          }
+        },
+        {
+          "id": "privacy_tendency",
+          "name": "隐私倾向",
+          "negative": "开放透明",
+          "positive": "保护隐私",
+          "weight": 0.9,
+          "stability": 0.7,
+          "initialRange": [-20, 40],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "独处思考": 0.4,
+            "保守秘密": 0.3,
+            "避免暴露": 0.2
+          }
+        },
+        {
+          "id": "curiosity_tendency",
+          "name": "好奇倾向",
+          "negative": "因循守旧",
+          "positive": "求知若渴",
+          "weight": 1.0,
+          "stability": 0.4,
+          "initialRange": [-15, 40],
+          "developmentRate": 0.15,
+          "behaviorEffects": {
+            "探索学习": 0.5,
+            "提出问题": 0.4,
+            "尝试新事": 0.3
+          }
+        },
+        {
+          "id": "abstract_tendency",
+          "name": "空谈倾向",
+          "negative": "务实具体",
+          "positive": "喜好空谈",
+          "weight": 0.8,
+          "stability": 0.5,
+          "initialRange": [-25, 25],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "哲学思辨": 0.4,
+            "理论讨论": 0.5,
+            "概念分析": 0.3
+          }
+        },
+        {
+          "id": "artistic_tendency",
+          "name": "艺术倾向",
+          "negative": "缺乏美感",
+          "positive": "艺术天赋",
+          "weight": 1.0,
+          "stability": 0.6,
+          "initialRange": [-20, 35],
+          "developmentRate": 0.12,
+          "behaviorEffects": {
+            "艺术创作": 0.6,
+            "审美鉴赏": 0.4,
+            "起舞弄乐": 0.3
+          }
+        }
+      ]
+    },
+
+    "信": {
+      "name": "信德",
+      "description": "信者诚也，关乎诚信与承诺",
+      "color": "#FF9F43",
+      "importance": 9,
+      "traits": [
+        {
+          "id": "trust_tendency",
+          "name": "信任倾向",
+          "negative": "多疑猜忌",
+          "positive": "信任他人",
+          "weight": 1.1,
+          "stability": 0.6,
+          "initialRange": [-30, 25],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "委托他人": 0.4,
+            "开放合作": 0.3,
+            "分享秘密": 0.2
+          }
+        },
+        {
+          "id": "inspiring_tendency",
+          "name": "鼓舞倾向",
+          "negative": "打击士气",
+          "positive": "鼓舞他人",
+          "weight": 1.2,
+          "stability": 0.5,
+          "initialRange": [-20, 30],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "激励他人": 0.5,
+            "传播希望": 0.4,
+            "正面影响": 0.3
+          }
+        },
+        {
+          "id": "focus_tendency",
+          "name": "专注倾向",
+          "negative": "三心二意",
+          "positive": "专心致志",
+          "weight": 1.2,
+          "stability": 0.6,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.12,
+          "behaviorEffects": {
+            "专注工作": 0.5,
+            "深度学习": 0.4,
+            "持续努力": 0.4
+          }
+        },
+        {
+          "id": "stubbornness",
+          "name": "固化倾向",
+          "negative": "灵活变通",
+          "positive": "固执己见",
+          "weight": 0.9,
+          "stability": 0.8,
+          "initialRange": [-20, 35],
+          "developmentRate": 0.05,
+          "behaviorEffects": {
+            "坚持立场": 0.5,
+            "抗拒改变": 0.4,
+            "维护原则": 0.3
+          }
+        },
+        {
+          "id": "persistence",
+          "name": "坚持倾向",
+          "negative": "轻易放弃",
+          "positive": "坚持不懈",
+          "weight": 1.3,
+          "stability": 0.7,
+          "initialRange": [-25, 35],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "持续努力": 0.5,
+            "克服困难": 0.4,
+            "完成目标": 0.6
+          }
+        }
+      ]
+    },
+
+    "温": {
+      "name": "温德",
+      "description": "温者和也，关乎情绪与性情",
+      "color": "#F39C12",
+      "importance": 7,
+      "traits": [
+        {
+          "id": "anger_suppression",
+          "name": "抑怒倾向",
+          "negative": "易怒暴躁",
+          "positive": "平和冷静",
+          "weight": 1.2,
+          "stability": 0.6,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "控制情绪": 0.5,
+            "冷静应对": 0.4,
+            "和平解决": 0.4
+          }
+        },
+        {
+          "id": "depression_resistance",
+          "name": "抗郁倾向",
+          "negative": "易于沮丧",
+          "positive": "积极乐观",
+          "weight": 1.1,
+          "stability": 0.5,
+          "initialRange": [-25, 25],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "保持希望": 0.4,
+            "积极行动": 0.3,
+            "鼓励他人": 0.3
+          }
+        },
+        {
+          "id": "anxiety_resistance",
+          "name": "抗虑倾向",
+          "negative": "容易焦虑",
+          "positive": "镇定从容",
+          "weight": 1.0,
+          "stability": 0.6,
+          "initialRange": [-30, 20],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "冷静决策": 0.4,
+            "稳定发挥": 0.3,
+            "安抚他人": 0.3
+          }
+        },
+        {
+          "id": "compassion_tendency",
+          "name": "温善倾向",
+          "negative": "冷漠刻薄",
+          "positive": "温和善良",
+          "weight": 1.3,
+          "stability": 0.7,
+          "initialRange": [-20, 35],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "关怀他人": 0.5,
+            "温和待人": 0.4,
+            "善意行为": 0.4
+          }
+        },
+        {
+          "id": "prudence",
+          "name": "稳重倾向",
+          "negative": "轻率鲁莽",
+          "positive": "谨慎稳重",
+          "weight": 1.1,
+          "stability": 0.8,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "谨慎行事": 0.4,
+            "深思熟虑": 0.5,
+            "规避风险": 0.3
+          }
+        }
+      ]
+    },
+
+    "良": {
+      "name": "良德",
+      "description": "良者善也，关乎品质与修养",
+      "color": "#2ECC71",
+      "importance": 8,
+      "traits": [
+        {
+          "id": "lust_suppression",
+          "name": "寡欲倾向",
+          "negative": "欲望强烈",
+          "positive": "清心寡欲",
+          "weight": 1.0,
+          "stability": 0.6,
+          "initialRange": [-35, 25],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "节制欲望": 0.4,
+            "精神追求": 0.3,
+            "简朴生活": 0.3
+          }
+        },
+        {
+          "id": "confidence",
+          "name": "自信倾向",
+          "negative": "自卑怯弱",
+          "positive": "自信坚定",
+          "weight": 1.2,
+          "stability": 0.5,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.1,
+          "behaviorEffects": {
+            "主动行动": 0.4,
+            "表现自己": 0.5,
+            "承担挑战": 0.3
+          }
+        },
+        {
+          "id": "humor_tendency",
+          "name": "幽默倾向",
+          "negative": "严肃刻板",
+          "positive": "幽默风趣",
+          "weight": 0.9,
+          "stability": 0.6,
+          "initialRange": [-20, 35],
+          "developmentRate": 0.11,
+          "behaviorEffects": {
+            "逗乐他人": 0.4,
+            "轻松氛围": 0.3,
+            "化解紧张": 0.3
+          }
+        },
+        {
+          "id": "sensitivity",
+          "name": "敏感倾向",
+          "negative": "迟钝麻木",
+          "positive": "敏感细腻",
+          "weight": 1.0,
+          "stability": 0.4,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.12,
+          "behaviorEffects": {
+            "察觉情绪": 0.5,
+            "细致观察": 0.4,
+            "艺术感受": 0.3
+          }
+        },
+        {
+          "id": "optimism",
+          "name": "乐观倾向",
+          "negative": "悲观消极",
+          "positive": "乐观积极",
+          "weight": 1.2,
+          "stability": 0.6,
+          "initialRange": [-30, 25],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "积极态度": 0.5,
+            "传播正能量": 0.4,
+            "坚持希望": 0.4
+          }
+        }
+      ]
+    },
+
+    "恭": {
+      "name": "恭德",
+      "description": "恭者敬也，关乎谦逊与尊重",
+      "color": "#8E44AD",
+      "importance": 7,
+      "traits": [
+        {
+          "id": "violence_aversion",
+          "name": "止暴倾向",
+          "negative": "倾向暴力",
+          "positive": "厌恶暴力",
+          "weight": 1.3,
+          "stability": 0.7,
+          "initialRange": [-25, 35],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "和平解决": 0.5,
+            "制止冲突": 0.4,
+            "避免暴力": 0.6
+          }
+        },
+        {
+          "id": "advice_acceptance",
+          "name": "兼听倾向",
+          "negative": "固执己见",
+          "positive": "善纳建议",
+          "weight": 1.1,
+          "stability": 0.6,
+          "initialRange": [-20, 30],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "听取意见": 0.5,
+            "接受建议": 0.4,
+            "虚心学习": 0.4
+          }
+        },
+        {
+          "id": "humility",
+          "name": "谦逊倾向",
+          "negative": "骄傲自大",
+          "positive": "谦虚谨慎",
+          "weight": 1.2,
+          "stability": 0.7,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "谦让他人": 0.4,
+            "低调行事": 0.3,
+            "承认不足": 0.4
+          }
+        },
+        {
+          "id": "stress_resistance",
+          "name": "抗压倾向",
+          "negative": "容易崩溃",
+          "positive": "抗压能力强",
+          "weight": 1.1,
+          "stability": 0.6,
+          "initialRange": [-25, 25],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "承受压力": 0.5,
+            "稳定表现": 0.4,
+            "坚持到底": 0.3
+          }
+        },
+        {
+          "id": "shyness",
+          "name": "害羞倾向",
+          "negative": "大胆外向",
+          "positive": "害羞内向",
+          "weight": 0.8,
+          "stability": 0.5,
+          "initialRange": [-20, 40],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "避免关注": 0.3,
+            "谨慎社交": 0.4,
+            "低调行为": 0.3
+          }
+        }
+      ]
+    },
+
+    "俭": {
+      "name": "俭德",
+      "description": "俭者约也，关乎节制与自律",
+      "color": "#95A5A6",
+      "importance": 6,
+      "traits": [
+        {
+          "id": "self_discipline",
+          "name": "自律倾向",
+          "negative": "放纵散漫",
+          "positive": "严格自律",
+          "weight": 1.4,
+          "stability": 0.8,
+          "initialRange": [-30, 35],
+          "developmentRate": 0.06,
+          "behaviorEffects": {
+            "约束自己": 0.5,
+            "规律作息": 0.4,
+            "抵制诱惑": 0.5
+          }
+        },
+        {
+          "id": "busyness",
+          "name": "忙碌倾向",
+          "negative": "懒散闲适",
+          "positive": "勤劳忙碌",
+          "weight": 1.2,
+          "stability": 0.6,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "勤奋工作": 0.6,
+            "主动劳动": 0.5,
+            "不愿闲着": 0.4
+          }
+        },
+        {
+          "id": "peacefulness",
+          "name": "平和倾向",
+          "negative": "好斗激进",
+          "positive": "平和宁静",
+          "weight": 1.0,
+          "stability": 0.7,
+          "initialRange": [-20, 30],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "保持平静": 0.4,
+            "避免冲突": 0.3,
+            "冥想休息": 0.3
+          }
+        },
+        {
+          "id": "material_detachment",
+          "name": "轻财倾向",
+          "negative": "贪财好利",
+          "positive": "淡泊名利",
+          "weight": 1.1,
+          "stability": 0.6,
+          "initialRange": [-35, 25],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "慷慨施予": 0.4,
+            "简朴生活": 0.5,
+            "不贪财物": 0.4
+          }
+        },
+        {
+          "id": "frugality",
+          "name": "节约倾向",
+          "negative": "铺张浪费",
+          "positive": "节俭朴素",
+          "weight": 1.0,
+          "stability": 0.7,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "节约资源": 0.5,
+            "避免浪费": 0.4,
+            "简单生活": 0.3
+          }
+        }
+      ]
+    },
+
+    "让": {
+      "name": "让德",
+      "description": "让者谦也，关乎礼让与包容",
+      "color": "#34495E",
+      "importance": 6,
+      "traits": [
+        {
+          "id": "tolerance",
+          "name": "包容倾向",
+          "negative": "狭隘偏执",
+          "positive": "宽容包容",
+          "weight": 1.3,
+          "stability": 0.7,
+          "initialRange": [-30, 30],
+          "developmentRate": 0.07,
+          "behaviorEffects": {
+            "理解他人": 0.5,
+            "接纳差异": 0.4,
+            "化解矛盾": 0.4
+          }
+        },
+        {
+          "id": "ambition_suppression",
+          "name": "淡泊倾向",
+          "negative": "野心勃勃",
+          "positive": "淡泊名利",
+          "weight": 1.0,
+          "stability": 0.6,
+          "initialRange": [-35, 25],
+          "developmentRate": 0.08,
+          "behaviorEffects": {
+            "不争名利": 0.4,
+            "谦让他人": 0.5,
+            "知足常乐": 0.3
+          }
+        },
+        {
+          "id": "worldly_detachment",
+          "name": "出世倾向",
+          "negative": "入世积极",
+          "positive": "超脱世俗",
+          "weight": 0.9,
+          "stability": 0.8,
+          "initialRange": [-20, 35],
+          "developmentRate": 0.05,
+          "behaviorEffects": {
+            "精神追求": 0.4,
+            "远离纷争": 0.3,
+            "哲学思考": 0.3
+          }
+        },
+        {
+          "id": "authenticity",
+          "name": "本真倾向",
+          "negative": "虚伪做作",
+          "positive": "真诚本真",
+          "weight": 1.2,
+          "stability": 0.6,
+          "initialRange": [-25, 30],
+          "developmentRate": 0.09,
+          "behaviorEffects": {
+            "真实表达": 0.5,
+            "诚实待人": 0.4,
+            "不装假面": 0.3
+          }
+        }
+      ]
+    }
+  },
+
+  "behaviorEffects": {
+    "帮助他人": {
+      "仁": {
+        "loving_tendency": 2,
+        "hate_suppression": 1,
+        "pleasing_tendency": 3
+      },
+      "义": {
+        "altruism_tendency": 4,
+        "gratitude_tendency": 1,
+        "responsibility_tendency": 2
+      },
+      "温": {
+        "compassion_tendency": 3,
+        "prudence": 1
+      }
+    },
+    "读书学习": {
+      "智": {
+        "curiosity_tendency": 3,
+        "abstract_tendency": 2,
+        "artistic_tendency": 1
+      },
+      "信": {
+        "focus_tendency": 4,
+        "persistence": 3
+      },
+      "俭": {
+        "self_discipline": 2,
+        "busyness": 1
+      }
+    },
+    "垦荒耕钟": {
+      "俭": {
+        "busyness": 4,
+        "self_discipline": 2,
+        "frugality": 1
+      },
+      "义": {
+        "responsibility_tendency": 2,
+        "altruism_tendency": 1
+      },
+      "信": {
+        "persistence": 3,
+        "focus_tendency": 2
+      }
+    },
+    "觅求好友": {
+      "礼": {
+        "social_tendency": 4,
+        "harmony_tendency": 2,
+        "politeness_tendency": 1
+      },
+      "良": {
+        "confidence": 2,
+        "humor_tendency": 3
+      },
+      "仁": {
+        "pleasing_tendency": 2,
+        "loving_tendency": 1
+      }
+    },
+    "饮酒聚宴": {
+      "礼": {
+        "social_tendency": 3,
+        "harmony_tendency": 2
+      },
+      "良": {
+        "humor_tendency": 4,
+        "optimism": 2
+      },
+      "让": {
+        "tolerance": 2
+      }
+    },
+    "艺术创作": {
+      "智": {
+        "artistic_tendency": 5,
+        "creativity": 4,
+        "abstract_tendency": 2
+      },
+      "良": {
+        "sensitivity": 3,
+        "confidence": 2
+      },
+      "信": {
+        "focus_tendency": 3,
+        "persistence": 2
+      }
+    },
+    "经义研读": {
+      "智": {
+        "curiosity_tendency": 3,
+        "abstract_tendency": 4
+      },
+      "信": {
+        "focus_tendency": 4,
+        "persistence": 3
+      },
+      "俭": {
+        "self_discipline": 3,
+        "peacefulness": 2
+      }
+    },
+    "赡养老人": {
+      "义": {
+        "altruism_tendency": 5,
+        "gratitude_tendency": 4,
+        "responsibility_tendency": 3
+      },
+      "仁": {
+        "loving_tendency": 3,
+        "compassion_tendency": 4
+      },
+      "礼": {
+        "politeness_tendency": 2
+      }
+    },
+    "化解纠纷": {
+      "礼": {
+        "harmony_tendency": 5,
+        "politeness_tendency": 3
+      },
+      "让": {
+        "tolerance": 4,
+        "authenticity": 2
+      },
+      "温": {
+        "anger_suppression": 3,
+        "compassion_tendency": 2
+      }
+    },
+    "追求伴侣": {
+      "仁": {
+        "loving_tendency": 5,
+        "devotion_tendency": 4,
+        "pleasing_tendency": 2
+      },
+      "良": {
+        "confidence": 3,
+        "optimism": 2
+      },
+      "智": {
+        "dominance_tendency": 1
+      }
+    }
+  },
+
+  "virtueInteractions": {
+    "synergies": {
+      "仁_义": {
+        "description": "仁德与义德相辅相成",
+        "effects": {
+          "helping_behavior": 1.3,
+          "social_harmony": 1.2,
+          "moral_behavior": 1.4
+        }
+      },
+      "智_信": {
+        "description": "智德与信德结合提升专注学习",
+        "effects": {
+          "learning_efficiency": 1.5,
+          "knowledge_retention": 1.3,
+          "teaching_ability": 1.2
+        }
+      },
+      "温_良": {
+        "description": "温德与良德促进情绪稳定",
+        "effects": {
+          "emotional_stability": 1.4,
+          "social_attractiveness": 1.2,
+          "conflict_resolution": 1.3
+        }
+      },
+      "恭_让": {
+        "description": "恭德与让德增强谦逊品质",
+        "effects": {
+          "humility_behavior": 1.5,
+          "social_acceptance": 1.3,
+          "leadership_trust": 1.2
+        }
+      }
+    },
+    "conflicts": {
+      "智_恭": {
+        "description": "智德的主导倾向与恭德的谦逊倾向冲突",
+        "effects": {
+          "internal_conflict": 0.8,
+          "decision_difficulty": 0.9,
+          "behavioral_inconsistency": 0.85
+        }
+      },
+      "俭_良": {
+        "description": "俭德的节约与良德的自信可能产生矛盾",
+        "effects": {
+          "self_expression": 0.9,
+          "social_spending": 0.8,
+          "confidence_display": 0.85
+        }
+      },
+      "仁_俭": {
+        "description": "仁德的讨好倾向与俭德的节制产生矛盾",
+        "effects": {
+          "gift_giving": 0.7,
+          "social_spending": 0.8,
+          "helping_cost": 0.9
+        }
+      }
+    }
+  },
+
+  "personalityArchetypes": {
+    "圣人": {
+      "description": "德行全面发展的理想人格",
+      "requiredTraits": {
+        "仁": 80,
+        "义": 85,
+        "礼": 75,
+        "智": 80,
+        "信": 85,
+        "温": 70,
+        "良": 75,
+        "恭": 80,
+        "俭": 70,
+        "让": 75
+      },
+      "behaviorPatterns": {
+        "leadership": 0.9,
+        "teaching": 0.8,
+        "moral_guidance": 0.95,
+        "conflict_resolution": 0.85
+      },
+      "socialEffects": {
+        "respect": 95,
+        "influence": 90,
+        "trust": 92,
+        "followership": 88
+      }
+    },
+    "君子": {
+      "description": "品德高尚的理想人格",
+      "requiredTraits": {
+        "义": 70,
+        "礼": 75,
+        "智": 65,
+        "信": 70,
+        "温": 60,
+        "恭": 65,
+        "俭": 60,
+        "让": 65
+      },
+      "behaviorPatterns": {
+        "ethical_behavior": 0.85,
+        "social_responsibility": 0.8,
+        "self_cultivation": 0.75,
+        "mentoring": 0.7
+      }
+    },
+    "学者": {
+      "description": "专注学问的知识分子",
+      "requiredTraits": {
+        "智": 80,
+        "信": 75,
+        "俭": 65,
+        "恭": 60
+      },
+      "behaviorPatterns": {
+        "research": 0.9,
+        "teaching": 0.8,
+        "writing": 0.85,
+        "debate": 0.7
+      },
+      "skillBonuses": {
+        "经义研读": 20,
+        "诗词歌赋": 15,
+        "书法绘画": 10
+      }
+    },
+    "侠客": {
+      "description": "行侠仗义的武者",
+      "requiredTraits": {
+        "义": 80,
+        "仁": 70,
+        "勇": 85,
+        "信": 75
+      },
+      "behaviorPatterns": {
+        "justice_seeking": 0.9,
+        "protecting_weak": 0.85,
+        "combat": 0.8,
+        "wandering": 0.7
+      },
+      "skillBonuses": {
+        "武艺精进": 25,
+        "行侠仗义": 20,
+        "路见不平": 15
+      }
+    },
+    "贤母": {
+      "description": "慈爱贤惠的母亲角色",
+      "requiredTraits": {
+        "仁": 80,
+        "温": 75,
+        "俭": 70,
+        "恭": 65,
+        "让": 70
+      },
+      "behaviorPatterns": {
+        "childcare": 0.95,
+        "household_management": 0.85,
+        "family_harmony": 0.9,
+        "moral_teaching": 0.8
+      },
+      "skillBonuses": {
+        "照顾婴孺": 25,
+        "纺织缝纫": 20,
+        "烹饪料理": 20
+      }
+    },
+    "工匠": {
+      "description": "技艺精湛的手工艺者",
+      "requiredTraits": {
+        "俭": 75,
+        "信": 70,
+        "智": 60,
+        "恭": 55
+      },
+      "behaviorPatterns": {
+        "craftsmanship": 0.9,
+        "skill_development": 0.85,
+        "quality_focus": 0.8,
+        "apprentice_training": 0.7
+      },
+      "skillBonuses": {
+        "手工雕琢": 25,
+        "熔炼铸锻": 20,
+        "建造修缮": 15
+      }
+    },
+    "商人": {
+      "description": "精明能干的商贾",
+      "requiredTraits": {
+        "智": 70,
+        "良": 65,
+        "信": 60
+      },
+      "negativeTraits": {
+        "material_detachment": -20,
+        "worldly_detachment": -15
+      },
+      "behaviorPatterns": {
+        "trading": 0.9,
+        "negotiation": 0.85,
+        "networking": 0.8,
+        "profit_seeking": 0.75
+      },
+      "skillBonuses": {
+        "摆摊交易": 25,
+        "商铺经营": 20,
+        "觅求好友": 15
+      }
+    }
+  },
+
+  "developmentRules": {
+    "ageInfluence": {
+      "young": {
+        "ageRange": [15, 25],
+        "traitChanges": {
+          "curiosity_tendency": 15,
+          "optimism": 10,
+          "confidence": 8,
+          "busyness": 12,
+          "prudence": -5,
+          "humility": -3
+        }
+      },
+      "adult": {
+        "ageRange": [26, 45],
+        "traitChanges": {
+          "responsibility_tendency": 10,
+          "self_discipline": 8,
+          "persistence": 12,
+          "tolerance": 5,
+          "prudence": 8
+        }
+      },
+      "middleAged": {
+        "ageRange": [46, 60],
+        "traitChanges": {
+          "compassion_tendency": 10,
+          "tolerance": 12,
+          "humility": 8,
+          "peacefulness": 10,
+          "material_detachment": 5,
+          "optimism": -3
+        }
+      },
+      "elderly": {
+        "ageRange": [61, 80],
+        "traitChanges": {
+          "wisdom": 15,
+          "tolerance": 15,
+          "peacefulness": 12,
+          "worldly_detachment": 10,
+          "material_detachment": 8,
+          "busyness": -8,
+          "confidence": -5
+        }
+      }
+    },
+
+    "experienceInfluence": {
+      "successExperiences": {
+        "effect": {
+          "confidence": 3,
+          "optimism": 2,
+          "persistence": 2,
+          "inspiring_tendency": 1
+        }
+      },
+      "failureExperiences": {
+        "effect": {
+          "confidence": -2,
+          "humility": 2,
+          "prudence": 3,
+          "anxiety_resistance": -1
+        }
+      },
+      "betrayalExperiences": {
+        "effect": {
+          "trust_tendency": -5,
+          "suspicion": 8,
+          "anger_suppression": -3,
+          "tolerance": -2
+        }
+      },
+      "helpingExperiences": {
+        "effect": {
+          "altruism_tendency": 3,
+          "compassion_tendency": 2,
+          "gratitude_tendency": 2,
+          "social_tendency": 1
+        }
+      }
+    }
+  },
+
+  "culturalInfluence": {
+    "socialClassExpectations": {
+      "门阀士族": {
+        "emphasizedVirtues": ["礼", "智", "信", "恭", "让"],
+        "emphasizedTraits": [
+          "politeness_tendency",
+          "curiosity_tendency", 
+          "artistic_tendency",
+          "focus_tendency",
+          "humility",
+          "tolerance"
+        ],
+        "discouragedTraits": [
+          "busyness",
+          "material_detachment"
+        ],
+        "behaviorPreferences": {
+          "经义研读": 1.5,
+          "艺术创作": 1.3,
+          "书法绘画": 1.4,
+          "社交礼仪": 1.2
+        }
+      },
+      "平民": {
+        "emphasizedVirtues": ["义", "俭", "温"],
+        "emphasizedTraits": [
+          "altruism_tendency",
+          "responsibility_tendency",
+          "busyness",
+          "self_discipline",
+          "compassion_tendency",
+          "frugality"
+        ],
+        "discouragedTraits": [
+          "material_detachment",
+          "worldly_detachment"
+        ],
+        "behaviorPreferences": {
+          "垦荒耕钟": 1.4,
+          "手工雕琢": 1.3,
+          "赡养老人": 1.5,
+          "照顾婴孺": 1.4
+        }
+      },
+      "胡族": {
+        "emphasizedVirtues": ["义", "信", "让"],
+        "emphasizedTraits": [
+          "courage_tendency",
+          "persistence", 
+          "authenticity",
+          "trust_tendency",
+          "violence_aversion"
+        ],
+        "discouragedTraits": [
+          "humility",
+          "shyness",
+          "perfectionism"
+        ],
+        "behaviorPreferences": {
+          "武艺精进": 1.5,
+          "骑术训练": 1.4,
+          "野外狩猎": 1.3,
+          "保护他人": 1.4
+        }
+      },
+      "工匠": {
+        "emphasizedVirtues": ["俭", "信", "智"],
+        "emphasizedTraits": [
+          "self_discipline",
+          "busyness",
+          "persistence",
+          "focus_tendency",
+          "perfectionism",
+          "artistic_tendency"
+        ],
+        "discouragedTraits": [
+          "social_tendency",
+          "abstract_tendency"
+        ],
+        "behaviorPreferences": {
+          "手工雕琢": 1.6,
+          "熔炼铸锻": 1.5,
+          "建造修缮": 1.4,
+          "工艺革新": 1.3
+        }
+      },
+      "商贾": {
+        "emphasizedVirtues": ["智", "良", "信"],
+        "emphasizedTraits": [
+          "dominance_tendency",
+          "confidence",
+          "trust_tendency",
+          "inspiring_tendency",
+          "social_tendency"
+        ],
+        "discouragedTraits": [
+          "material_detachment",
+          "worldly_detachment",
+          "humility"
+        ],
+        "behaviorPreferences": {
+          "摆摊交易": 1.5,
+          "商铺经营": 1.6,
+          "觅求好友": 1.3,
+          "外交谈判": 1.2
+        }
+      }
+    }
+  }
+}

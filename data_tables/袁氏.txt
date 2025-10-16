@@ -1,0 +1,432 @@
+new Map([
+    [
+        "mf25cclg81m3tvqpqwj_mf25cclhan7gkqp14sf",
+        {
+            "fromId": "袁氏_member_1",
+            "toId": "袁氏_member_2",
+            "fromPerson": {
+                "id": "袁氏_member_1",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 54,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 54,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_2",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 27,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 27,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclhan7gkqp14sf_mf25cclg81m3tvqpqwj",
+        {
+            "fromId": "袁氏_member_2",
+            "toId": "袁氏_member_1",
+            "fromPerson": {
+                "id": "袁氏_member_2",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 27,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 27,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_1",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 54,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 54,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclg81m3tvqpqwj_mf25cclir1dqf6g5m8i",
+        {
+            "fromId": "袁氏_member_1",
+            "toId": "袁氏_member_3",
+            "fromPerson": {
+                "id": "袁氏_member_1",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 54,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 54,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_3",
+                "name": "袁淑德",
+                "surname": "袁",
+                "age": 29,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 29,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 3,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclir1dqf6g5m8i_mf25cclg81m3tvqpqwj",
+        {
+            "fromId": "袁氏_member_3",
+            "toId": "袁氏_member_1",
+            "fromPerson": {
+                "id": "袁氏_member_3",
+                "name": "袁淑德",
+                "surname": "袁",
+                "age": 29,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 29,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_1",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 54,
+                "gender": "男",
+                "role": "grandfather",
+                "generation": 3,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 3,
+                    "seniority": 54,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 3,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 50
+        }
+    ],
+    [
+        "mf25cclhan7gkqp14sf_mf25cclia4vqg6ayvkk",
+        {
+            "fromId": "袁氏_member_2",
+            "toId": "袁氏_member_4",
+            "fromPerson": {
+                "id": "袁氏_member_2",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 27,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 27,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_4",
+                "name": "袁明德",
+                "surname": "袁",
+                "age": 21,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 21,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 4,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclia4vqg6ayvkk_mf25cclhan7gkqp14sf",
+        {
+            "fromId": "袁氏_member_4",
+            "toId": "袁氏_member_2",
+            "fromPerson": {
+                "id": "袁氏_member_4",
+                "name": "袁明德",
+                "surname": "袁",
+                "age": 21,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 21,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_2",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 27,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 27,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 4,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclir1dqf6g5m8i_mf25cclia4vqg6ayvkk",
+        {
+            "fromId": "袁氏_member_3",
+            "toId": "袁氏_member_4",
+            "fromPerson": {
+                "id": "袁氏_member_3",
+                "name": "袁淑德",
+                "surname": "袁",
+                "age": 29,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 29,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_4",
+                "name": "袁明德",
+                "surname": "袁",
+                "age": 21,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 21,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 4,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclia4vqg6ayvkk_mf25cclir1dqf6g5m8i",
+        {
+            "fromId": "袁氏_member_4",
+            "toId": "袁氏_member_3",
+            "fromPerson": {
+                "id": "袁氏_member_4",
+                "name": "袁明德",
+                "surname": "袁",
+                "age": 21,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 21,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_3",
+                "name": "袁淑德",
+                "surname": "袁",
+                "age": 29,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 29,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 4,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclhan7gkqp14sf_mf25cclir1dqf6g5m8i",
+        {
+            "fromId": "袁氏_member_2",
+            "toId": "袁氏_member_3",
+            "fromPerson": {
+                "id": "袁氏_member_2",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 27,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 27,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_3",
+                "name": "袁淑德",
+                "surname": "袁",
+                "age": 29,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 29,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 90
+        }
+    ],
+    [
+        "mf25cclir1dqf6g5m8i_mf25cclhan7gkqp14sf",
+        {
+            "fromId": "袁氏_member_3",
+            "toId": "袁氏_member_2",
+            "fromPerson": {
+                "id": "袁氏_member_3",
+                "name": "袁淑德",
+                "surname": "袁",
+                "age": 29,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 29,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "袁氏_member_2",
+                "name": "袁文瑞",
+                "surname": "袁",
+                "age": 27,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "袁氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 27,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251778,
+            "bloodlineStrength": 90
+        }
+    ]
+])

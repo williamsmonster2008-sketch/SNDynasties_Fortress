@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南北朝坞堡模拟器</title>
+    
+    <!-- 基础样式 -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+            background: #F5F5DC;
+            color: #2F1B14;
+            overflow: visible;
+        }
+        
+        /* 加载画面 */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-title {
+            font-size: 36px;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .loading-subtitle {
+            font-size: 18px;
+            color: #F5F5DC;
+            margin-bottom: 40px;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(245, 245, 220, 0.3);
+            border-left: 4px solid #F5F5DC;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-progress {
+            margin-top: 30px;
+            text-align: center;
+            color: #F5F5DC;
+        }
+        
+        .progress-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(245, 245, 220, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px auto;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #F5F5DC;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        /* 错误处理 */
+        .error-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10001;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        /* 游戏容器 */
+        #game-container {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        #game-container.ready {
+            opacity: 1;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .loading-title {
+                font-size: 28px;
+            }
+            
+            .loading-subtitle {
+                font-size: 16px;
+                text-align: center;
+                padding: 0 20px;
+            }
+            
+            .progress-bar {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载画面 -->
+    <div id="loading-screen">
+        <h1 class="loading-title">南北朝坞堡模拟器</h1>
+        <p class="loading-subtitle">重现一千五百年前的乱世生存传奇</p>
+        <div class="loading-spinner"></div>
+        <div class="loading-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p id="loading-text">正在初始化游戏引擎...</p>
+        </div>
+    </div>
+    
+    <!-- 错误信息 -->
+    <div id="error-message" class="error-message">
+        <div id="error-content"></div>
+        <button onclick="this.parentElement.classList.remove('show')">关闭</button>
+    </div>
+    
+    <!-- 游戏主容器 -->
+    <div id="game-container">
+        <div id="ui-root"></div>
+        <!-- 由 GameInterface 动态创建内容 -->
+    </div>
+
+    <!-- 游戏脚本 -->
+    <script type="module">
+        // 加载进度管理
+        class LoadingManager {
+            constructor() {
+                this.steps = [
+                    { name: '正在加载配置文件...', duration: 200 },
+                    { name: '正在初始化工具库...', duration: 300 },
+                    { name: '正在启动时间系统...', duration: 250 },
+                    { name: '正在加载资源系统...', duration: 300 },
+                    { name: '正在建立角色系统...', duration: 400 },
+                    { name: '正在构建家族关系...', duration: 350 },
+                    { name: '正在初始化事件总线...', duration: 200 },
+                    { name: '正在启动状态管理器...', duration: 300 },
+                    { name: '正在创建界面组件...', duration: 400 },
+                    { name: '正在完成最终设置...', duration: 300 }
+                ];
+                
+                this.currentStep = 0;
+                this.totalSteps = this.steps.length;
+                
+                this.progressFill = document.getElementById('progress-fill');
+                this.loadingText = document.getElementById('loading-text');
+            }
+            
+            async start() {
+                for (let i = 0; i < this.steps.length; i++) {
+                    await this.executeStep(i);
+                }
+                this.complete();
+            }
+            
+            async executeStep(stepIndex) {
+                const step = this.steps[stepIndex];
+                this.currentStep = stepIndex + 1;
+                
+                // 更新文本
+                this.loadingText.textContent = step.name;
+                
+                // 更新进度条
+                const progress = (this.currentStep / this.totalSteps) * 100;
+                this.progressFill.style.width = `${progress}%`;
+                
+                // 模拟加载时间
+                await this.delay(step.duration);
+            }
+            
+            complete() {
+                this.loadingText.textContent = '加载完成！正在启动游戏...';
+                this.progressFill.style.width = '100%';
+                
+                setTimeout(() => {
+                    this.hide();
+                }, 500);
+            }
+            
+            hide() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const gameContainer = document.getElementById('game-container');
+                
+                loadingScreen.classList.add('hidden');
+                gameContainer.classList.add('ready');
+                
+                // 5秒后彻底移除加载画面
+                setTimeout(() => {
+                    if (loadingScreen.parentNode) {
+                        loadingScreen.parentNode.removeChild(loadingScreen);
+                    }
+                }, 1000);
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        // 错误处理
+        class ErrorHandler {
+            static show(message, error = null) {
+                const errorMessage = document.getElementById('error-message');
+                const errorContent = document.getElementById('error-content');
+                
+                let content = `<strong>错误：</strong> ${message}`;
+                if (error) {
+                    content += `<br><small>${error.message}</small>`;
+                }
+                
+                errorContent.innerHTML = content;
+                errorMessage.classList.add('show');
+                
+                console.error('游戏错误:', message, error);
+            }
+            
+            static hide() {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.classList.remove('show');
+            }
+        }
+        
+        // 游戏启动器
+        class GameLauncher {
+            constructor() {
+                this.loadingManager = new LoadingManager();
+                this.gameInstance = null;
+                this.isLoaded = false;
+            }
+            
+            async launch() {
+                try {
+                    console.log('🚀 开始启动南北朝坞堡模拟器...');
+                    
+                    // 显示加载进度
+                    await this.loadingManager.start();
+                    
+                    // 动态导入游戏模块
+                    console.log('📦 正在导入游戏模块...');
+                    const modules = await this.importGameModules();
+                    
+                    // 初始化游戏引擎
+                    console.log('⚙️ 正在初始化游戏引擎...');
+                    this.gameInstance = await this.initializeGame(modules);
+                    window.gameEngine = this.gameInstance;
+                    
+                    // 启动游戏
+                    console.log('🎮 正在启动游戏...');
+                    await this.startGame();
+                    
+                    this.isLoaded = true;
+                    console.log('✅ 游戏启动成功！');
+
+                    // ⭐ 在这里添加德行系统守护进程
+                    setInterval(() => {
+                    if (window.gameEngine && window.gameEngine.characters) {
+                        Array.from(window.gameEngine.characters.values()).forEach(char => {
+                        if (!char.virtueSystem && !char._virtueSystemDestroyed) {
+                            console.log(`🔧 检测到 ${char.name} 德行系统丢失，正在恢复...`);
+                            
+                            // 重新创建德行系统
+                            if (window.gameEngine.virtueSystem) {
+                            //char.virtueSystem = new window.gameEngine.virtueSystem.constructor(char.id);
+                            // 从引擎的德行系统复制一个完整实例
+                            const templateVirtue = window.gameEngine.virtueSystem;
+                            char.virtueSystem = Object.create(Object.getPrototypeOf(templateVirtue));
+                            char.virtueSystem.characterId = char.id;
+                            char.virtueSystem.initialize();
+                            console.log(`✅ 已恢复 ${char.name} 的德行系统`);
+                      
+                            // 触发界面更新
+                            if (window.gameEngine.interface && window.gameEngine.interface.refreshCharacterCard) {
+                                window.gameEngine.interface.refreshCharacterCard(char.id);
+                            }
+                            }
+                        }
+                        });
+                    }
+                    }, 5000); // 每5秒检查一次
+
+                    console.log('🔧 德行系统守护进程已启动');
+                    
+                } catch (error) {
+                    console.error('❌ 游戏启动失败:', error);
+                    ErrorHandler.show('游戏启动失败，请刷新页面重试', error);
+                    
+                    // 隐藏加载画面，显示错误
+                    this.loadingManager.hide();
+                }
+            }
+            
+            async importGameModules() {
+                const modules = {};
+                
+                try {
+                    console.log('🔍 开始逐个导入模块...');
+
+                    // 第1层：基础配置和工具（无依赖）
+                    modules.gameConfig = await import('./gameConfig.js');
+                    console.log('✅ gameConfig 导入成功');
+                    modules.utils = await import('./utils_module.js');
+                    console.log('✅ utils 导入成功');
+                    
+                    // 第2层：数据系统（依赖配置）
+                    modules.timeSystem = await import('./time_system.js');
+                    console.log('✅ time_system 导入成功');
+                    modules.resourceSystem = await import('./resource_system.js');
+                    console.log('✅ resource_system 导入成功');
+                    modules.locationSystem = await import('./location_system.js');
+                    console.log('✅ location_system 导入成功');
+                    modules.characterModule = await import('./character_module.js');
+                    console.log('✅ character_module 导入成功');
+                    
+                    // 第3层：核心系统（依赖数据系统）
+                    modules.virtueSystem = await import('./virtue_system.js');
+                    console.log('✅ virtue_system 导入成功');
+                    modules.skillSystem = await import('./skill_system.js');
+                    console.log('✅ skill_system 导入成功');
+                    modules.memorySystem = await import('./memory_system.js');
+                    console.log('✅ memory_system 导入成功');
+                    
+                    // 第4层：处理器（依赖核心系统）
+                    modules.actionProcessor = await import('./action_processor.js');
+                    console.log('✅ action_processor 导入成功');
+                    modules.behaviorSystem = await import('./behavior_system.js');
+                    console.log('✅ behavior_system 导入成功');
+                    modules.decisionEngine = await import('./decision_engine.js');
+                    console.log('✅ decision_engine 导入成功');
+                    
+                    // 第5层：新架构基础（无依赖）
+                    modules.eventBus = await import('./event_bus.js');
+                    console.log('✅ event_bus 导入成功');
+                    modules.nameGenerator = await import('./name_generator.js');
+                    console.log('✅ name_generator 导入成功');
+                    modules.familyNetworkService = await import('./family_network_service.js');
+                    console.log('✅ family_network_service 导入成功');
+                    modules.familySystem = await import('./family_system.js');
+                    console.log('✅ family_system 导入成功');
+                    modules.personalitySystem = await import('./personality_system.js');
+                    console.log('✅ personality_system 导入成功');
+                    modules.socialIdentitySystem = await import('./social_identity_system.js');
+                    console.log('✅ social_identity_system 导入成功');
+                    modules.emotionalRelationshipSystem = await import('./emotional_relationship_system.js');
+                    console.log('✅ emotional_relationship_system 导入成功');
+                    modules.populationRules = await import('./population_rules.js');
+                    console.log('✅ population_rules 导入成功');
+                    modules.relationshipService = await import('./relationship_service.js');
+                    console.log('✅ relationship_service 导入成功');
+                    
+                    // 第6层：状态和数据管理（依赖事件总线）
+                    modules.gameStateManager = await import('./game_state_manager.js');
+                    console.log('✅ game_state_manager 导入成功');
+                    modules.unifiedDataManager = await import('./unified_data_manager.js'); // 如果存在
+                    console.log('✅ unified_data_manager 导入成功');
+                    
+                    // 第7层：生成器（依赖多个系统）
+                    modules.characterGenerator = await import('./character_generator.js');
+                    console.log('✅ character_generator 导入成功');
+                    
+                    // 第8层：适配器（依赖所有相关系统）
+                    modules.characterEventAdapter = await import('./character_module_event_adapter.js');
+                    console.log('✅ character_module_event_adapter 导入成功');
+                    modules.resourceEventAdapter = await import('./resource_system_event_adapter.js');
+                    console.log('✅ resource_system_event_adapter 导入成功');
+                    modules.behaviorEventAdapter = await import('./behavior_system_event_adapter.js');
+                    console.log('✅ behavior_system_event_adapter 导入成功');
+                    modules.decisionEventAdapter = await import('./decision_engine_event_adapter.js');
+                    console.log('✅ decision_engine_event_adapter 导入成功');
+                    
+                    // 第9层：界面系统（最后导入）
+                    modules.uiComponents = await import('./ui_components.js');
+                    console.log('✅ ui_components 导入成功');
+                    modules.gameInterface = await import('./game_interface.js');
+                    console.log('✅ game_interface 导入成功');
+                    modules.unifiedCharacterSystem = await import('./unified_character_system.js');
+                    console.log('✅ unified_character_system 导入成功');
+                    
+                    // 第10层：游戏引擎和部署模块（依赖所有系统）
+                    modules.gameEngine = await import('./game_engine.js');
+                    console.log('✅ game_engine 导入成功');
+                    
+                    return modules;
+                    
+                } catch (error) {
+                    throw new Error(`模块导入在此步骤失败: ${error.message}`);
+                }
+            }
+            
+            async initializeGame(modules) {
+                try {
+                    console.log('=== 开始 initializeGame ===');
+
+                    // 创建游戏引擎实例（构造函数已创建所有系统）
+                    console.log('开始创建游戏引擎...');
+                    const gameEngine = new modules.gameEngine.GameEngine();
+
+                    // 初始化游戏引擎（会自动初始化所有子系统）
+                    console.log('开始初始化游戏引擎...');
+                    await gameEngine.initialize();
+                    
+                    // 为现有模块添加事件支持
+                    console.log('开始添加角色事件支持...');
+                    modules.characterEventAdapter.addEventSupportToCharacters(
+                    gameEngine.characters,
+                    gameEngine.eventBus  // 使用GameEngine的eventBus
+                    );
+                    
+                    modules.resourceEventAdapter.addEventSupportToResourceSystem(
+                    gameEngine.resourceSystem,
+                    gameEngine.eventBus
+                    );
+                    
+                    // 创建界面控制器
+                    const gameInterface = new modules.gameInterface.GameInterface(
+                    gameEngine,
+                    gameEngine.eventBus,      // 使用GameEngine的eventBus
+                    gameEngine.stateManager   // 使用GameEngine的stateManager
+                    );
+                    
+                    gameEngine.interface = gameInterface;
+                    
+                    return gameEngine;
+                    
+                } catch (error) {
+                    console.error('游戏引擎初始化失败:', error);
+                    throw error;
+                }
+                }
+            
+                async startGame() {
+                    try {                    
+                      // 直接启动游戏循环
+                      this.gameInstance.start();
+                      this.bindWindowEvents();
+                          
+                    } catch (error) {
+                      throw new Error(`游戏启动失败: ${error.message}`);
+                    }
+                }
+            
+            bindWindowEvents() {
+                // 窗口关闭前保存
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.gameInstance && this.isLoaded) {
+                        this.gameInstance.saveGame();
+                        e.preventDefault();
+                        e.returnValue = '游戏进度尚未保存，确定要离开吗？';
+                    }
+                });
+                
+                // 处理错误
+                window.addEventListener('error', (e) => {
+                    ErrorHandler.show('发生未知错误', e.error);
+                });
+                
+                // 处理未捕获的Promise错误
+                window.addEventListener('unhandledrejection', (e) => {
+                    ErrorHandler.show('发生异步错误', e.reason);
+                    e.preventDefault();
+                });
+                
+                // 窗口大小变化时调整界面
+                window.addEventListener('resize', () => {
+                    if (this.gameInstance?.interface && typeof this.gameInstance.interface.handleResize === 'function') {
+                        this.gameInstance.interface.handleResize();
+                    }
+                });
+            }
+        }
+        
+        // 页面加载完成后启动游戏
+        document.addEventListener('DOMContentLoaded', () => {
+            const launcher = new GameLauncher();
+            launcher.launch();
+        });
+        
+        // 导出到全局作用域（便于调试）
+        window.GameLauncher = GameLauncher;
+        window.ErrorHandler = ErrorHandler;
+    </script>
+</body>
+</html>

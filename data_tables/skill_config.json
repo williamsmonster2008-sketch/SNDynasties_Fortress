@@ -1,0 +1,396 @@
+{
+  "skillCategories": {
+    "农业技能": {
+      "name": "农业技能",
+      "description": "耕种养殖相关技能，坞堡生存之本",
+      "color": "#4CAF50",
+      "importance": "critical",
+      "skills": [
+        {
+          "id": "farming",
+          "name": "垦荒耕种",
+          "description": "开垦土地种植农作物",
+          "importance": "critical",
+          "baseEfficiency": 1.0,
+          "requiredTools": true,
+          "dangerLevel": 0.1,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.8,
+          "teachingRequirement": 40,
+          "prerequisites": []
+        },
+        {
+          "id": "animal_husbandry", 
+          "name": "畜牧养殖",
+          "description": "饲养牲畜获取肉食和皮革",
+          "importance": "high",
+          "baseEfficiency": 0.9,
+          "requiredTools": false,
+          "dangerLevel": 0.05,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.7,
+          "teachingRequirement": 35,
+          "prerequisites": []
+        }
+      ]
+    },
+    
+    "手工技能": {
+      "name": "手工技能", 
+      "description": "制作工具和日用品的技艺",
+      "color": "#FF9800",
+      "importance": "high",
+      "skills": [
+        {
+          "id": "handicraft",
+          "name": "手工雕琢",
+          "description": "制作各种手工艺品和日用工具",
+          "importance": "high",
+          "baseEfficiency": 0.8,
+          "requiredTools": true,
+          "dangerLevel": 0.02,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.9,
+          "teachingRequirement": 50,
+          "prerequisites": []
+        },
+        {
+          "id": "metallurgy",
+          "name": "熔炼铸锻", 
+          "description": "冶炼金属制作工具和武器",
+          "importance": "high",
+          "baseEfficiency": 0.7,
+          "requiredTools": true,
+          "dangerLevel": 0.3,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.2,
+          "teachingRequirement": 60,
+          "prerequisites": ["handicraft"]
+        },
+        {
+          "id": "textile",
+          "name": "纺织缝纫",
+          "description": "纺织布匹和缝制衣物",
+          "importance": "high",
+          "baseEfficiency": 0.8,
+          "requiredTools": true,
+          "dangerLevel": 0.01,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.8,
+          "teachingRequirement": 30,
+          "prerequisites": []
+        }
+      ]
+    },
+
+    "建筑技能": {
+      "name": "建筑技能",
+      "description": "建造房屋和防御工事",
+      "color": "#795548",
+      "importance": "high",
+      "skills": [
+        {
+          "id": "construction",
+          "name": "住宅修建",
+          "description": "建造各种居住房屋",
+          "importance": "high",
+          "baseEfficiency": 0.9,
+          "requiredTools": true,
+          "dangerLevel": 0.2,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.0,
+          "teachingRequirement": 45,
+          "prerequisites": []
+        },
+        {
+          "id": "fortification",
+          "name": "坞堡营造",
+          "description": "建造防御工事和坞堡设施",
+          "importance": "critical",
+          "baseEfficiency": 0.8,
+          "requiredTools": true,
+          "dangerLevel": 0.15,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.3,
+          "teachingRequirement": 70,
+          "prerequisites": ["construction"]
+        }
+      ]
+    },
+
+    "采集技能": {
+      "name": "采集技能",
+      "description": "野外采集资源的技能",
+      "color": "#8BC34A",
+      "importance": "medium",
+      "skills": [
+        {
+          "id": "logging",
+          "name": "拓地伐林",
+          "description": "砍伐树木获取木材",
+          "importance": "medium",
+          "baseEfficiency": 0.7,
+          "requiredTools": true,
+          "dangerLevel": 0.1,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.6,
+          "teachingRequirement": 25,
+          "prerequisites": []
+        },
+        {
+          "id": "hunting",
+          "name": "野外狩猎",
+          "description": "狩猎野生动物获取肉食",
+          "importance": "medium",
+          "baseEfficiency": 0.6,
+          "requiredTools": true,
+          "dangerLevel": 0.4,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.1,
+          "teachingRequirement": 55,
+          "prerequisites": []
+        },
+        {
+          "id": "gathering",
+          "name": "药草采集",
+          "description": "采集各种药草和野菜",
+          "importance": "medium",
+          "baseEfficiency": 0.6,
+          "requiredTools": false,
+          "dangerLevel": 0.05,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.7,
+          "teachingRequirement": 30,
+          "prerequisites": []
+        }
+      ]
+    },
+
+    "社交技能": {
+      "name": "社交技能",
+      "description": "人际交往和商业活动",
+      "color": "#E91E63",
+      "importance": "medium",
+      "skills": [
+        {
+          "id": "trading",
+          "name": "商业贸易",
+          "description": "与他人进行商品交换",
+          "importance": "medium",
+          "baseEfficiency": 0.6,
+          "requiredTools": false,
+          "dangerLevel": 0.05,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.9,
+          "teachingRequirement": 40,
+          "prerequisites": []
+        },
+        {
+          "id": "diplomacy",
+          "name": "外交谈判",
+          "description": "与外部势力进行谈判",
+          "importance": "medium",
+          "baseEfficiency": 0.5,
+          "requiredTools": false,
+          "dangerLevel": 0.1,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.3,
+          "teachingRequirement": 70,
+          "prerequisites": ["trading"]
+        },
+        {
+          "id": "social_networking",
+          "name": "觅求好友",
+          "description": "建立和维护人际关系网络",
+          "importance": "medium",
+          "baseEfficiency": 0.6,
+          "requiredTools": false,
+          "dangerLevel": 0.02,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 0.8,
+          "teachingRequirement": 35,
+          "prerequisites": []
+        }
+      ]
+    },
+
+    "文化技能": {
+      "name": "文化技能",
+      "description": "学识和艺术修养",
+      "color": "#9C27B0",
+      "importance": "low",
+      "skills": [
+        {
+          "id": "study",
+          "name": "经义研读",
+          "description": "学习经典文献和儒家思想",
+          "importance": "low",
+          "baseEfficiency": 0.5,
+          "requiredTools": false,
+          "dangerLevel": 0,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.2,
+          "teachingRequirement": 80,
+          "prerequisites": []
+        },
+        {
+          "id": "poetry",
+          "name": "诗词歌赋",
+          "description": "创作诗歌词赋的文学技艺",
+          "importance": "low",
+          "baseEfficiency": 0.3,
+          "requiredTools": false,
+          "dangerLevel": 0,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.4,
+          "teachingRequirement": 75,
+          "prerequisites": ["study"]
+        },
+        {
+          "id": "calligraphy",
+          "name": "书法绘画",
+          "description": "书法和绘画艺术",
+          "importance": "low",
+          "baseEfficiency": 0.3,
+          "requiredTools": true,
+          "dangerLevel": 0,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.1,
+          "teachingRequirement": 60,
+          "prerequisites": []
+        }
+      ]
+    },
+
+    "武艺技能": {
+      "name": "武艺技能",
+      "description": "战斗和防卫技艺",
+      "color": "#F44336",
+      "importance": "medium",
+      "skills": [
+        {
+          "id": "martial_arts",
+          "name": "武艺精进",
+          "description": "各种武器的使用技巧",
+          "importance": "medium",
+          "baseEfficiency": 0.7,
+          "requiredTools": true,
+          "dangerLevel": 0.3,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.1,
+          "teachingRequirement": 65,
+          "prerequisites": []
+        },
+        {
+          "id": "archery",
+          "name": "射箭",
+          "description": "弓箭射击技术",
+          "importance": "medium",
+          "baseEfficiency": 0.8,
+          "requiredTools": true,
+          "dangerLevel": 0.2,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.0,
+          "teachingRequirement": 50,
+          "prerequisites": []
+        },
+        {
+          "id": "horsemanship",
+          "name": "骑术",
+          "description": "骑马和马匹训练",
+          "importance": "medium",
+          "baseEfficiency": 0.9,
+          "requiredTools": true,
+          "dangerLevel": 0.4,
+          "initialSkillPoints": 0,
+          "maxLevel": 100,
+          "learningDifficulty": 1.2,
+          "teachingRequirement": 60,
+          "prerequisites": []
+        }
+      ]
+    }
+  },
+
+  "skillLearning": {
+    "baseLearnRate": 1.0,
+    "masteryThreshold": 80,
+    "teachingEffectiveness": 0.8,
+    "practiceBonus": 1.2,
+    "ageDecayFactor": 0.05,
+    "maxDailyPracticeHours": 8,
+    "experienceBonusThreshold": 50,
+    "masterBonusMultiplier": 1.5
+  },
+
+  "skillEffects": {
+    "productivity": {
+      "skillBonus": 0.02,
+      "masteryBonus": 0.05,
+      "toolSynergy": 0.3,
+      "teamworkBonus": 0.15
+    },
+    "teaching": {
+      "skillTransferRate": 0.6,
+      "maxStudentsPerTeacher": 3,
+      "teachingXpGain": 0.3,
+      "studentProgressBonus": 0.4
+    },
+    "innovation": {
+      "masteryInnovationChance": 0.1,
+      "crossSkillBonus": 0.2,
+      "creativeBreakthroughRate": 0.05
+    }
+  },
+
+  "socialClassSkillPreferences": {
+    "门阀士族": {
+      "preferredSkills": ["经义研读", "诗词歌赋", "书法绘画", "外交谈判"],
+      "skillBonus": 15,
+      "maxInitialSkills": 4,
+      "culturalPriority": 1.5
+    },
+    "胡族": {
+      "preferredSkills": ["骑术", "射箭", "畜牧养殖", "野外狩猎"],
+      "skillBonus": 12,
+      "maxInitialSkills": 3,
+      "combatPriority": 1.3
+    },
+    "平民": {
+      "preferredSkills": ["垦荒耕种", "手工雕琢", "纺织缝纫", "住宅修建"],
+      "skillBonus": 10,
+      "maxInitialSkills": 2,
+      "productionPriority": 1.2
+    },
+    "工匠": {
+      "preferredSkills": ["手工雕琢", "熔炼铸锻", "住宅修建", "纺织缝纫"],
+      "skillBonus": 18,
+      "maxInitialSkills": 3,
+      "craftPriority": 1.6
+    },
+    "商贾": {
+      "preferredSkills": ["商业贸易", "外交谈判", "觅求好友", "熔炼铸锻"],
+      "skillBonus": 12,
+      "maxInitialSkills": 3,
+      "tradePriority": 1.4
+    }
+  }
+}

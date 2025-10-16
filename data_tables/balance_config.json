@@ -1,0 +1,1217 @@
+{
+  "description": "南北朝坞堡模拟器 - 游戏平衡参数配置",
+  "version": "2.0.0",
+  "lastUpdated": "2025-9-6",
+
+  "system_settings": {
+
+    "id_generation": {
+      "character_id_start": 1000,
+      "unit_id_suffix_length": 4,
+      "family_id_prefix": "family_",
+      "unit_id_prefix": "unit_"
+    },
+    
+    "population_adjustment": {
+      "max_increase_per_unit": 2,
+      "max_decrease_per_unit": 1,
+      "preferred_adjustment_units": ["complete_family", "elderly_led"]
+    }
+  },
+
+  "population_generation": {
+    "generationPlanning": {
+      "fertilityRates": {
+        "low": { "min": 1.5, "max": 2.0 },
+        "medium": { "min": 2.5, "max": 3.5 },
+        "high": { "min": 4.2, "max": 6.5 }
+      },
+      "fertilityTypeWeights": {
+        "low": 0.3,
+        "medium": 0.5,
+        "high": 0.8
+      },
+      "marriageRates": {
+        "门阀士族": { "min": 0.95, "max": 1.00 },
+        "寒门": { "min": 0.75, "max": 0.88 },
+        "庶族": { "min": 0.65, "max": 0.80 },
+        "胡族": { "min": 0.70, "max": 0.85 },
+        "平民": { "min": 0.55, "max": 0.75 }
+      },
+      "refugeeMode": {
+        "enabled": false,
+        "marriageRateModifier": 0.15,
+        "fertilityRateModifier": 0.05,
+        "affectedGenerations": [5]
+      },
+      "baseGeneration": {
+        "firstGeneration": 2
+      }
+    },
+
+    "fertility_system": {
+      "age_fertility_curve": [
+        [20, 0.7],   
+        [25, 1.0],   
+        [30, 0.9],   
+        [35, 0.7],   
+        [40, 0.4],   
+        [60, 0.05],
+        [100, 0.00]   
+      ],
+      "birth_outcomes": [
+        [0.0001, 4],  
+        [0.001, 3],  
+        [0.05, 2],   
+        [1.0, 1]     
+      ],
+      "settlement_fertility_modifier": 1.2
+    },
+    
+    "marriage_system": {
+      "legal_constraints": {
+        "same_family": false,
+        "same_surname": false,
+        "max_bloodline_distance": 3,
+        "cross_ethnic_marriage": true
+      },
+      "age_requirements": {
+        "marriageable_age": {
+          "male": { "min": 16, "max": 55 },
+          "female": { "min": 13, "max": 45 }
+        },
+        "optimal_marriage_age": {
+          "male": 22,
+          "female": 18
+        },
+        "age_matching": {
+          "max_difference": 30,
+          "preferred_difference": 10,
+          "optimal_range": { "min": 1, "max": 8 }
+        }
+      },
+      "social_class_system": {
+        "compatibility_matrix": {
+          "门阀士族": {
+            "preferred_matches": ["门阀士族", "寒门"],
+            "avoided_matches": ["平民"],
+            "strategy": "political"
+          },
+          "寒门": {
+            "preferred_matches": ["门阀士族", "寒门", "庶族"],
+            "strategy": "balanced"
+          },
+          "庶族": {
+            "preferred_matches": ["寒门", "庶族", "胡族"],
+            "avoided_matches": ["门阀士族"],
+            "strategy": "adaptive"
+          },
+          "胡族": {
+            "preferred_matches": ["胡族", "庶族", "平民"],
+            "avoided_matches": ["门阀士族"],
+            "strategy": "pragmatic"
+          },
+          "平民": {
+            "preferred_matches": ["平民", "胡族"],
+            "avoided_matches": ["门阀士族", "寒门"],
+            "strategy": "submissive"
+          }
+        },
+        "matching_probabilities": {
+          "same_class": 0.75,
+          "adjacent_class": 0.35,
+          "distant_class": 0.05
+        },
+        "max_class_gap": 2,
+        "strategic_marriage_bonus": 10
+      },
+      "cross_family_rules": {
+        "eligible_unit_ratio": 0.33,
+        "max_cross_marriages": 5,
+        "social_bonus_multiplier": 3
+      }
+    },
+
+    "mortalityRates": {
+      "byGeneration": {
+        "1": 0.95,
+        "2": 0.75, 
+        "3": 0.45,
+        "4": 0.15,
+        "5": 0.95
+      },
+      "childhood_mortality": 0.35,
+      "baseMortalityRate": 0.15,
+      "ageFactors": {
+        "elderly": 0.7,
+        "adult": 0.15,
+        "child": 0.6
+      },
+      "age_mortality_curve": [
+        [40, 0.15],    
+        [60, 0.35],    
+        [75, 0.65],    
+        [90, 0.9],    
+        [100, 0.99995]    
+      ],
+      "default_elderly_mortality": 1
+    },
+
+    "family_structure_types": {
+      "nuclear_family": {
+        "weight": 0.4,
+        "description": "核心家庭",
+        "generation_count": 2,
+        "size_range": [3, 6],
+        "typical_composition": "父母+子女"
+      },
+      "extended_family": {
+        "weight": 0.35,
+        "description": "扩展家庭", 
+        "generation_count": 3,
+        "size_range": [5, 10],
+        "typical_composition": "祖父母+父母+子女"
+      },
+      "large_family": {
+        "weight": 0.2,
+        "description": "大家族",
+        "generation_count": 4,
+        "size_range": [8, 15],
+        "typical_composition": "曾祖父母+祖父母+父母+子女"
+      },
+      "clan_family": {
+        "weight": 0.05,
+        "description": "世族大家",
+        "generation_count": 5,
+        "size_range": [12, 25],
+        "typical_composition": "五代同堂"
+      }
+    },
+    
+    "social_class_system": {
+      "hierarchy": ["平民", "胡族", "庶族", "寒门", "门阀士族"],
+      "class_details": {
+        "门阀士族": {
+          "family_size_range": [5, 12],
+          "marriage_pattern": "strategic",
+          "death_rate": 0.15,
+          "special_roles": ["scholar", "official"],
+          "preferred_matches": ["门阀士族", "寒门"],
+          "marriage_strategy": "political",
+          "dowry_expectation": "high",
+          "wealth_multiplier": 3.5,
+          "education_bonus": 25,
+          "social_influence": 40
+        },
+        "寒门": {
+          "family_size_range": [4, 8],
+          "marriage_pattern": "moderate",
+          "death_rate": 0.25,
+          "special_roles": ["merchant", "craftsman"],
+          "preferred_matches": ["门阀士族", "寒门", "庶族"],
+          "marriage_strategy": "balanced",
+          "dowry_expectation": "medium",
+          "wealth_multiplier": 2.0,
+          "education_bonus": 15,
+          "social_influence": 25
+        },
+        "庶族": {
+          "family_size_range": [3, 6],
+          "marriage_pattern": "simple",
+          "death_rate": 0.30,
+          "special_roles": ["farmer", "soldier"],
+          "preferred_matches": ["寒门", "庶族", "平民"],
+          "marriage_strategy": "practical",
+          "dowry_expectation": "low",
+          "wealth_multiplier": 1.3,
+          "education_bonus": 8,
+          "social_influence": 15
+        },
+        "平民": {
+          "family_size_range": [3, 5],
+          "marriage_pattern": "basic",
+          "death_rate": 0.35,
+          "special_roles": ["laborer", "servant"],
+          "preferred_matches": ["庶族", "平民"],
+          "marriage_strategy": "simple",
+          "dowry_expectation": "minimal",
+          "wealth_multiplier": 1.0,
+          "education_bonus": 0,
+          "social_influence": 5
+        },
+        "胡族": {
+          "family_size_range": [3, 6],
+          "marriage_pattern": "practical",
+          "death_rate": 0.30,
+          "special_roles": ["herder", "warrior"],
+          "preferred_matches": ["胡族", "平民", "庶族"],
+          "marriage_strategy": "practical",
+          "dowry_expectation": "low",
+          "wealth_multiplier": 1.8,
+          "education_bonus": 5,
+          "social_influence": 15
+        }
+      },
+    
+      "social_class_distribution": {
+        "traditional_family": {
+          "门阀士族": 0.15,
+          "寒门": 0.25,
+          "庶族": 0.35,
+          "平民": 0.2,
+          "胡族": 0.05
+        }
+      }
+    },  
+    
+    "familyRoles": {
+      "generationRoles": {
+        "1": {
+          "男": "great_great_grandfather",
+          "女": "great_great_grandmother"
+        },
+        "2": {
+          "男": "great_grandfather", 
+          "女": "great_grandmother"
+        },
+        "3": {
+          "男": "grandfather",
+          "女": "grandmother"
+        },
+        "4": {
+          "男": "father",
+          "女": "mother"
+        },
+        "5": {
+          "男": "son",
+          "女": "daughter"
+        }
+      }
+    },
+    
+    "fertility_rules": {
+      "min_breeding_age": 13,
+      "max_breeding_age": {
+        "male": 70,
+        "female": 45
+      },
+      "birth_age_distribution": {
+        "first_birth": {"min_factor": 0.05, "max_factor": 0.2},
+        "subsequent_birth": {"min_factor": 0.1, "max_factor": 0.6},
+        "late_birth": {"min_factor": 0.3, "max_factor": 0.95}
+      },
+      "max_lifespan": 95,
+      "couple_age_difference": {
+        "min": -22,
+        "max": 47
+      },
+      "min_generation_gap": 15,
+      "max_generation_gap": 50
+    },
+
+    "generation_structure": {
+      "1": {
+        "name": "高祖辈",
+        "typical_roles": ["great_great_grandfather", "great_great_grandmother"],
+        "age_range": [75, 90],
+        "survival_rate": 0.05,
+        "max_members": 2
+      },
+      "2": {
+        "name": "曾祖辈",
+        "typical_roles": ["great_grandfather", "great_grandmother"],
+        "age_range": [55, 75],
+        "survival_rate": 0.3,
+        "max_members": 3
+      },
+      "3": {
+        "name": "祖父母辈",
+        "typical_roles": ["grandfather", "grandmother"],
+        "age_range": [35, 55],
+        "survival_rate": 0.6,
+        "max_members": 4
+      },
+      "4": {
+        "name": "父母辈",
+        "typical_roles": ["father", "mother", "uncle", "aunt"],
+        "age_range": [17, 40],
+        "survival_rate": 0.8,
+        "max_members": 6
+      },
+      "5": {
+        "name": "子女辈",
+        "typical_roles": ["son", "daughter"],
+        "age_range": [1, 17],
+        "survival_rate": 0.4,
+        "max_members": 8
+      }
+    },
+    "family_affiliation_system": {
+      "marriage_mobility_rules": {
+        "default_marriage_pattern": {
+          "female_mobility": "patrilocal",
+          "male_mobility": "stays",
+          "children_affiliation": "paternal_line"
+        },
+        "special_marriage_patterns": {
+          "matrilocal_marriage": {
+            "description": "入赘婚姻 - 男性加入女方家族",
+            "scenarios": {
+              "noble_family_heir_shortage": {
+                "description": "高门女性招赘延续血脉",
+                "conditions": {
+                  "wife_social_class": ["门阀士族", "寒门"],
+                  "wife_is_only_heir": true,
+                  "husband_social_class": ["庶族", "寒门", "平民"],
+                  "family_bloodline_crisis": true
+                },
+                "probability": 0.12
+              },
+              "economic_rescue_marriage": {
+                "description": "富裕女家拯救衰落男家",
+                "conditions": {
+                  "wife_family_wealth_advantage": true,
+                  "husband_family_decline": true,
+                  "mutual_benefit": true
+                },
+                "probability": 0.03
+              }
+            },
+            "effects": {
+              "male_mobility": "joins_wife_family",
+              "female_mobility": "stays",
+              "children_affiliation": "maternal_line",
+              "surname_change": "adopts_wife_surname"
+            }
+          },
+          "political_marriage": {
+            "description": "政治联姻 - 双方家族地位考量",
+            "conditions": {
+              "both_families_noble": true,
+              "strategic_alliance": true,
+              "equal_social_status": true
+            },
+            "probability": 0.15,
+            "effects": {
+              "female_mobility": "partial_retention",
+              "male_mobility": "stays",
+              "children_affiliation": "paternal_primary_maternal_secondary",
+              "dual_family_influence": true
+            }
+          }
+        }
+      },
+      "affiliation_transition_rules": {
+        "female_marriage_transition": {
+          "original_family_retention": {
+            "bloodline_connection": "permanent",
+            "inheritance_rights": "limited",
+            "ceremonial_participation": "major_events_only",
+            "emotional_attachment": "maintained"
+          },
+          "new_family_integration": {
+            "adoption_period": 365,
+            "integration_milestones": [
+              { "day": 30, "status": "newcomer", "acceptance": 0.3 },
+              { "day": 180, "status": "adapting", "acceptance": 0.6 },
+              { "day": 365, "status": "integrated", "acceptance": 0.9 }
+            ],
+            "acceptance_factors": {
+              "personality_compatibility": 0.3,
+              "skill_contribution": 0.2,
+              "fertility_performance": 0.25,
+              "social_harmony": 0.25
+            }
+          }
+        },
+        "male_matrilocal_transition": {
+          "surname_adoption_process": {
+            "immediate_change": false,
+            "ceremonial_adoption": true,
+            "adoption_ceremony_delay": 30,
+            "social_recognition_period": 180
+          },
+          "status_adjustment": {
+            "initial_status": "outsider_husband",
+            "probationary_period": 365,
+            "full_member_requirements": {
+              "prove_loyalty": true,
+              "contribute_skills": true,
+              "produce_heirs": true,
+              "abandon_original_family": true
+            }
+          }
+        }
+      },
+      "children_inheritance_rules": {
+        "patrilineal_system": {
+          "primary_affiliation": "father_family",
+          "surname_inheritance": "father_surname",
+          "property_inheritance": "father_line_priority",
+          "bloodline_recognition": "father_ancestors_primary"
+        },
+        "matrilineal_exception": {
+          "conditions": [
+            "father_adopted_into_mother_family",
+            "mother_is_family_heir",
+            "father_family_extinct"
+          ],
+          "effects": {
+            "primary_affiliation": "mother_family",
+            "surname_inheritance": "mother_surname",
+            "property_inheritance": "mother_line_priority",
+            "bloodline_recognition": "mother_ancestors_primary"
+          }
+        },
+        "dual_heritage": {
+          "applies_to": "political_marriage_children",
+          "benefits": {
+            "access_to_both_family_resources": true,
+            "dual_surname_option": true,
+            "expanded_marriage_prospects": true,
+            "diplomatic_advantages": true
+          },
+          "obligations": {
+            "serve_both_family_interests": true,
+            "mediate_family_conflicts": true,
+            "maintain_dual_loyalty": true
+          }
+        }
+      },
+      "family_relationship_maintenance": {
+        "cross_family_ties": {
+          "maternal_relatives": {
+            "relationship_strength": 0.7,
+            "interaction_frequency": "seasonal_visits",
+            "mutual_support": "major_crises_only",
+            "children_recognition": "as_external_relatives"
+          },
+          "paternal_relatives": {
+            "relationship_strength": 1.0,
+            "interaction_frequency": "daily_contact",
+            "mutual_support": "all_matters",
+            "children_recognition": "as_family_members"
+          }
+        },
+        "divorce_and_widowhood": {
+          "female_widow": {
+            "return_to_original_family": "optional",
+            "remarriage_within_husband_family": "preferred",
+            "children_custody": "remain_with_husband_family",
+            "property_rights": "limited_usufruct"
+          },
+          "male_widower": {
+            "remarriage_freedom": "high",
+            "children_custody": "automatic_retention",
+            "wife_family_obligations": "minimal",
+            "property_rights": "full_inheritance"
+          },
+          "divorce": {
+            "female_return": "mandatory",
+            "children_custody": "father_retains",
+            "property_division": "minimal_for_wife",
+            "social_stigma": "moderate_for_female"
+          }
+        }
+      }
+    },
+
+    "relationship_strength": {
+      "bloodline_base_strength": {
+        "parent_child": 95,
+        "sibling": 90,
+        "spouse": 95,
+        "grandparent_grandchild": 80,
+        "uncle_nephew": 65,
+        "cousin": 50
+      },
+      "strength_modifiers": {
+        "same_generation": 1.0,
+        "one_gen_gap": 0.9,
+        "two_gen_gap": 0.8,
+        "three_gen_gap": 0.7,
+        "deceased": 0.5
+      },
+      "relationship_translations": {
+        "blood_relations": {
+          "father": "父亲",
+          "mother": "母亲", 
+          "son": "儿子",
+          "daughter": "女儿",
+          "husband": "夫君",
+          "wife": "妻室",
+          "grandfather": "祖父",
+          "grandmother": "祖母",
+          "grandson": "孙儿",
+          "granddaughter": "孙女",
+          "great_grandfather": "曾祖父",
+          "great_grandmother": "曾祖母",
+          "great_great_grandfather": "高祖父",
+          "great_great_grandmother": "高祖母",
+          "uncle": "叔父",
+          "aunt": "叔母",
+          "nephew": "侄儿",
+          "niece": "侄女",
+          "cousin": "堂兄弟",
+          "cousin_sister": "堂姐妹",
+          "brother": "兄弟",
+          "sister": "姐妹",
+          "elder_brother": "兄长",
+          "younger_brother": "弟弟",
+          "elder_sister": "姐姐", 
+          "younger_sister": "妹妹",
+          "father_in_law": "岳父",
+          "mother_in_law": "岳母",
+          "son_in_law": "女婿",
+          "daughter_in_law": "儿媳",
+          "brother_in_law": "姐夫",
+          "sister_in_law": "嫂嫂"
+        },
+        "social_relations": {
+          "lord": "主公",
+          "vassal": "家臣", 
+          "retainer": "门客",
+          "servant": "仆人",
+          "slave": "奴仆",
+          "tenant": "佃户",
+          "overseer": "管事",
+          "steward": "总管",
+          "guard": "护卫",
+          "soldier": "士卒",
+          "craftsman": "工匠",
+          "merchant": "商贾",
+          "scholar": "学士",
+          "teacher": "师长",
+          "student": "门生",
+          "ally": "盟友",
+          "rival": "对手",
+          "enemy": "仇敌"
+        },
+        "emotional_relations": {
+          "intimate": "情深",
+          "close": "亲近", 
+          "friendly": "友善",
+          "neutral": "平常",
+          "distant": "疏远",
+          "hostile": "敌对",
+          "respectful": "敬重",
+          "contemptuous": "轻蔑",
+          "fearful": "畏惧",
+          "protective": "护佑",
+          "dependent": "依赖",
+          "jealous": "妒忌",
+          "grateful": "感激",
+          "resentful": "怨恨",
+          "admiring": "仰慕",
+          "suspicious": "猜疑",
+          "trusting": "信任",
+          "loving": "深爱",
+          "indifferent": "漠然"
+        },
+        "status_relations": {
+          "superior": "上级",
+          "subordinate": "下属",
+          "equal": "同僚",
+          "patron": "庇护者",
+          "client": "门第",
+          "benefactor": "恩主",
+          "debtor": "欠债者",
+          "creditor": "债主",
+          "partner": "伙伴",
+          "competitor": "竞争者"
+        }
+      },
+      "relation_display_rules": {
+        "priority_order": ["blood_relations", "social_relations", "emotional_relations", "status_relations"],
+        "display_format": {
+          "blood_relations": "{name}（{relation}）",
+          "social_relations": "{name}·{relation}",
+          "emotional_relations": "{name} - {relation}",
+          "status_relations": "{name}【{relation}】"
+        },
+        "color_scheme": {
+          "blood_relations": "#8B4513",
+          "social_relations": "#4682B4", 
+          "emotional_relations": "#DC143C",
+          "status_relations": "#9932CC"
+        }
+      },
+      "context_variations": {
+        "formal_address": {
+          "father": "家父",
+          "mother": "家母",
+          "husband": "夫君",
+          "wife": "内子",
+          "son": "犬子",
+          "daughter": "小女"
+        },
+        "intimate_address": {
+          "husband": "郎君",
+          "wife": "娘子",
+          "father": "阿父",
+          "mother": "阿母"
+        },
+        "public_address": {
+          "lord": "主公",
+          "superior": "大人",
+          "equal": "兄台",
+          "subordinate": "下官"
+        }
+      }
+    }    
+  },
+
+  "refugee_population": {
+    "refugee_wave_system": {
+      "defaultWaveCount": 5,
+      "initialWave": {
+        "familyCount": [4, 5],
+        "populationRange": [18, 25]
+      },
+      "followUpWaves": {
+        "familyCountRange": [1, 3],
+        "populationRange": [5, 15]
+      },
+      "arrivalIntervals": {
+        "minDays": 30,
+        "maxDays": 120
+      },
+      "social_distribution_adjustment": {
+        "wave_adjustment_factor": 0.1,
+        "max_adjustment": 0.4,
+        "noble_reduction_rate": 1.0,
+        "scholar_reduction_rate": 0.5,
+        "redistribution_factor": 0.7,
+        "commoner_redistribution": 0.6,
+        "artisan_redistribution": 0.4
+      }
+    },
+    "family_size_categories": {
+      "small_family": { "min_size": 3, "max_size": 8, "weight": 0.4 },
+      "medium_family": { "min_size": 9, "max_size": 15, "weight": 0.4 },
+      "large_family": { "min_size": 16, "max_size": 25, "weight": 0.2 }
+    },
+    
+    "ageDistributionEstimation": {
+      "adults": 0.6,
+      "children": 0.3,
+      "elderly": 0.1
+    },
+
+    "family_generation_patterns": {
+      "high_mortality_family": {
+        "initial_scale_multiplier": 2.5,
+        "mortality_rate": 0.65,
+        "description": "经历重大变故的大家族残余"
+      },
+      "low_mortality_family": {
+        "initial_scale_multiplier": 1.2,
+        "mortality_rate": 0.15,
+        "description": "相对完整的小家族"
+      },
+      "moderate_mortality_family": {
+        "initial_scale_multiplier": 1.8,
+        "mortality_rate": 0.40,
+        "description": "中等规模受损家族"
+      }
+    },
+    
+    "pattern_distribution": {
+      "high_mortality_family": 0.3,
+      "low_mortality_family": 0.4,
+      "moderate_mortality_family": 0.3
+    },
+
+    "social_distribution": {
+      "平民": 0.4,
+      "庶族": 0.3,
+      "寒门": 0.15,
+      "胡族": 0.1,
+      "门阀士族": 0.05
+    },
+
+    "population_size": {
+      "target_size": 25,
+      "min_size": 20,
+      "max_size": 30
+    },
+
+    "initial_settlement_config": {
+      "default_mode": "refugee_settlement",
+      "min_families": 3,
+      "max_families": 6
+    },
+
+    "unit_weight_adjustments": {
+      "门阀士族": {
+        "complete_family": 1.5,
+        "elderly_led": 1.2,
+        "widow_family": 0.8,
+        "single_adult": 0.5,
+        "orphan_siblings": 0.3
+      },
+      "寒门": {
+        "complete_family": 1.2,
+        "elderly_led": 1.0,
+        "widow_family": 1.0,
+        "single_adult": 0.8,
+        "orphan_siblings": 0.7
+      },
+      "庶族": {
+        "complete_family": 1.0,
+        "elderly_led": 0.9,
+        "widow_family": 1.1,
+        "single_adult": 1.0,
+        "orphan_siblings": 1.0
+      },
+      "胡族": {
+        "complete_family": 1.1,
+        "elderly_led": 1.0,
+        "widow_family": 0.9,
+        "single_adult": 1.2,
+        "orphan_siblings": 0.8
+      },
+      "平民": {
+        "complete_family": 0.8,
+        "elderly_led": 0.7,
+        "widow_family": 1.3,
+        "single_adult": 1.4,
+        "orphan_siblings": 1.2
+      }
+    },
+    
+    "unit_traits": {
+      "complete_family": ["家庭和睦", "抚育子女"],
+      "elderly_led": ["尊老传统", "经验丰富"],
+      "widow_family": ["坚韧自立", "负担沉重"],
+      "single_adult": ["行动灵活", "孤独感"],
+      "orphan_siblings": ["相依为命", "早熟懂事"]
+    },
+    
+    "social_class_traits": {
+      "门阀士族": ["文化传承", "社会声望"],
+      "寒门": ["读书传统", "上进心强"],
+      "庶族": ["务实勤劳", "邻里关系"],
+      "胡族": ["游牧习惯", "骑射技能"],
+      "平民": ["生存技能", "吃苦耐劳"]
+    }
+
+  },
+
+
+  "character_generation": {
+    "age_ranges": {
+      "child": {
+        "min": 5,
+        "max": 12,
+        "weight": 0.15,
+        "description": "儿童期"
+      },
+      "youth": {
+        "min": 13,
+        "max": 24,
+        "weight": 0.25,
+        "description": "青年期"
+      },
+      "adult": {
+        "min": 25,
+        "max": 36,
+        "weight": 0.35,
+        "description": "成年期"
+      },
+      "middle_aged": {
+        "min": 37,
+        "max": 49,
+        "weight": 0.20,
+        "description": "中年期"
+      },
+      "elder": {
+        "min": 50,
+        "max": 95,
+        "weight": 0.05,
+        "description": "老年期"
+      }
+    },
+
+    "social_class_distribution": {
+      "门阀士族": {
+        "probability": 0.08,
+        "description": "五姓七望等名门望族",
+        "wealth_multiplier": 3.5,
+        "education_bonus": 25,
+        "social_influence": 40
+      },
+      "胡族": {
+        "probability": 0.22,
+        "description": "鲜卑、羌、氐等胡族",
+        "wealth_multiplier": 1.8,
+        "education_bonus": 5,
+        "social_influence": 15
+      },
+      "平民": {
+        "probability": 0.55,
+        "description": "汉族平民百姓",
+        "wealth_multiplier": 1.0,
+        "education_bonus": 0,
+        "social_influence": 5
+      },
+      "工匠": {
+        "probability": 0.12,
+        "description": "手工业者和技艺人",
+        "wealth_multiplier": 1.3,
+        "education_bonus": 10,
+        "social_influence": 8
+      },
+      "商贾": {
+        "probability": 0.03,
+        "description": "商人和贸易者",
+        "wealth_multiplier": 2.2,
+        "education_bonus": 15,
+        "social_influence": 12
+      }
+    },
+
+    "gender_distribution": {
+      "男": {
+        "probability": 0.52,
+        "strength_bonus": 15,
+        "charisma_bonus": 5
+      },
+      "女": {
+        "probability": 0.48,
+        "intelligence_bonus": 8,
+        "virtue_bonus": 10
+      }
+    },
+
+    "base_attributes": {
+      "strength": {
+        "min": 20,
+        "max": 80,
+        "average": 50,
+        "variance": 15
+      },
+      "intelligence": {
+        "min": 25,
+        "max": 90,
+        "average": 55,
+        "variance": 18
+      },
+      "charisma": {
+        "min": 20,
+        "max": 85,
+        "average": 50,
+        "variance": 16
+      },
+      "constitution": {
+        "min": 30,
+        "max": 85,
+        "average": 60,
+        "variance": 12
+      },
+      "dexterity": {
+        "min": 25,
+        "max": 80,
+        "average": 52,
+        "variance": 14
+      },
+      "wisdom": {
+        "min": 20,
+        "max": 85,
+        "average": 48,
+        "variance": 17
+      }
+    },
+
+    "skill_generation": {
+      "门阀士族": {
+        "preferred_skills": ["经义研读", "诗词歌赋", "礼仪规范", "书法绘画"],
+        "skill_bonus": 15,
+        "max_initial_skills": 4
+      },
+      "胡族": {
+        "preferred_skills": ["骑术", "射箭", "畜牧养殖", "野外狩猎"],
+        "skill_bonus": 12,
+        "max_initial_skills": 3
+      },
+      "平民": {
+        "preferred_skills": ["垦荒耕种", "手工雕琢", "纺织缝纫", "建造修缮"],
+        "skill_bonus": 10,
+        "max_initial_skills": 2
+      },
+      "工匠": {
+        "preferred_skills": ["手工雕琢", "熔炼铸锻", "建造修缮", "纺织缝纫"],
+        "skill_bonus": 18,
+        "max_initial_skills": 3
+      },
+      "商贾": {
+        "preferred_skills": ["摆摊交易", "商铺经营", "觅求好友", "社交礼仪"],
+        "skill_bonus": 12,
+        "max_initial_skills": 3
+      }
+    },
+
+    "skill_learning": {
+      "base_learn_rate": 1.0,
+      "intelligence_influence": 0.3,
+      "age_penalty": {
+        "under_20": 0.0,
+        "20_40": 0.05,
+        "40_60": 0.15,
+        "over_60": 0.30
+      },
+      "teacher_effectiveness": {
+        "no_teacher": 1.0,
+        "peer_teacher": 1.2,
+        "skilled_teacher": 1.6,
+        "master_teacher": 2.2
+      },
+      "practice_bonus": 1.3,
+      "mastery_threshold": 80,
+      "expertise_threshold": 95
+    },
+
+    "relationships": {
+      "familiarity_gain_rate": 1.0,
+      "compatibility_influence": 0.6,
+      "conflict_decay_rate": 0.1,
+      "marriage_threshold": 70,
+      "friendship_threshold": 60
+    },
+
+    "needs": {
+      "hunger_decay_rate": 2.0,
+      "thirst_decay_rate": 2.5,
+      "sleep_decay_rate": 0.8,
+      "cleanliness_decay_rate": 0.5,
+      "social_need_threshold": 40
+    },
+
+    "health": {
+      "base_health_decay": 0.1,
+      "disease_chance": 0.01,
+      "injury_chance": 0.005,
+      "recovery_rate": 1.5,
+      "medical_effectiveness": 0.7
+    },
+
+    "production": {
+      "base_efficiency": 1.0,
+      "skill_bonus": 0.02,
+      "weather_modifier": 0.3,
+      "tool_bonus": 0.2,
+      "teamwork_bonus": 0.1
+    }
+  },
+
+  "relationship_parameters": {
+    "familiarity_gain": {
+      "base_rate": 1.0,
+      "interaction_bonus": 0.3,
+      "proximity_bonus": 0.2,
+      "compatibility_influence": 0.4
+    },
+    
+    "affection_changes": {
+      "positive_interaction": 2,
+      "negative_interaction": -3,
+      "helping_behavior": 4,
+      "conflict_behavior": -5,
+      "gift_giving": 3,
+      "time_decay": -0.1
+    },
+
+    "trust_parameters": {
+      "promise_keeping": 5,
+      "promise_breaking": -8,
+      "consistent_behavior": 2,
+      "deceptive_behavior": -6,
+      "time_building": 1
+    },
+
+    "relationship_thresholds": {
+      "stranger": 0,
+      "acquaintance": 20,
+      "friend": 50,
+      "close_friend": 75,
+      "enemy": -30,
+      "rival": -10,
+      "marriage_consideration": 70,
+      "mentorship_threshold": 60
+    }
+  },
+
+  "economic_parameters": {
+    "resource_generation": {
+      "base_efficiency": 1.0,
+      "skill_bonus_multiplier": 0.02,
+      "weather_impact": 0.25,
+      "season_modifiers": {
+        "春季": 1.15,
+        "夏季": 1.25,
+        "秋季": 1.35,
+        "冬季": 0.7
+      },
+      "tool_bonus": 0.3,
+      "teamwork_bonus": 0.15
+    },
+
+    "wealth_ranges": {
+      "贫困": {
+        "min": 0,
+        "max": 100,
+        "probability": 0.35
+      },
+      "温饱": {
+        "min": 101,
+        "max": 300,
+        "probability": 0.40
+      },
+      "小康": {
+        "min": 301,
+        "max": 800,
+        "probability": 0.20
+      },
+      "富裕": {
+        "min": 801,
+        "max": 2000,
+        "probability": 0.04
+      },
+      "豪富": {
+        "min": 2001,
+        "max": 5000,
+        "probability": 0.01
+      }
+    }
+  },
+
+  "virtue_development": {
+    "base_growth_rate": 1.0,
+    "behavior_impact_multiplier": 1.2,
+    "age_wisdom_bonus": {
+      "under_25": 0.8,
+      "25_45": 1.0,
+      "45_65": 1.3,
+      "over_65": 1.6
+    },
+    "social_environment_influence": 0.4,
+    "mentor_influence": 0.6,
+    "life_experience_bonus": 0.3
+  },
+
+  "family_parameters": {
+    "family_size_distribution": {
+      "small": {
+        "size_range": [3, 5],
+        "probability": 0.25,
+        "description": "小家庭"
+      },
+      "medium": {
+        "size_range": [6, 8],
+        "probability": 0.45,
+        "description": "中等家庭"
+      },
+      "large": {
+        "size_range": [9, 12],
+        "probability": 0.25,
+        "description": "大家庭"
+      },
+      "clan": {
+        "size_range": [13, 20],
+        "probability": 0.05,
+        "description": "家族"
+      }
+    },
+
+    "generation_survival_rates": {
+      "generation_1": 0.3,
+      "generation_2": 0.5,
+      "generation_3": 0.8,
+      "generation_4": 0.95,
+      "generation_5": 1.0
+    }   
+  },
+
+  "time_parameters": {
+    "season_length_days": 90,
+    "year_length_days": 360,
+    "time_multipliers": {
+      "paused": 0,
+      "slow": 0.5,
+      "normal": 1.0,
+      "fast": 2.0,
+      "very_fast": 5.0
+    },
+    
+    "aging_parameters": {
+      "child_growth_rate": 1.2,
+      "adult_aging_rate": 1.0,
+      "elder_aging_rate": 1.5,
+      "life_expectancy": {
+        "门阀士族": 65,
+        "胡族": 55,
+        "平民": 50,
+        "工匠": 58,
+        "商贾": 60
+      }
+    }
+  },
+
+  "event_parameters": {
+    "random_event_frequency": 0.15,
+    "seasonal_event_modifiers": {
+      "春季": {
+        "farming_events": 1.5,
+        "celebration_events": 1.2
+      },
+      "夏季": {
+        "trade_events": 1.3,
+        "weather_events": 1.4
+      },
+      "秋季": {
+        "harvest_events": 2.0,
+        "preparation_events": 1.3
+      },
+      "冬季": {
+        "survival_events": 1.6,
+        "indoor_events": 1.4
+      }
+    },
+
+    "disaster_probabilities": {
+      "drought": 0.05,
+      "flood": 0.03,
+      "bandit_attack": 0.08,
+      "disease_outbreak": 0.04,
+      "fire": 0.02,
+      "storm": 0.06
+    }
+  },
+
+  "difficulty_modifiers": {
+    "easy": {
+      "resource_multiplier": 1.3,
+      "disaster_frequency": 0.7,
+      "relationship_bonus": 1.2,
+      "learning_bonus": 1.3
+    },
+    "normal": {
+      "resource_multiplier": 1.0,
+      "disaster_frequency": 1.0,
+      "relationship_bonus": 1.0,
+      "learning_bonus": 1.0
+    },
+    "hard": {
+      "resource_multiplier": 0.8,
+      "disaster_frequency": 1.4,
+      "relationship_bonus": 0.9,
+      "learning_bonus": 0.8
+    },
+    "expert": {
+      "resource_multiplier": 0.6,
+      "disaster_frequency": 1.8,
+      "relationship_bonus": 0.7,
+      "learning_bonus": 0.6
+    }
+  }
+}

@@ -1,0 +1,346 @@
+new Map([
+    [
+        "mf25ccl95gpm8scbeh_mf25cclaolxqzxyy3j",
+        {
+            "fromId": "胡氏_member_0",
+            "toId": "胡氏_member_1",
+            "fromPerson": {
+                "id": "胡氏_member_0",
+                "name": "胡文质",
+                "surname": "胡",
+                "age": 82,
+                "gender": "男",
+                "role": "great_great_grandfather",
+                "generation": 1,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 1,
+                    "seniority": 82,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_1",
+                "name": "胡文瑞",
+                "surname": "胡",
+                "age": 67,
+                "gender": "男",
+                "role": "great_grandfather",
+                "generation": 2,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 67,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 1,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 70
+        }
+    ],
+    [
+        "mf25cclaolxqzxyy3j_mf25ccl95gpm8scbeh",
+        {
+            "fromId": "胡氏_member_1",
+            "toId": "胡氏_member_0",
+            "fromPerson": {
+                "id": "胡氏_member_1",
+                "name": "胡文瑞",
+                "surname": "胡",
+                "age": 67,
+                "gender": "男",
+                "role": "great_grandfather",
+                "generation": 2,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 2,
+                    "seniority": 67,
+                    "authority": 80
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_0",
+                "name": "胡文质",
+                "surname": "胡",
+                "age": 82,
+                "gender": "男",
+                "role": "great_great_grandfather",
+                "generation": 1,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 1,
+                    "seniority": 82,
+                    "authority": 80
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 1,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 70
+        }
+    ],
+    [
+        "mf25cclbgxgubqn1298_mf25ccldndy1072s6j",
+        {
+            "fromId": "胡氏_member_2",
+            "toId": "胡氏_member_4",
+            "fromPerson": {
+                "id": "胡氏_member_2",
+                "name": "胡文贤",
+                "surname": "胡",
+                "age": 35,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 35,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_4",
+                "name": "胡志远",
+                "surname": "胡",
+                "age": 15,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 15,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 4,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25ccldndy1072s6j_mf25cclbgxgubqn1298",
+        {
+            "fromId": "胡氏_member_4",
+            "toId": "胡氏_member_2",
+            "fromPerson": {
+                "id": "胡氏_member_4",
+                "name": "胡志远",
+                "surname": "胡",
+                "age": 15,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 15,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_2",
+                "name": "胡文贤",
+                "surname": "胡",
+                "age": 35,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 35,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 4,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclclzqdd2exrs_mf25ccldndy1072s6j",
+        {
+            "fromId": "胡氏_member_3",
+            "toId": "胡氏_member_4",
+            "fromPerson": {
+                "id": "胡氏_member_3",
+                "name": "胡淑德",
+                "surname": "胡",
+                "age": 40,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 40,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_4",
+                "name": "胡志远",
+                "surname": "胡",
+                "age": 15,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 15,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "ancestor",
+            "generationGap": 4,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25ccldndy1072s6j_mf25cclclzqdd2exrs",
+        {
+            "fromId": "胡氏_member_4",
+            "toId": "胡氏_member_3",
+            "fromPerson": {
+                "id": "胡氏_member_4",
+                "name": "胡志远",
+                "surname": "胡",
+                "age": 15,
+                "gender": "男",
+                "role": "son",
+                "generation": 5,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 5,
+                    "seniority": 15,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_3",
+                "name": "胡淑德",
+                "surname": "胡",
+                "age": 40,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 40,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "descendant",
+            "generationGap": 4,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 40
+        }
+    ],
+    [
+        "mf25cclbgxgubqn1298_mf25cclclzqdd2exrs",
+        {
+            "fromId": "胡氏_member_2",
+            "toId": "胡氏_member_3",
+            "fromPerson": {
+                "id": "胡氏_member_2",
+                "name": "胡文贤",
+                "surname": "胡",
+                "age": 35,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 35,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_3",
+                "name": "胡淑德",
+                "surname": "胡",
+                "age": 40,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 40,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 90
+        }
+    ],
+    [
+        "mf25cclclzqdd2exrs_mf25cclbgxgubqn1298",
+        {
+            "fromId": "胡氏_member_3",
+            "toId": "胡氏_member_2",
+            "fromPerson": {
+                "id": "胡氏_member_3",
+                "name": "胡淑德",
+                "surname": "胡",
+                "age": 40,
+                "gender": "女",
+                "role": "mother",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 40,
+                    "authority": 50
+                }
+            },
+            "toPerson": {
+                "id": "胡氏_member_2",
+                "name": "胡文贤",
+                "surname": "胡",
+                "age": 35,
+                "gender": "男",
+                "role": "father",
+                "generation": 4,
+                "familyName": "胡氏",
+                "bloodRelations": {},
+                "familyStatus": {
+                    "generation": 4,
+                    "seniority": 35,
+                    "authority": 50
+                }
+            },
+            "bloodRelationType": "spouse",
+            "generationGap": 0,
+            "establishedAt": 1756793251773,
+            "bloodlineStrength": 90
+        }
+    ]
+])
