@@ -2244,29 +2244,15 @@ export class CharacterDetailModal extends UIComponent {
     document.head.appendChild(style);
   }
 
-  _manuallyCorrectRelation(relation, targetGender) {
-    // 修正配偶关系
-    if (relation === 'husband' && targetGender === '女') {
-      return '妻子';
-    } else if (relation === 'wife' && targetGender === '男') {
-      return '丈夫';
-    }
-    
-    // 修正父母关系
-    if (relation === 'father' && targetGender === '女') {
-      return '母亲';
-    } else if (relation === 'mother' && targetGender === '男') {
-      return '父亲';
-    }
-    
-    // 翻译其他关系
+  _translateRelation(relationType) {
     const translations = {
-      'father': '父亲',
-      'mother': '母亲', 
-      'son': '儿子',
-      'daughter': '女儿',
       'husband': '丈夫',
       'wife': '妻子',
+      'spouse': '配偶',
+      'father': '父亲',
+      'mother': '母亲',
+      'son': '儿子',
+      'daughter': '女儿',
       'brother': '兄弟',
       'sister': '姐妹',
       'grandfather': '祖父',
@@ -2274,8 +2260,7 @@ export class CharacterDetailModal extends UIComponent {
       'grandson': '孙子',
       'granddaughter': '孙女'
     };
-    
-    return translations[relation] || relation;
+    return translations[relationType] || relationType;
   }
 
 

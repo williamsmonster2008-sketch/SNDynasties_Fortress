@@ -229,8 +229,18 @@
                 const loadingScreen = document.getElementById('loading-screen');
                 const gameContainer = document.getElementById('game-container');
                 
+                if (gameContainer) {
+                    gameContainer.classList.add('ready');
+                } else {
+                    console.warn('⚠️ 加载管理器未找到游戏容器，跳过就绪状态设置');
+                }
+
+                if (!loadingScreen) {
+                    console.warn('⚠️ 加载管理器未找到加载画面元素，可能已提前被移除');
+                    return;
+                }
+                
                 loadingScreen.classList.add('hidden');
-                gameContainer.classList.add('ready');
                 
                 // 5秒后彻底移除加载画面
                 setTimeout(() => {

@@ -146,6 +146,27 @@ export class FamilyNetworkService {
       structure.marriages = [];
     }
 
+    const husband = members.get(husbandId);
+    const wife = members.get(wifeId);
+
+    if (husband) {
+      const husbandGender = this._getGenderCode(husband.gender || husband.genderCode);
+      if (husbandGender !== 'male') {
+        console.error(`❌ 数据错误: ${husband.name || husbandId} 被标记为丈夫但性别是 ${this._mapGenderToDisplay(husbandGender)}`);
+        console.error(`   配偶信息: ${wife?.name || wifeId}`);
+        return;
+      }
+    }
+
+    if (wife) {
+      const wifeGender = this._getGenderCode(wife.gender || wife.genderCode);
+      if (wifeGender !== 'female') {
+        console.error(`❌ 数据错误: ${wife.name || wifeId} 被标记为妻子但性别是 ${this._mapGenderToDisplay(wifeGender)}`);
+        console.error(`   配偶信息: ${husband?.name || husbandId}`);
+        return;
+      }
+    }
+
     const exists = structure.marriages.some(
       marriage => marriage.husband === husbandId && marriage.wife === wifeId && marriage.generation === generation
     );
@@ -157,9 +178,6 @@ export class FamilyNetworkService {
         generation
       });
     }
-
-    const husband = members.get(husbandId);
-    const wife = members.get(wifeId);
 
     if (husband) {
       husband.hasSpouse = true;
@@ -1477,7 +1495,7 @@ export class FamilyNetworkService {
 
     
     return {
-      unitId: unitPlan.unitId,
+      unitId: fullFamily.unitId || unitPlan.unitId,
       livingCharacters: livingMembers,        // 存活角色
       separatedMembers: separatedMembers,     // 离散角色
       allCharacters: fullFamily.characters,   // 完整家谱（包含死者和离散角色）
@@ -2421,7 +2439,7 @@ export class FamilyNetworkService {
       // 将归属信息添加到关系记录
       relation.affiliationChanges = affiliationChanges;
 
-      console.log(✅ 婚姻状态和归属更新完成:  × );
+      console.log(`✅ 婚姻状态和归属更新完成: ${male.name} × ${female.name}`, affiliationChanges);
 
     } catch (error) {
       console.error('❌ 婚姻归属处理失败，使用默认规则:', error);
@@ -2429,8 +2447,6 @@ export class FamilyNetworkService {
       // 降级处理：使用传统的女性嫁入规则
       this._applyDefaultMarriageRules(male, female);
     }
-  }
-
   }
 
   /**
