@@ -121,7 +121,7 @@ class FamilySystem {
     // 删除不再使用的家族命名配置
     // this.familyNames = null; 因为姓名生成已移至FamilyNetworkService
     
-    console.log('✅ FamilySystem 血缘关系系统初始化完成');
+    //console.log('✅ FamilySystem 血缘关系系统初始化完成');
   }
 
   _normalizeGender(raw) {
@@ -159,8 +159,8 @@ class FamilySystem {
 
   //更新血缘关系数据
   updateBloodRelationIds(familyName, idMapping) {
-    console.log(`🔧 开始更新血缘关系ID: ${familyName}`);
-    console.log(`🔧 ID映射表:`, Array.from(idMapping.entries()));
+    //console.log(`🔧 开始更新血缘关系ID: ${familyName}`);
+    //console.log(`🔧 ID映射表:`, Array.from(idMapping.entries()));
     
     const familyBloodRelations = this.bloodRelations.get(familyName);
     if (!familyBloodRelations) {
@@ -168,7 +168,7 @@ class FamilySystem {
       return;
     }
     
-    console.log(`🔧 更新前关系键:`, Array.from(familyBloodRelations.keys()));
+    //console.log(`🔧 更新前关系键:`, Array.from(familyBloodRelations.keys()));
     const newRelations = new Map();
     
     for (const [relationKey, relation] of familyBloodRelations) {
@@ -177,7 +177,7 @@ class FamilySystem {
       const newToCharacterId = idMapping.get(toCharacterId) || toCharacterId;
       const newKey = `${newFromCharacterId}_${newToCharacterId}`;
       
-      console.log(`🔧 关系键更新: ${relationKey} → ${newKey}`);
+      //console.log(`🔧 关系键更新: ${relationKey} → ${newKey}`);
   
       // 深度更新关系对象中的所有ID引用
       const updatedRelation = {
@@ -207,7 +207,7 @@ class FamilySystem {
     }
     
     this.bloodRelations.set(familyName, newRelations);
-    console.log(`🔧 更新后关系键:`, Array.from(newRelations.keys()));
+    //console.log(`🔧 更新后关系键:`, Array.from(newRelations.keys()));
     
     // 同时更新families中的成员ID
     const family = this.families.get(familyName);
@@ -220,7 +220,7 @@ class FamilySystem {
           member.id = newId;
         }
       });
-      console.log(`🔧 家族成员ID同步更新完成`);
+      //console.log(`🔧 家族成员ID同步更新完成`);
     }
   }
 
@@ -231,7 +231,7 @@ class FamilySystem {
    * @param {Object} relationshipData - 关系数据 {bloodRelations: [...]}
    */
   storeBloodRelationsFromService(characters, relationshipData) {
-    console.log('🔗 接收FamilyNetworkService完整数据并存储');
+    //console.log('🔗 接收FamilyNetworkService完整数据并存储');
     // 添加数据验证
     if (!characters || !Array.isArray(characters)) {
       console.warn('characters数据无效:', characters);
@@ -245,7 +245,7 @@ class FamilySystem {
     
     // 确保bloodRelations存在
     const bloodRelations = relationshipData.bloodRelations || [];
-    console.log('血缘关系数据:', bloodRelations.length, '条');
+    //console.log('血缘关系数据:', bloodRelations.length, '条');
     
     // 按家族分组
     const familyGroups = new Map();
@@ -279,7 +279,7 @@ class FamilySystem {
       this.familyLineageCache.delete(familyName);
       this._cacheFamilyMembers(familyName, familyMembers);
       
-      console.log(`✅ ${familyName}家族数据存储完成: ${familyMembers.length}成员, ${familyBloodRelations.size}关系`);
+      //console.log(`✅ ${familyName}家族数据存储完成: ${familyMembers.length}成员, ${familyBloodRelations.size}关系`);
     }
   }
   
@@ -308,9 +308,12 @@ class FamilySystem {
     const childToParents = new Map();
     const siblingMap = new Map();
 
-    console.log('🔍 [FamilySystem] 开始转换关系数据');
-    console.log(`🔍 [FamilySystem] 家族成员数: ${familyMembers.length}`);
-    console.log(`🔍 [FamilySystem] 原始关系数: ${serviceBloodRelations.length}`);
+    // 🔧 婚姻唯一性追踪
+    const marriageTracker = new Map(); // 角色ID -> { spouseId, role ('husband'|'wife') }
+
+    //console.log('🔍 [FamilySystem] 开始转换关系数据');
+    //console.log(`🔍 [FamilySystem] 家族成员数: ${familyMembers.length}`);
+    //console.log(`🔍 [FamilySystem] 原始关系数: ${serviceBloodRelations.length}`);
 
     const registerParentChild = (parentId, childId) => {
       if (!parentId || !childId) return;
@@ -337,6 +340,20 @@ class FamilySystem {
 
         if (!familyMemberIds.has(child)) return;
 
+        // 性别校验：确保父亲是male，母亲是female
+        const fatherGender = getGenderCode(fatherMember);
+        const motherGender = getGenderCode(motherMember);
+
+        if (fatherGender && fatherGender !== 'male') {
+          console.warn(`⚠️ 性别错误: ${father} 被标记为父亲但性别是 ${fatherGender}`);
+          return; // 跳过此关系
+        }
+
+        if (motherGender && motherGender !== 'female') {
+          console.warn(`⚠️ 性别错误: ${mother} 被标记为母亲但性别是 ${motherGender}`);
+          return; // 跳过此关系
+        }
+
         registerParentChild(father, child);
         registerParentChild(mother, child);
 
@@ -361,7 +378,7 @@ class FamilySystem {
         addParentRelation(mother, motherMember, 'mother_child');
       } else if (relation.type === 'siblings') {
         const siblings = relation.participants || [];
-        console.log(`🔍 [Siblings] 关系: ${siblings.length}个兄弟姐妹`);
+        //console.log(`🔍 [Siblings] 关系: ${siblings.length}个兄弟姐妹`);
 
         for (let i = 0; i < siblings.length; i++) {
           for (let j = i + 1; j < siblings.length; j++) {
@@ -391,6 +408,48 @@ class FamilySystem {
         const [husband, wife] = relation.participants || [];
         if (!familyMemberIds.has(husband) || !familyMemberIds.has(wife)) return;
 
+        // 性别校验：确保husband是male，wife是female
+        const husbandMember = memberMap.get(husband);
+        const wifeMember = memberMap.get(wife);
+        const husbandGender = getGenderCode(husbandMember);
+        const wifeGender = getGenderCode(wifeMember);
+
+        if (husbandGender && husbandGender !== 'male') {
+          console.warn(`⚠️ 性别错误: ${husband} 被标记为夫君但性别是 ${husbandGender}`);
+          return; // 跳过此关系
+        }
+
+        if (wifeGender && wifeGender !== 'female') {
+          console.warn(`⚠️ 性别错误: ${wife} 被标记为妻子但性别是 ${wifeGender}`);
+          return; // 跳过此关系
+        }
+
+        // 🔧 婚姻唯一性和一致性校验
+        const husbandRecord = marriageTracker.get(husband);
+        const wifeRecord = marriageTracker.get(wife);
+
+        // 检查husband是否已有配偶记录
+        if (husbandRecord) {
+          if (husbandRecord.spouseId !== wife || husbandRecord.role !== 'husband') {
+            console.warn(`⚠️ 婚姻冲突: ${husband}(${husbandMember?.name || husband}, 性别:${getGenderCode(husbandMember) || '未知'}) 已有配偶 ${husbandRecord.spouseName}(ID:${husbandRecord.spouseId}, 角色:${husbandRecord.role}), 无法再与 ${wife}(${wifeMember?.name || wife}) 建立婚姻关系`);
+            return; // 跳过此重复婚姻
+          }
+          // 如果是相同配偶和角色,允许继续(去重逻辑会处理)
+        } else {
+          marriageTracker.set(husband, { spouseId: wife, spouseName: wifeMember?.name || wife, role: 'husband' });
+        }
+
+        // 检查wife是否已有配偶记录
+        if (wifeRecord) {
+          if (wifeRecord.spouseId !== husband || wifeRecord.role !== 'wife') {
+            console.warn(`⚠️ 婚姻冲突: ${wife}(${wifeMember?.name || wife}, 性别:${getGenderCode(wifeMember) || '未知'}) 已有配偶 ${wifeRecord.spouseName}(ID:${wifeRecord.spouseId}, 角色:${wifeRecord.role}), 无法再与 ${husband}(${husbandMember?.name || husband}) 建立婚姻关系`);
+            return; // 跳过此重复婚姻
+          }
+          // 如果是相同配偶和角色,允许继续(去重逻辑会处理)
+        } else {
+          marriageTracker.set(wife, { spouseId: husband, spouseName: husbandMember?.name || husband, role: 'wife' });
+        }
+
         const key = `${husband}_${wife}`;
         if (!processedRelations.has(key)) {
           processedRelations.add(key);
@@ -400,8 +459,8 @@ class FamilySystem {
             bloodRelationType: 'marriage',
             generationGap: 0,
             bloodlineStrength: 100,
-            fromPerson: memberMap.get(husband),
-            toPerson: memberMap.get(wife),
+            fromPerson: husbandMember,
+            toPerson: wifeMember,
             establishedAt: Date.now()
           });
         }
@@ -439,7 +498,7 @@ class FamilySystem {
 
     this._enforceUniqueParents(familyBloodRelations, memberMap);
 
-    console.log(`🔄 转换血缘关系: ${serviceBloodRelations.length}条原始 -> ${familyBloodRelations.size}条去重后`);
+    //console.log(`🔄 转换血缘关系: ${serviceBloodRelations.length}条原始 -> ${familyBloodRelations.size}条去重后`);
     return familyBloodRelations;
   }
 
@@ -492,15 +551,36 @@ class FamilySystem {
       if (!siblings || siblings.size === 0) return;
 
       children.forEach(childId => {
+        const childPerson = memberMap.get(childId);
+        if (!childPerson) return;
+
         siblings.forEach(uncleId => {
-          addBidirectional(childId, uncleId, BloodRelationType.UNCLE_AUNT, BloodRelationType.NEPHEW_NIECE, 65);
+          const unclePerson = memberMap.get(uncleId);
+          if (!unclePerson) return;
+
+          // 家族边界检查：叔伯姑舅关系需要验证家族归属
+          // 同姓才是真正的叔伯（父方），不同姓则是舅父姨母（母方）
+          const childFamily = childPerson.familyName || childPerson.surname || '';
+          const uncleFamily = unclePerson.familyName || unclePerson.surname || '';
+
+          // 只有同姓才添加叔伯关系，不同姓的通过母系处理
+          if (childFamily === uncleFamily) {
+            addBidirectional(childId, uncleId, BloodRelationType.UNCLE_AUNT, BloodRelationType.NEPHEW_NIECE, 65);
+          }
 
           const cousinChildren = parentToChildren.get(uncleId);
           if (!cousinChildren || cousinChildren.size === 0) return;
 
           cousinChildren.forEach(cousinId => {
             if (cousinId === childId) return;
-            addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
+            const cousinPerson = memberMap.get(cousinId);
+            if (!cousinPerson) return;
+
+            // 家族边界检查：堂兄弟必须同姓，不同姓不建立堂兄弟关系
+            const cousinFamily = cousinPerson.familyName || cousinPerson.surname || '';
+            if (childFamily === cousinFamily) {
+              addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
+            }
           });
         });
       });
@@ -643,12 +723,23 @@ class FamilySystem {
         if (parentData.vitalStatus !== 'deceased') {
           score += 1;
         }
-      
+
+        // 性别校验：根据角色类型匹配正确的性别
         const parentGenderCode = this._getGenderCode(parentData);
-        if (parentGenderCode === 'male') {
-          score += 3;
-        } else if (parentGenderCode === 'female') {
-          score -= 2;
+        if (role === 'father') {
+          // 父亲角色：male加分，female减分
+          if (parentGenderCode === 'male') {
+            score += 3;
+          } else if (parentGenderCode === 'female') {
+            score -= 2;
+          }
+        } else if (role === 'mother') {
+          // 母亲角色：female加分，male减分
+          if (parentGenderCode === 'female') {
+            score += 3;
+          } else if (parentGenderCode === 'male') {
+            score -= 2;
+          }
         }
       }
       
@@ -1209,21 +1300,31 @@ class FamilySystem {
       const toId = relation.toCharacterId;
       if (!fromId || !toId) return;
 
+      // 添加前向边
       if (!graph.has(fromId)) graph.set(fromId, []);
       graph.get(fromId).push({ id: toId, relation });
 
-      if (!graph.has(toId)) graph.set(toId, []);
-      graph.get(toId).push({
-        id: fromId,
-        relation: {
-          ...relation,
-          fromCharacterId: toId,
-          toCharacterId: fromId,
-          fromPerson: relation.toPerson,
-          toPerson: relation.fromPerson,
-          bloodRelationType: this._reverseRelationType(relation.bloodRelationType)
-        }
-      });
+      // 🔧 婚姻关系特殊处理：不创建反向边，避免重复
+      const isMarriage = relation.bloodRelationType === 'marriage' || relation.bloodRelationType === BloodRelationType.SPOUSE;
+
+      if (!isMarriage) {
+        // 非婚姻关系：正常创建反向边
+        if (!graph.has(toId)) graph.set(toId, []);
+        graph.get(toId).push({
+          id: fromId,
+          relation: {
+            ...relation,
+            fromCharacterId: toId,
+            toCharacterId: fromId,
+            fromPerson: relation.toPerson,
+            toPerson: relation.fromPerson,
+            bloodRelationType: this._reverseRelationType(relation.bloodRelationType)
+          }
+        });
+      } else {
+        // 婚姻关系：只创建反向查找的空邻接表，但不添加反向边
+        if (!graph.has(toId)) graph.set(toId, []);
+      }
     });
 
     return graph;
@@ -1324,10 +1425,11 @@ class FamilySystem {
         if (!childToParents.has(toId)) childToParents.set(toId, new Set());
         childToParents.get(toId).add(fromId);
       } else if (type === 'marriage' || type === BloodRelationType.SPOUSE) {
+        // 🔧 婚姻关系只创建husband→wife单向索引
         if (!spouses.has(fromId)) spouses.set(fromId, new Set());
-        if (!spouses.has(toId)) spouses.set(toId, new Set());
-        spouses.get(fromId).add(toId);
-        spouses.get(toId).add(fromId);
+        if (!spouses.has(toId)) spouses.set(toId, new Set()); // 保证wife有空Set
+        spouses.get(fromId).add(toId);  // 只添加husband → wife
+        // 不添加反向索引：spouses.get(toId).add(fromId);
       }
     });
 
@@ -1831,7 +1933,7 @@ class FamilySystem {
   }
 
   updateMemberIds(familyName, oldId, newId) {
-    console.log(`开始更新成员ID: ${oldId} -> ${newId}`);
+    //console.log(`开始更新成员ID: ${oldId} -> ${newId}`);
     
     // 更新bloodRelations中的ID
     const familyBloodRelations = this.bloodRelations.get(familyName);
@@ -1870,7 +1972,7 @@ class FamilySystem {
       }
       
       this.bloodRelations.set(familyName, newRelations);
-      console.log(`血缘关系ID更新完成: ${familyBloodRelations.size}条关系`);
+      //console.log(`血缘关系ID更新完成: ${familyBloodRelations.size}条关系`);
     }
     
     // 更新families中的成员ID
@@ -1893,10 +1995,10 @@ class FamilySystem {
         }
       }
       
-      console.log(`家族成员ID更新完成: ${family.members.length}个成员`);
+      //console.log(`家族成员ID更新完成: ${family.members.length}个成员`);
     }
     
-    console.log(`成员ID更新完成: ${oldId} -> ${newId}`);
+    //console.log(`成员ID更新完成: ${oldId} -> ${newId}`);
   }
 
   

@@ -53,7 +53,7 @@ export class FamilyNetworkService {
       settlementId: null
     };
     
-    console.log('👨‍👩‍👧‍👦 FamilyNetworkService - 家族网络构建服务初始化');
+    //console.log('👨‍👩‍👧‍👦 FamilyNetworkService - 家族网络构建服务初始化');
   }
 
   
@@ -77,7 +77,7 @@ export class FamilyNetworkService {
    */
   async initialize() {
     try {
-      console.log('🔋 正在初始化 FamilyNetworkService 配置...');
+      //console.log('🔋 正在初始化 FamilyNetworkService 配置...');
       
       // 确保配置已加载
       await configManager.initializeConfigurations();
@@ -95,7 +95,7 @@ export class FamilyNetworkService {
       this.characterIdCounter = 1;
       
       this.configInitialized = true;
-      console.log('✅ FamilyNetworkService 配置初始化完成');
+      //console.log('✅ FamilyNetworkService 配置初始化完成');
       
     } catch (error) {
       console.error('❌ FamilyNetworkService 配置初始化失败:', error);
@@ -287,7 +287,7 @@ export class FamilyNetworkService {
   async buildFamilyUnits(populationPlan) {
     this._ensureConfigInitialized();
     
-    console.log('开始构建家族网络:', populationPlan.planId);
+    //console.log('开始构建家族网络:', populationPlan.planId);
     
     // 初始化定居点网络
     this.settlementNetwork.settlementId = `settlement_${Date.now()}`;
@@ -295,10 +295,10 @@ export class FamilyNetworkService {
     try {
       // 根据模式分发到不同的构建方法
       if (PopulationRules.getRefugeeMode()) {
-        console.log('执行Refugee模式构建');
+        //console.log('执行Refugee模式构建');
         return await this._buildRefugeeFamilyUnits(populationPlan);
       } else {
-        console.log('执行Population模式构建');
+        //console.log('执行Population模式构建');
         return await this._buildPopulationFamilyUnits(populationPlan);
       }
     } catch (error) {
@@ -309,7 +309,7 @@ export class FamilyNetworkService {
 
   async _buildRefugeeFamilyUnits(populationPlan) {
     // 阶段1：构建refugee家族详细结构
-    console.log('阶段1: 构建refugee家族单元详细结构');
+    //console.log('阶段1: 构建refugee家族单元详细结构');
     const detailedFamilyUnits = await this._buildDetailedFamilyUnits(populationPlan.familyUnits);
     
     // 阶段2：注册家族到全局网络
@@ -321,7 +321,7 @@ export class FamilyNetworkService {
     const crossUnitRelations = [];
     
     // 阶段3：生成血缘网络数据
-    console.log('阶段3: 生成血缘网络数据');
+    //console.log('阶段3: 生成血缘网络数据');
     const bloodlineNetwork = this._generateBloodlineNetwork(detailedFamilyUnits, crossUnitRelations);
   
     // 阶段4：验证网络完整性
@@ -338,7 +338,7 @@ export class FamilyNetworkService {
 
   async _buildPopulationFamilyUnits(populationPlan) {
     // Population模式：处理现有家族的发展
-    console.log('阶段1: 处理现有家族新生儿');
+    //console.log('阶段1: 处理现有家族新生儿');
     const existingFamilyUnits = await this._expandExistingFamilies(populationPlan.familyUnits);
     
     // 注册到全局网络
@@ -347,7 +347,7 @@ export class FamilyNetworkService {
     });
   
     // Population模式建立跨家族联姻
-    console.log('阶段2: 建立跨单元姻亲关系');
+    //console.log('阶段2: 建立跨单元姻亲关系');
     const crossUnitRelations = this._establishCrossUnitRelations(existingFamilyUnits);
     
     // 生成血缘网络数据
@@ -426,7 +426,7 @@ export class FamilyNetworkService {
       });
       detailedUnits.push(detailedUnit);
     }
-    console.log('_buildDetailedFamilyUnits最终返回:', detailedUnits.length, '个家族单元');
+    //console.log('_buildDetailedFamilyUnits最终返回:', detailedUnits.length, '个家族单元');
     return detailedUnits;
   }
 
@@ -500,9 +500,9 @@ export class FamilyNetworkService {
   }
   
   async _processNewFormatData(familyData, socialClass, unitId) {
-    console.log(`_processNewFormatData接收到的数据:`);
-    console.log(`members总数: ${familyData.members.size}`);
-    console.log(`【家族${unitId}】_processNewFormatData处理前外来配偶数量: ${Array.from(familyData.members.keys()).filter(id => id.includes('spouse_')).length}`);
+    //console.log(`_processNewFormatData接收到的数据:`);
+    //console.log(`members总数: ${familyData.members.size}`);
+    //console.log(`【家族${unitId}】_processNewFormatData处理前外来配偶数量: ${Array.from(familyData.members.keys()).filter(id => id.includes('spouse_')).length}`);
     const { members, structure } = familyData;
     const characters = [];
 
@@ -688,10 +688,10 @@ export class FamilyNetworkService {
     
     // 5. 基于前两代关系数据生成三至五代家族结构
     const result = await this._generateAgesFromStructure(structure, fertilityCfg, socialClass, unitId, idManager, members);
-    console.log(`_generateFiveGenerationFamilyAges返回前检查:`);
-    console.log(`members总数: ${result.members.size}`);
-    console.log(`【家族${unitId}】外来配偶数量: ${Array.from(result.members.keys()).filter(id => id.includes('spouse_')).length}`);
-    console.log(`外来配偶ID列表:`, Array.from(result.members.keys()).filter(id => id.includes('spouse_')));
+    //console.log(`_generateFiveGenerationFamilyAges返回前检查:`);
+    //console.log(`members总数: ${result.members.size}`);
+    //console.log(`【家族${unitId}】外来配偶数量: ${Array.from(result.members.keys()).filter(id => id.includes('spouse_')).length}`);
+    //console.log(`外来配偶ID列表:`, Array.from(result.members.keys()).filter(id => id.includes('spouse_')));
     
     return result;
         
@@ -766,7 +766,7 @@ export class FamilyNetworkService {
     }
   
     const childrenCount = Math.round(fertilityRate);
-    console.log(`🔍 第1代夫妻生育率=${fertilityRate.toFixed(2)}，第2代子女数=${childrenCount}`);
+    //console.log(`🔍 第1代夫妻生育率=${fertilityRate.toFixed(2)}，第2代子女数=${childrenCount}`);
     totalChildren += childrenCount;
     
     if (childrenCount > 0) {
@@ -788,7 +788,7 @@ export class FamilyNetworkService {
           socialClass: socialClass
         });
 
-        console.log(`创建第2代成员: ${childId}`);
+        //console.log(`创建第2代成员: ${childId}`);
         
         result.parentChild.push({
           father: firstGenMarriage.husband,
@@ -801,12 +801,12 @@ export class FamilyNetworkService {
         result.siblings.push(siblingGroup);
       }
       // ✅ 新增：为第2代成员分配年龄
-      console.log('🎯 为第2代成员分配年龄...');
+      //console.log('🎯 为第2代成员分配年龄...');
       this._assignChildrenAges(result, members, 2);
     }
     
     result.generations.第2代 = totalChildren;
-    console.log(`第2代: ${totalChildren}人`);
+    //console.log(`第2代: ${totalChildren}人`);
     
     return result;
   }
@@ -832,13 +832,13 @@ export class FamilyNetworkService {
       this._assignChildrenAges(structure, members, gen + 1 );      
 
       
-      console.log(`=== 第${gen}代处理完成 ===\n`);
+      //console.log(`=== 第${gen}代处理完成 ===\n`);
     }
 
     this._enforceMonogamyAndSyncSpouses(structure, members);
     
     const totalLiving = Array.from(members.values()).filter(m => m.vitalStatus === 'living').length;
-    console.log(`📊 家族总存活人数: ${totalLiving}`);
+    //console.log(`📊 家族总存活人数: ${totalLiving}`);
   
     return {
       members: members,
@@ -878,7 +878,7 @@ export class FamilyNetworkService {
         continue;
       }
       if (member.canBreed === false) {
-        console.log(`成员 ${member.characterId} 已被标记不能育，跳过婚配`);
+        //console.log(`成员 ${member.characterId} 已被标记不能育，跳过婚配`);
         continue;
       }
 
@@ -964,22 +964,22 @@ export class FamilyNetworkService {
     const nextGen = currentGen + 1;
     // ✅ 使用与_assignChildrenAges相同的查找逻辑
     const currentGenMarriages = structure.marriages.filter(m => m.generation === currentGen);
-    currentGenMarriages.forEach((marriage, index) => {
-      console.log(`第${currentGen}代婚姻记录${index+1}: husband=${marriage.husband}, wife=${marriage.wife}`);
-    });
+    //currentGenMarriages.forEach((marriage, index) => {
+      //console.log(`第${currentGen}代婚姻记录${index+1}: husband=${marriage.husband}, wife=${marriage.wife}`);
+    //});
       
-    console.log(`🍼 基于第${currentGen}代的${currentGenMarriages.length}对夫妻生成第${nextGen}代子女`);
+    //console.log(`🍼 基于第${currentGen}代的${currentGenMarriages.length}对夫妻生成第${nextGen}代子女`);
     
-    if (currentGenMarriages.length === 0) {
-      console.log(`第${currentGen}代无婚姻记录，第${nextGen}代人数为0`);
-      return;
-    }
+    //if (currentGenMarriages.length === 0) {
+    //  console.log(`第${currentGen}代无婚姻记录，第${nextGen}代人数为0`);
+    //  return;
+    //}
     
     let totalChildren = 0;
     const config = PopulationRules.getGapPlanningConfig();
     
     currentGenMarriages.forEach((marriage, index) => {
-      console.log(`🔍 第${currentGen}代第${index+1}对夫妻ID: ${marriage.husband} × ${marriage.wife}`);
+      //console.log(`🔍 第${currentGen}代第${index+1}对夫妻ID: ${marriage.husband} × ${marriage.wife}`);
       // 复用原有的生育率计算逻辑
       const fertilityWeights = config.fertilityTypeWeights;
       const types = Object.keys(fertilityWeights);
@@ -995,11 +995,11 @@ export class FamilyNetworkService {
       }
       
       const childrenCount = Math.round(fertilityRate);
-      console.log(`🔍 第${currentGen}代第${index+1}对夫妻：生育率=${fertilityRate.toFixed(2)}，子女数=${childrenCount}`);
+      //console.log(`🔍 第${currentGen}代第${index+1}对夫妻：生育率=${fertilityRate.toFixed(2)}，子女数=${childrenCount}`);
       totalChildren += childrenCount;
       
       if (childrenCount > 0) {
-        console.log(`📝 为父母 ${marriage.husband} × ${marriage.wife} 创建${childrenCount}个子女关系`);
+        //console.log(`📝 为父母 ${marriage.husband} × ${marriage.wife} 创建${childrenCount}个子女关系`);
         const siblingGroup = [];
         for (let i = 0; i < childrenCount; i++) {
           // ✅ 改为使用 idManager
@@ -1013,7 +1013,7 @@ export class FamilyNetworkService {
             birthOrder: i + 1,
             birthIndex: i
           });
-          console.log(`创建子女 ${childId}`);
+          //console.log(`创建子女 ${childId}`);
         }
         
         if (siblingGroup.length > 1) {
@@ -1022,45 +1022,45 @@ export class FamilyNetworkService {
       }
     });
     
-    console.log(`✅ 第${nextGen}代: ${totalChildren}人`);
+    //console.log(`✅ 第${nextGen}代: ${totalChildren}人`);
   }
 
   
   _assignChildrenAges(structure, members, generation) {
-    console.log(`_assignChildrenAges(gen=${generation})开始`);
+    //console.log(`_assignChildrenAges(gen=${generation})开始`);
     const prevGenMarriages = structure.marriages.filter(m => m.generation === generation - 1);
     // 直接检查要查找的母亲ID是否存在
     prevGenMarriages.forEach((marriage, index) => {
-      console.log(`婚姻${index+1}: 要查找的母亲ID: ${marriage.wife}`);
-      console.log(`该ID在members中是否存在: ${members.has(marriage.wife)}`);
+      //console.log(`婚姻${index+1}: 要查找的母亲ID: ${marriage.wife}`);
+      //console.log(`该ID在members中是否存在: ${members.has(marriage.wife)}`);
       
-      if (!members.has(marriage.wife)) {
-        console.log(`members中所有包含spouse_wife的ID:`);
-        Array.from(members.keys()).filter(id => id.includes('spouse_wife')).forEach(id => {
-          console.log(`  - ${id}`);
-        });
-      }
+      // if (!members.has(marriage.wife)) {
+      //   console.log(`members中所有包含spouse_wife的ID:`);
+      //   Array.from(members.keys()).filter(id => id.includes('spouse_wife')).forEach(id => {
+      //     console.log(`  - ${id}`);
+      //   });
+      // }
     });
 
     prevGenMarriages.forEach(parentMarriage => {
-      console.log(`🔍 父母: ${parentMarriage.husband} × ${parentMarriage.wife}`);
+      //console.log(`🔍 父母: ${parentMarriage.husband} × ${parentMarriage.wife}`);
       const children = structure.parentChild.filter(rel => 
         rel.father === parentMarriage.husband && rel.mother === parentMarriage.wife
       );
       
-      console.log(`🔍 找到${children.length}个子女:`, children.map(c => c.child));
+      //console.log(`🔍 找到${children.length}个子女:`, children.map(c => c.child));
       
-      if (children.length > 0) {
-        console.log(`🔍 开始为${children.length}个子女分配年龄...`);
-      } else {
-        console.log(`❌ 未找到子女，检查parentChild记录`);
-        console.log(`📋 所有parentChild记录:`, structure.parentChild.slice(0, 5)); // 只显示前5条
-      }
+      // if (children.length > 0) {
+      //   console.log(`🔍 开始为${children.length}个子女分配年龄...`);
+      // } else {
+      //   console.log(`❌ 未找到子女，检查parentChild记录`);
+      //   console.log(`📋 所有parentChild记录:`, structure.parentChild.slice(0, 5)); // 只显示前5条
+      // }
       const father = members.get(parentMarriage.husband);
       const mother = members.get(parentMarriage.wife);
 
-      console.log(`🔍 查找父亲: ${parentMarriage.husband} -> ${father ? '找到' : '未找到'}`);
-      console.log(`🔍 查找母亲: ${parentMarriage.wife} -> ${mother ? '找到' : '未找到'}`);    
+      //console.log(`🔍 查找父亲: ${parentMarriage.husband} -> ${father ? '找到' : '未找到'}`);
+      //console.log(`🔍 查找母亲: ${parentMarriage.wife} -> ${mother ? '找到' : '未找到'}`);    
       
       if (father && mother) {
         // 检查父母年龄是否合理
@@ -1071,14 +1071,14 @@ export class FamilyNetworkService {
           return;
         }
 
-        console.log(`🔍 准备第二次查找，当前parentChild记录数: ${structure.parentChild.length}`);
-        console.log(`🔍 查找条件 - father: ${parentMarriage.husband}, mother: ${parentMarriage.wife}`);
+        //console.log(`🔍 准备第二次查找，当前parentChild记录数: ${structure.parentChild.length}`);
+        //console.log(`🔍 查找条件 - father: ${parentMarriage.husband}, mother: ${parentMarriage.wife}`);
         
 
         const children = structure.parentChild.filter(rel => 
           rel.father === parentMarriage.husband && rel.mother === parentMarriage.wife
         );
-        console.log(`🔍 第二次查找结果: ${children.length}个子女`);        
+        //console.log(`🔍 第二次查找结果: ${children.length}个子女`);        
         
         if (children.length > 0) {
           // 🔧 修复：检查母亲的生育窗口能否容纳这么多孩子
@@ -1094,7 +1094,7 @@ export class FamilyNetworkService {
             actualChildrenCount = maxPossibleChildren;
           }
 
-          console.log(`🔍 开始为${actualChildrenCount}个子女分配年龄...`);
+          //console.log(`🔍 开始为${actualChildrenCount}个子女分配年龄...`);
           // 使用新的子女年龄计算方法
           const MIN_PARENT_CHILD_AGE_GAP = 13;
           const childrenAges = this._generateChildrenBasedOnFertility(
@@ -1174,28 +1174,30 @@ export class FamilyNetworkService {
             members.set(childRel.child, childRecord);
           });
           // 调试：夭折前的原始年龄分布
-          console.log(`第${generation}代夭折前原始年龄:`);
+          //console.log(`第${generation}代夭折前原始年龄:`);
           children.forEach(childRel => {
             const child = members.get(childRel.child);
-            if (child) {
-              console.log(`- ID:${childRel.child}, 年龄:${child.age}, 性别:${child.gender}`);
-            }
+            // if (child) {
+            //   console.log(`- ID:${childRel.child}, 年龄:${child.age}, 性别:${child.gender}`);
+            // }
           });
-          console.log(`🔍 _assignChildrenAges完成后members数量: ${members.size}`);
+          //console.log(`🔍 _assignChildrenAges完成后members数量: ${members.size}`);
           // 🆕 新增：对本代子女进行未成年夭折筛选
           this._applyChildhoodMortality(children, members, generation);
-          console.log(`🔍 夭折处理后members数量: ${members.size}`);
-          console.log(`🔍 夭折处理后存活的第${generation}代成员:`, 
-            Array.from(members.values()).filter(m => m.generation === generation && m.vitalStatus === 'living'));
-        }else {
-          console.log(`❌ 第二次查找未找到子女，但第一次找到了，parentChild可能被修改`);
+          //console.log(`🔍 夭折处理后members数量: ${members.size}`);
+          // console.log(`🔍 夭折处理后存活的第${generation}代成员:`, 
+          //   Array.from(members.values()).filter(m => m.generation === generation && m.vitalStatus === 'living'));
         }
-      }else {
-        console.log(`❌ 父母信息不完整，跳过处理`);
+        // else {
+        //   console.log(`❌ 第二次查找未找到子女，但第一次找到了，parentChild可能被修改`);
+        // }
       }
+      // else {
+      //   console.log(`❌ 父母信息不完整，跳过处理`);
+      // }
     });
-    console.log(`🔍 第${generation}代处理完成，当前members中第${generation}代成员数:`, 
-      Array.from(members.values()).filter(m => m.generation === generation).length);
+    // console.log(`🔍 第${generation}代处理完成，当前members中第${generation}代成员数:`, 
+    //   Array.from(members.values()).filter(m => m.generation === generation).length);
   }
 
   _clampAgeByGeneration(age, generation) {
@@ -1243,8 +1245,8 @@ export class FamilyNetworkService {
 
     // 确定母亲首次生育年龄（使用配置的分布率）
     const firstBirthAge = this._getWeightedBirthAge(earliestBirth, latestBirth, 0, childrenCount, fertilityCfg);
-    console.log(`生育年龄计算 - 母亲:${motherAge}岁, 父亲:${fatherAge}岁, 子女数:${childrenCount}`);
-    console.log(`生育窗口: ${earliestBirth}-${latestBirth}岁, 首次生育:${firstBirthAge}岁`);
+    //console.log(`生育年龄计算 - 母亲:${motherAge}岁, 父亲:${fatherAge}岁, 子女数:${childrenCount}`);
+    //console.log(`生育窗口: ${earliestBirth}-${latestBirth}岁, 首次生育:${firstBirthAge}岁`);
     
     let currentBirthAge = firstBirthAge;
 
@@ -1267,7 +1269,7 @@ export class FamilyNetworkService {
         const remainingChildren = childrenCount - i;
         const remainingTime = latestBirth - currentBirthAge;
 
-        console.log(`🔍 准备计算第${i+1}个孩子, 当前生育年龄=${currentBirthAge}, 剩余时间=${remainingTime}`);
+        //console.log(`🔍 准备计算第${i+1}个孩子, 当前生育年龄=${currentBirthAge}, 剩余时间=${remainingTime}`);
 
         // 下一个孩子的生育年龄
         const nextGap = this._getWeightedBirthGap(i, remainingTime, remainingChildren, fertilityCfg);
@@ -1357,7 +1359,7 @@ export class FamilyNetworkService {
     let survivedChildren = 0;
     let diedChildren = 0;
     
-    console.log(`💀 第${generation}代亡故筛选开始 - 总数: ${totalChildren}, 使用亡故率: ${childhoodMortalityRate}`);
+    //console.log(`💀 第${generation}代亡故筛选开始 - 总数: ${totalChildren}, 使用亡故率: ${childhoodMortalityRate}`);
     
     children.forEach(childRel => {
       const child = members.get(childRel.child);
@@ -1374,7 +1376,7 @@ export class FamilyNetworkService {
         child.deathAge = Math.min(child.age, minBreedingAge - 1); // 未达到育龄即死亡
         
         diedChildren++; // 🔧 添加计数
-        console.log(`💀 第${generation}代成员 ${childRel.child} 亡故，年龄 ${child.age}，性别 ${child.gender}，育龄标准 ${minBreedingAge}`);
+        //console.log(`💀 第${generation}代成员 ${childRel.child} 亡故，年龄 ${child.age}，性别 ${child.gender}，育龄标准 ${minBreedingAge}`);
       } else if (child) {
         child.vitalStatus = 'living';
         child.canBreed = true; // 存活者可以参与生育
@@ -1382,12 +1384,12 @@ export class FamilyNetworkService {
       }
     });
     
-    console.log(`第${generation}代夭折后剩余年龄:`);
+    //console.log(`第${generation}代夭折后剩余年龄:`);
     children.forEach(childRel => {
       const child = members.get(childRel.child);
-      if (child && child.vitalStatus === 'living') {
-        console.log(`- ID:${childRel.child}, 年龄:${child.age}, 性别:${child.gender}, 状态:${child.vitalStatus}`);
-      }
+      // if (child && child.vitalStatus === 'living') {
+      //   console.log(`- ID:${childRel.child}, 年龄:${child.age}, 性别:${child.gender}, 状态:${child.vitalStatus}`);
+      // }
     });
   }
 
@@ -1477,19 +1479,19 @@ export class FamilyNetworkService {
       const husbandAlive = livingMemberIds.has(marriage.husband);
       const wifeAlive = livingMemberIds.has(marriage.wife);
       
-      console.log(`婚姻检查: 夫${marriage.husband}(${husbandAlive}) - 妻${marriage.wife}(${wifeAlive})`);
+      //console.log(`婚姻检查: 夫${marriage.husband}(${husbandAlive}) - 妻${marriage.wife}(${wifeAlive})`);
       
       if (husbandAlive && wifeAlive) {
         return { ...marriage, status: 'active' }; // 明确标记为活跃
       } else {
-        console.log(`标记为丧偶: 夫${marriage.husband} - 妻${marriage.wife}`);
+        //console.log(`标记为丧偶: 夫${marriage.husband} - 妻${marriage.wife}`);
         return { ...marriage, status: 'widowed' }; // 标记为丧偶
       }
     }).filter(marriage => {
       const shouldKeep = marriage.status === 'active'; // 改为只保留活跃婚姻
-      if (!shouldKeep) {
-        console.log(`清理丧偶婚姻: ${marriage.husband} - ${marriage.wife}`);
-      }
+      // if (!shouldKeep) {
+      //   console.log(`清理丧偶婚姻: ${marriage.husband} - ${marriage.wife}`);
+      // }
       return shouldKeep;
     });
 
@@ -1680,7 +1682,7 @@ export class FamilyNetworkService {
  
 
   _planGenerationMarriages(socialClass, structure) {
-    console.log('定居模式：规划各代婚配率');
+    //console.log('定居模式：规划各代婚配率');
     const config = PopulationRules.getGapPlanningConfig();
     
     // 为2-4代规划婚配（第5代太年轻）
@@ -1699,7 +1701,7 @@ export class FamilyNetworkService {
         // 改为个体概率判断
         const marriedMembers = thisGenMembers.filter(memberId => Math.random() < marriageRate);
         
-        console.log(`第${gen}代定居婚配：${marriedMembers.length}/${thisGenMembers.length}人结婚`);
+        //console.log(`第${gen}代定居婚配：${marriedMembers.length}/${thisGenMembers.length}人结婚`);
         
         // 这里可以添加具体的婚配规划逻辑
         // 或标记哪些成员需要在后续跨族联姻中处理
@@ -1776,7 +1778,7 @@ export class FamilyNetworkService {
       });
     }
 
-    console.log(`✅ 提取关系完成: ${relations.length}条（已去重）`);
+    //console.log(`✅ 提取关系完成: ${relations.length}条（已去重）`);
     return relations;
   }
 
@@ -1851,11 +1853,11 @@ export class FamilyNetworkService {
   _isMarriageCandidate(member, familyStructure) {
     const marriageConfig = PopulationRules.getMarriageRules();
     
-    console.log(`婚配候选检查 - ID:${member.id}, 年龄:${member.age}, 性别:${member.gender}, 存活状态:${member.vitalStatus}`);
+    //console.log(`婚配候选检查 - ID:${member.id}, 年龄:${member.age}, 性别:${member.gender}, 存活状态:${member.vitalStatus}`);
     
     // 检查生存状态
     if (member.vitalStatus === 'deceased') {
-      console.log(`成员${member.id}已死亡，不可婚配`);
+      //console.log(`成员${member.id}已死亡，不可婚配`);
       return false;
     }
     
@@ -1873,14 +1875,14 @@ export class FamilyNetworkService {
     
     // 检查是否已有配偶
     const hasSpouse = this._hasSpouse(member.id, familyStructure);
-    console.log(`成员${member.id}是否有配偶: ${hasSpouse}`);
+    //console.log(`成员${member.id}是否有配偶: ${hasSpouse}`);
     
     if (hasSpouse) {
       console.log(`成员${member.id}已有配偶，不可再婚`);
       return false;
     }
     
-    console.log(`成员${member.id}符合婚配条件`);
+    //console.log(`成员${member.id}符合婚配条件`);
     return true;
   }
   
@@ -1914,7 +1916,7 @@ export class FamilyNetworkService {
   _establishCrossUnitRelations(detailedFamilyUnits) {
     const crossUnitRelations = [];
     
-    console.log('💑 开始建立跨单元姻亲关系...');
+    //console.log('💑 开始建立跨单元姻亲关系...');
 
     // 检查是否有外来配偶生成逻辑
     detailedFamilyUnits.forEach((unit, index) => {
@@ -1925,12 +1927,12 @@ export class FamilyNetworkService {
     const marriageableMales = this._collectMarriageableMales(detailedFamilyUnits);
     const marriageableFemales = this._collectMarriageableFemales(detailedFamilyUnits);
 
-    console.log(`找到 ${marriageableMales.length} 个适婚男性, ${marriageableFemales.length} 个适婚女性`);
+    //console.log(`找到 ${marriageableMales.length} 个适婚男性, ${marriageableFemales.length} 个适婚女性`);
 
     // 基于社会等级和年龄匹配
     const marriages = this._planCrossUnitMarriages(marriageableMales, marriageableFemales);
 
-    console.log(`规划了 ${marriages.length} 桩跨单元婚姻`);
+    //console.log(`规划了 ${marriages.length} 桩跨单元婚姻`);
 
     // 为每桩婚姻创建关系记录
     marriages.forEach((marriage, index) => {
@@ -1954,7 +1956,7 @@ export class FamilyNetworkService {
    * @returns {Array} 适婚男性列表
    */
   _collectMarriageableMales(familyUnits) {
-    console.log('收集可婚配男性，检查unitId传递');
+    //console.log('收集可婚配男性，检查unitId传递');
     
     const males = [];
     
@@ -1963,7 +1965,7 @@ export class FamilyNetworkService {
       
       if (this._getUnitCharacters(unit) && unit.familyStructure) {
         this._getUnitCharacters(unit).forEach(character => {
-          console.log(`检查成员${character.id}: gender=${character.gender}, unitId=${character.unitId}, 来源单元=${unit.unitId}`);
+          //console.log(`检查成员${character.id}: gender=${character.gender}, unitId=${character.unitId}, 来源单元=${unit.unitId}`);
           
           if (character.gender === '男' && this._isMarriageCandidate(character, unit.familyStructure)) {
             // 确保角色包含unitId信息
@@ -1972,14 +1974,14 @@ export class FamilyNetworkService {
               unitId: character.unitId || unit.unitId  // 如果角色没有unitId，使用单元的unitId
             };
             
-            console.log(`添加可婚配男性: ID=${maleWithUnit.id}, unitId=${maleWithUnit.unitId}`);
+            //console.log(`添加可婚配男性: ID=${maleWithUnit.id}, unitId=${maleWithUnit.unitId}`);
             males.push(maleWithUnit);
           }
         });
       }
     });
     
-    console.log(`最终可婚配男性unitId情况:`, males.map(m => ({id: m.id, unitId: m.unitId})));
+    //console.log(`最终可婚配男性unitId情况:`, males.map(m => ({id: m.id, unitId: m.unitId})));
     return males;
   }
 
@@ -1989,7 +1991,7 @@ export class FamilyNetworkService {
    * @returns {Array} 适婚女性列表
    */
   _collectMarriageableFemales(familyUnits) {
-    console.log('收集可婚配女性');
+    //console.log('收集可婚配女性');
     
     const females = [];
     
@@ -2010,7 +2012,7 @@ export class FamilyNetworkService {
       }
     });
     
-    console.log('可婚配女性数量:', females.length);
+    //console.log('可婚配女性数量:', females.length);
     return females;
   }
 
@@ -2051,13 +2053,13 @@ export class FamilyNetworkService {
     Object.keys(malesByClass).forEach(socialClass => {
       const classMales = malesByClass[socialClass] || [];
       const classFemales = femalesByClass[socialClass] || [];
-      console.log(`处理${socialClass}等级内婚配: ${classMales.length}男 vs ${classFemales.length}女`);
+      //console.log(`处理${socialClass}等级内婚配: ${classMales.length}男 vs ${classFemales.length}女`);
 
       this._matchWithinClass(classMales, classFemales, marriages, usedMales, usedFemales);
-      console.log(`${socialClass}等级内婚配结果: ${marriages.length}桩婚姻`);
+      //console.log(`${socialClass}等级内婚配结果: ${marriages.length}桩婚姻`);
     });
 
-    console.log('等级内婚配完成，开始跨等级婚配');
+    //console.log('等级内婚配完成，开始跨等级婚配');
     // 然后考虑跨等级婚姻（有限制）
     this._matchCrossClass(malesByClass, femalesByClass, marriages, usedMales, usedFemales);
 
@@ -2148,10 +2150,10 @@ export class FamilyNetworkService {
         const higherClass = classHierarchy[index - 1];
         const females = (femalesByClass[higherClass] || []).filter(f => !usedFemales.has(f.id));
         
-        console.log(`${maleClass}男性可以娶${higherClass}女性: ${females.length}人可用`);
+        //console.log(`${maleClass}男性可以娶${higherClass}女性: ${females.length}人可用`);
         
         if (males.length > 0 && females.length > 0) {
-          console.log(`尝试${maleClass} -> ${higherClass}的向上跨等级婚配`);
+          //console.log(`尝试${maleClass} -> ${higherClass}的向上跨等级婚配`);
           this._matchBetweenClasses(males, females, marriages, usedMales, usedFemales, 'upward');
         }
       }
@@ -2173,7 +2175,7 @@ export class FamilyNetworkService {
     const maxCrossClassMarriages = Math.min(males.length, females.length, 2);
     let matchCount = 0;
     
-    console.log(`最大跨等级婚姻数: ${maxCrossClassMarriages}`);
+    //console.log(`最大跨等级婚姻数: ${maxCrossClassMarriages}`);
   
     males.forEach((male, index) => {
       console.log(`处理男性${index}: ID:${male.id}, 年龄:${male.age}, 等级:${male.socialClass}`);
@@ -2192,12 +2194,12 @@ export class FamilyNetworkService {
         const notUsed = !usedFemales.has(female.id);
         const compatible = this._isCompatibleCrossClassMatch(male, female);
         
-        console.log(`女性${female.id}(年龄:${female.age}, 等级:${female.socialClass}) - 未使用:${notUsed}, 兼容:${compatible}`);
+        //console.log(`女性${female.id}(年龄:${female.age}, 等级:${female.socialClass}) - 未使用:${notUsed}, 兼容:${compatible}`);
         
         return notUsed && compatible;
       });
   
-      console.log(`男性${male.id}找到合适女性: ${suitableFemales.length}人`);
+      //console.log(`男性${male.id}找到合适女性: ${suitableFemales.length}人`);
   
       if (suitableFemales.length > 0) {
         const bestMatch = this._selectBestMatch(male, suitableFemales);
@@ -2213,11 +2215,11 @@ export class FamilyNetworkService {
         usedFemales.add(bestMatch.id);
         matchCount++;
         
-        console.log(`成功配对: 男${male.id} - 女${bestMatch.id}`);
+        //console.log(`成功配对: 男${male.id} - 女${bestMatch.id}`);
       }
     });
     
-    console.log(`_matchBetweenClasses完成，新增婚姻: ${matchCount}桩`);
+    //console.log(`_matchBetweenClasses完成，新增婚姻: ${matchCount}桩`);
   }
 
   /**
@@ -2345,7 +2347,7 @@ export class FamilyNetworkService {
       this._updateCharacterAffiliation(marriage.male, affiliationChanges.husbandChanges);
       this._updateCharacterAffiliation(marriage.female, affiliationChanges.wifeChanges);
       
-      console.log(`✅ 婚姻归属处理完成: ${marriage.male.name} × ${marriage.female.name}`);
+      //console.log(`✅ 婚姻归属处理完成: ${marriage.male.name} × ${marriage.female.name}`);
       
     } catch (error) {
       console.error('❌ 婚姻归属处理失败:', error);
@@ -2439,7 +2441,7 @@ export class FamilyNetworkService {
       // 将归属信息添加到关系记录
       relation.affiliationChanges = affiliationChanges;
 
-      console.log(`✅ 婚姻状态和归属更新完成: ${male.name} × ${female.name}`, affiliationChanges);
+      //console.log(`✅ 婚姻状态和归属更新完成: ${male.name} × ${female.name}`, affiliationChanges);
 
     } catch (error) {
       console.error('❌ 婚姻归属处理失败，使用默认规则:', error);
@@ -2507,7 +2509,7 @@ export class FamilyNetworkService {
     // 男性保持原家族
     male.marriageType = 'traditional';
     
-    console.log(`📝 应用默认婚姻规则: ${female.name} 嫁入 ${male.familyName}家族`);
+    //console.log(`📝 应用默认婚姻规则: ${female.name} 嫁入 ${male.familyName}家族`);
   }
 
   // ==================== 血缘网络生成 ====================
@@ -2519,7 +2521,7 @@ export class FamilyNetworkService {
    * @returns {Object} 血缘网络数据
    */
   _generateBloodlineNetwork(detailedFamilyUnits, crossUnitRelations) {
-    console.log('🔗 生成血缘网络数据...');
+    //console.log('🔗 生成血缘网络数据...');
 
     const bloodlineNetwork = {
       networkId: `bloodline_${Date.now()}`,
@@ -2540,7 +2542,7 @@ export class FamilyNetworkService {
       statistics: this._calculateBloodlineStatistics(detailedFamilyUnits, crossUnitRelations)
     };
 
-    console.log(`✅ 血缘网络生成完成: ${bloodlineNetwork.allCharacters.length}个角色, ${bloodlineNetwork.allRelations.length}条关系`);
+    //console.log(`✅ 血缘网络生成完成: ${bloodlineNetwork.allCharacters.length}个角色, ${bloodlineNetwork.allRelations.length}条关系`);
 
     return bloodlineNetwork;
   }
@@ -2617,7 +2619,7 @@ export class FamilyNetworkService {
       }
     });
 
-    console.log(`✅ 收集所有关系完成: ${allRelations.length}条（已去重）`);
+    //console.log(`✅ 收集所有关系完成: ${allRelations.length}条（已去重）`);
     return allRelations;
   }
 
@@ -2893,7 +2895,7 @@ export class FamilyNetworkService {
    * @returns {Object} 归属变更结果
    */
   processMarriageAffiliation(husband, wife, marriageType = 'normal') {
-    console.log(`🔄 处理婚姻归属变更: ${husband.name} × ${wife.name}`);
+    //console.log(`🔄 处理婚姻归属变更: ${husband.name} × ${wife.name}`);
 
     // 确定婚姻模式
     const marriagePattern = this._determineMarriagePattern(husband, wife, marriageType);
@@ -3095,7 +3097,7 @@ export class FamilyNetworkService {
       }
     });
     
-    console.log(`🔗 建立跨家族关系: ${husband.currentFamily} ↔ ${wife.currentFamily}`);
+    //console.log(`🔗 建立跨家族关系: ${husband.currentFamily} ↔ ${wife.currentFamily}`);
   }
 
 
@@ -3133,11 +3135,11 @@ export class FamilyNetworkService {
     };
     
     this.affiliationTransitions.push(transitionRecord);
-    console.log(`记录家族归属转换: ${husband.name} & ${wife.name}`);
+    //console.log(`记录家族归属转换: ${husband.name} & ${wife.name}`);
   }
 
   async _expandExistingFamilies(existingFamilyData) {
-    console.log('处理现有家族的自然发展');
+    //console.log('处理现有家族的自然发展');
     
     const expandedUnits = [];
     
@@ -3544,7 +3546,7 @@ _updateVitalStatus(familyUnit) {
         character.deathAge = character.age;
         character.deathDate = Date.now();
         
-        console.log(`角色 ${character.name} 去世，享年 ${character.age} 岁`);
+        //console.log(`角色 ${character.name} 去世，享年 ${character.age} 岁`);
         
         // 更新相关家族结构（丧偶处理）
         this._handleCharacterDeath(character, familyUnit);
@@ -3630,7 +3632,7 @@ _updateMarriageStructureForDeath(familyUnit, deceasedId, spouseId) {
    * @returns {Object} 验证结果
    */
   _validateNetworkIntegrity(bloodlineNetwork) {
-    console.log('✅ 验证血缘网络完整性...');
+    //console.log('✅ 验证血缘网络完整性...');
 
     const validationResult = {
       isValid: true,
@@ -3663,7 +3665,7 @@ _updateMarriageStructureForDeath(familyUnit, deceasedId, spouseId) {
       validationResult.isValid = validationResult.errors.length === 0 && 
                                  validationResult.validationScore >= 70;
 
-      console.log(`验证完成: ${validationResult.isValid ? '通过' : '失败'}, 分数: ${validationResult.validationScore}`);
+      //console.log(`验证完成: ${validationResult.isValid ? '通过' : '失败'}, 分数: ${validationResult.validationScore}`);
 
     } catch (error) {
       validationResult.isValid = false;
@@ -3911,7 +3913,7 @@ _storeBloodRelationsToFamilySystem(characters, networkData) {
     // 兜底方案：直接传递给FamilySystem处理
     this.gameEngine.familySystem.storeBloodRelationsFromService(characters, networkData);
   }
-  console.log('✅ 血缘关系数据已传递给FamilySystem');
+  //console.log('✅ 血缘关系数据已传递给FamilySystem');
 }
 
 _storeFromFamilyTrees(familyTrees) {
