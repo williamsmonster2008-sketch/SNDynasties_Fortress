@@ -877,6 +877,16 @@ export class FamilyNetworkService {
         member.hasSpouse = true;
         continue;
       }
+
+      // 🔧 新增：检查structure.marriages中是否已存在此成员的婚姻记录
+      const alreadyInMarriages = structure.marriages.some(m => 
+        m.husband === member.characterId || m.wife === member.characterId
+      );
+      if (alreadyInMarriages) {
+        member.hasSpouse = true;
+        continue;
+      }
+      
       if (member.canBreed === false) {
         //console.log(`成员 ${member.characterId} 已被标记不能育，跳过婚配`);
         continue;

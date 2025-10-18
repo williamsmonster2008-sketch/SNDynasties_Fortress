@@ -1,0 +1,89 @@
+📋 修复进度记录 - 人际关系与家族谱系显示
+✅ 已完成修复
+1. 名称显示问题
+
+✅ 主界面角色卡片名称后缀清理（ui_components.js - CharacterCard.create()）
+✅ 详情页标题名称后缀清理（ui_components.js - CharacterDetailModal.create()）
+✅ 家族谱系节点名称后缀清理（ui_components.js - renderFamilyTree()）
+
+2. 已故成员显示
+
+✅ 家族谱系中已故成员标注"(已故)"（ui_components.js - renderFamilyTree()）
+✅ 主界面过滤已故角色，只显示存活成员（game_interface.js）
+✅ 人际关系列表过滤已故成员（ui_components.js - renderRelationships()）
+
+3. 配偶关系去重
+
+✅ 禁止推导配偶关系（family_system.js - getKinship() 第809-812行）
+✅ 家族谱系只显示本家族成员（family_system.js - getFamilyTreeData() 使用 originalFamily 过滤）
+
+4. 称谓显示修正
+
+✅ 叔祖父/姑祖母称谓（UI层面修正 - ui_components.js renderFamilyTree()）
+✅ 侄孙/侄孙女称谓（UI层面修正 - ui_components.js renderFamilyTree()）
+✅ Generation字段兼容（family_system.js - _getBloodRelationTitle() 第17行兼容 generationLevel）
+
+5. 数据同步修复
+
+✅ _cacheFamilyMembers() 方法回滚错误修改（避免覆盖正确的generation值）
+
+
+❌ 已知严重Bug（待后续修复）
+Bug #1: Refugee模式旁系血缘关系缺失
+
+现象: 堂兄弟、堂侄等关系显示为"亲属"或"同族"
+根本原因: storeBloodRelationsFromService() 只存储直接关系（父子、兄弟、配偶），未推导和存储旁系关系（堂兄弟、堂侄等）
+影响范围: 所有refugee模式生成的人口
+临时方案: 显示"亲属"
+长期修复: 需要重构血缘关系存储逻辑，添加完整的旁系关系推导算法
+
+Bug #2: 部分角色父母数据缺失
+
+现象: 年轻代际只有父亲没有母亲，或只有母亲没有父亲
+可能原因: 数据生成阶段的配偶分配逻辑问题
+待验证: 需要检查 _addSpousesForGeneration() 方法
+
+Bug #3: Generation字段不一致
+
+现象: 部分配偶的characterId显示为gen3但generation字段是4
+示例: 胡婉华 ID为 spouse_wife_3 但 generation=4
+影响: 可能导致辈分判断错误
+
+Bug #4: 伯叔区分未实现
+
+现象: 所有父辈兄弟统一显示"叔父"，未区分"伯父"
+原因: 需要 birthOrder 数据判断年龄大小
+优先级: 低（可后续优化）
+
+
+🔧 关键修改点汇总
+family_system.js:
+
+Line 17: _getBloodRelationTitle() 兼容 generationLevel 字段
+Line 809-812: 禁止推导配偶关系
+getFamilyTreeData(): 使用 originalFamily 过滤家族成员
+
+ui_components.js:
+
+CharacterCard.create(): 添加 sanitizeName() 清理名称后缀
+CharacterDetailModal.create(): 标题使用 sanitizeName()
+renderFamilyTree():
+
+节点名称使用 sanitizeName()
+添加"(已故)"标记
+根据 relativeLevel 修正称谓（叔祖父、侄孙等）
+
+
+renderRelationships(): 过滤已故成员（targetChar.vitalStatus === 'deceased'）
+
+game_interface.js:
+
+updateCharacterDisplay(): 只显示存活角色
+
+
+📝 下一步计划
+
+修复旁系关系存储 - 这是最重要的架构问题
+验证父母数据完整性
+优化称谓系统 - 考虑伯叔区分等细节
+完善数据生成逻辑 - 修复generation字段不一致问题

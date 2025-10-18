@@ -770,7 +770,7 @@ class FamilySystem {
     return null;
   }
 
-   getKinship(familyName, fromCharacterId, toCharacterId) {
+  getKinship(familyName, fromCharacterId, toCharacterId) {
     const familyBloodRelations = this.bloodRelations.get(familyName);
     if (!familyBloodRelations) {
       return null;
@@ -809,7 +809,12 @@ class FamilySystem {
     if (!proximity) {
       return null;
     }
-
+    
+    // 🔧 关键修复：配偶关系必须是直接记录，禁止推导
+    if (proximity.type === 'spouse' || proximity.type === 'marriage') {
+      return null; // 不返回推导出的配偶关系
+    }
+    
     return {
       title: proximity.title,
       type: proximity.type,
@@ -1476,7 +1481,16 @@ class FamilySystem {
     }
 
     const memberMap = this._getFamilyMembersMap(familyName);
-    const focusMember = memberMap.get(focusCharacterId);
+    // 🔧 修复:过滤出真正属于本家族的成员(originalFamily匹配或isNative为true)
+    const filteredMemberMap = new Map();
+    memberMap.forEach((member, id) => {
+      const belongsToFamily = member.originalFamily === familyName || 
+                            (member.isNative !== false && member.familyName === familyName);
+      if (belongsToFamily) {
+        filteredMemberMap.set(id, member);
+      }
+    });
+    const focusMember = filteredMemberMap.get(focusCharacterId);
     if (!focusMember) return null;
 
     const ancestorLevels = options.ancestorLevels ?? 4;
@@ -1494,7 +1508,7 @@ class FamilySystem {
     const levels = new Map();
     const nodesSet = new Set();
 
-    memberMap.forEach((member, memberId) => {
+    filteredMemberMap.forEach((member, memberId) => {
       const proximity = proximityMap.get(memberId);
       if (!proximity) return;
 
@@ -1658,8 +1672,11 @@ class FamilySystem {
     const fromGender = fromPerson?.gender || '未知';
     const toGender = toPerson?.gender || '未知';
     const toGenderKey = toGender === '男' ? 'male' : (toGender === '女' ? 'female' : 'male');
-    const fromGen = Number.isFinite(fromPerson?.generation) ? fromPerson.generation : null;
-    const toGen = Number.isFinite(toPerson?.generation) ? toPerson.generation : null;
+    // 🔧 修复：兼容 generation 和 generationLevel 字段
+    const fromGen = Number.isFinite(fromPerson?.generation) ? fromPerson.generation : 
+                    (Number.isFinite(fromPerson?.generationLevel) ? fromPerson.generationLevel : null);
+    const toGen = Number.isFinite(toPerson?.generation) ? toPerson.generation : 
+                  (Number.isFinite(toPerson?.generationLevel) ? toPerson.generationLevel : null);
     const generationDiff = fromGen !== null && toGen !== null ? toGen - fromGen : null;
 
     const resolveAncestorTitle = gap => {
@@ -1742,10 +1759,41 @@ class FamilySystem {
       }
       case BloodRelationType.SIBLING:
         return resolveSiblingTitle();
-      case BloodRelationType.UNCLE_AUNT:
-        return toGender === '男' ? '叔父' : '姑母';
-      case BloodRelationType.NEPHEW_NIECE:
-        return toGender === '男' ? '侄子' : '侄女';
+        case BloodRelationType.UNCLE_AUNT: {
+          // 🔧 添加调试
+          console.log('UNCLE_AUNT调试:', {
+            fromGen, 
+            toGen, 
+            generationDiff,
+            generationGap,
+            toGender
+          });
+          // 计算代差
+          const gap = generationDiff !== null && generationDiff < 0 ? Math.abs(generationDiff) : 1;
+          
+          if (gap === 1) {
+            // 同父辈：需要区分伯父/叔父
+            // TODO: 需要birthOrder数据判断，暂时统一叫叔父
+            return toGender === '男' ? '叔父' : '姑母';
+          } else if (gap === 2) {
+            return toGender === '男' ? '叔祖父' : '姑祖母';
+          } else if (gap >= 3) {
+            return toGender === '男' ? `${gap-1}世叔祖` : `${gap-1}世姑祖`;
+          }
+          return toGender === '男' ? '叔父' : '姑母';
+        }
+        case BloodRelationType.NEPHEW_NIECE: {
+          const gap = generationDiff !== null && generationDiff > 0 ? generationDiff : 1;
+          
+          if (gap === 1) {
+            return toGender === '男' ? '侄子' : '侄女';
+          } else if (gap === 2) {
+            return toGender === '男' ? '侄孙' : '侄孙女';
+          } else if (gap >= 3) {
+            return toGender === '男' ? `${gap-1}世侄孙` : `${gap-1}世侄孙女`;
+          }
+          return toGender === '男' ? '侄子' : '侄女';
+        }
       case BloodRelationType.COUSIN:
         return resolveCousinTitle();
       case BloodRelationType.NO_RELATION:
@@ -1754,7 +1802,9 @@ class FamilySystem {
         console.warn('未识别的血缘关系类型:', bloodRelationType);
         return '族人';
     }
-  }  getFamilyStatistics(familyName) {
+  }  
+  
+  getFamilyStatistics(familyName) {
     const family = this.families.get(familyName);
     if (!family) return null;
     

@@ -538,6 +538,7 @@ export class CharacterCard extends UIComponent {
   }
 
   create() {
+    const sanitizeName = (name) => (typeof name === 'string' ? name.replace(/_\d+$/, '') : name);
     this.element = document.createElement('div');
     this.element.className = 'character-card nanbeichao-card';
     
@@ -548,7 +549,7 @@ export class CharacterCard extends UIComponent {
           <div class="status-indicator"></div>
         </div>
         <div class="character-info">
-          <h3 class="character-name">${this.character?.name || '未知'}</h3>
+          <h3 class="character-name">${sanitizeName(this.character?.name) || '未知'}</h3>
           <div class="character-meta">
             <span class="age">${this.character?.age ? Math.floor(this.character.age) : 0}岁</span>
             <span class="gender">${this.character?.gender || '未知'}</span>
@@ -1651,6 +1652,7 @@ export class CharacterDetailModal extends UIComponent {
   
   create() {
     console.log('🔍 create() 方法被调用');
+    const sanitizeName = (name) => (typeof name === 'string' ? name.replace(/_\d+$/, '') : name);
     this.element = document.createElement('div');
     this.element.className = 'character-detail-modal';
     this.element.style.cssText = `
@@ -1671,7 +1673,7 @@ export class CharacterDetailModal extends UIComponent {
     
     this.element.innerHTML = `
       <div class="modal-content" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 16px 32px rgba(0,0,0,0.2); width: min(90%, 720px); max-height: 85vh; overflow-y: auto; box-sizing: border-box; overscroll-behavior: contain; position: relative;">
-        <h3>${this.character.name} 详情</h3>
+        <h3>${sanitizeName(this.character.name)} 详情</h3>
         <button class="close-btn" style="float: right;">×</button>
         <div class="character-details">
           <div class="basic-info">
@@ -1801,13 +1803,14 @@ export class CharacterDetailModal extends UIComponent {
             return;
           }
 
+          
           const kinshipData = fs.getKinship(
             latestCharacter.familyName,
             latestCharacter.characterId,
             member.characterId
           );
 
-          if (!kinshipData || !kinshipData.title) {
+          if (!kinshipData || !kinshipData.title || !kinshipData.type) {
             return;
           }
 
@@ -1816,6 +1819,11 @@ export class CharacterDetailModal extends UIComponent {
           );
 
           if (!targetChar) {
+            return;
+          }
+
+          // 🔧 修复：过滤已故成员，避免重复显示
+          if (member.vitalStatus === 'deceased') {
             return;
           }
 
@@ -1943,6 +1951,7 @@ export class CharacterDetailModal extends UIComponent {
     this.renderFamilyTree(latestCharacter);
   }
   renderFamilyTree(latestCharacter = null) {
+    const sanitizeName = (name) => (typeof name === 'string' ? name.replace(/_\d+$/, '') : name);
     if (!this.element) {
       return;
     }
@@ -2021,7 +2030,8 @@ export class CharacterDetailModal extends UIComponent {
           }
           const runtimeChar = findRuntimeCharacter(memberNode.id);
           if ((!memberNode.name || memberNode.name === '未命名') && runtimeChar) {
-            memberNode.name = runtimeChar.name || runtimeChar.displayName || '未登记姓名';
+            const rawName = runtimeChar.name || runtimeChar.displayName || '未登记姓名';
+            memberNode.name = sanitizeName(rawName);
           }
         });
       });
@@ -2041,13 +2051,40 @@ export class CharacterDetailModal extends UIComponent {
         ? members.map(memberNode => {
             const nodeIdValue = memberNode && memberNode.id !== undefined ? memberNode.id : '';
             const nameValue = memberNode && memberNode.name ? memberNode.name : '未登记姓名';
-            const relationValue = memberNode && memberNode.relationTitle ? memberNode.relationTitle : '--';
+            const vitalStatus = memberNode?.vitalStatus === 'deceased' ? '(已故)' : '';
+            const displayNameWithStatus = `${nameValue}${vitalStatus}`;
+            let relationValue = memberNode && memberNode.relationTitle ? memberNode.relationTitle : '--';
+
+            // 🔧 修复：根据辈分修正称谓
+            if (memberNode && !memberNode.isFocus) {
+              const level = memberNode.relativeLevel || 0;
+              const gender = memberNode.gender;
+              
+              if (level === -2 && relationValue === '叔父') {
+                relationValue = '叔祖父';
+              } else if (level === -2 && relationValue === '姑母') {
+                relationValue = '姑祖母';
+              }
+               // 孙辈
+              else if (level === 2 && relationValue === '侄子') {
+                relationValue = '侄孙';
+              } else if (level === 2 && relationValue === '侄女') {
+                relationValue = '侄孙女';
+              }
+              
+              // 曾孙辈
+              else if (level === 3 && relationValue === '侄子') {
+                relationValue = '侄曾孙';
+              } else if (level === 3 && relationValue === '侄女') {
+                relationValue = '侄曾孙女';
+              }
+            }
             const closenessValue = memberNode && memberNode.closeness !== undefined && memberNode.closeness !== null
               ? memberNode.closeness
               : '--';
             const focusClass = memberNode && memberNode.isFocus ? 'focus' : '';
             return `<div class="family-tree-node ${focusClass}" data-node-id="${nodeIdValue}">
-              <div class="family-tree-name">${nameValue}</div>
+              <div class="family-tree-name">${displayNameWithStatus}</div>
               <div class="family-tree-relation">${relationValue}</div>
               <div class="family-tree-closeness">亲疏度：${closenessValue}</div>
             </div>`;
