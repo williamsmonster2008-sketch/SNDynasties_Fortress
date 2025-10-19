@@ -202,6 +202,12 @@ export class GameEngine {
         minSize: balanceConfig.refugee_population.population_size.min_size,
         maxSize: balanceConfig.refugee_population.population_size.max_size
       });
+
+      // 8. 更新FamilySystem成员数据(补充name)
+      this._updateFamilyMembersData();
+
+      // 9. 映射血缘关系到角色对象
+      this._mapBloodRelationsToCharacters();
       
       this.initializationProgress = 100;
       this.isInitialized = true;
@@ -407,6 +413,140 @@ export class GameEngine {
         this.gameState.statistics.population = population;
       }
     }
+  }
+
+  /**
+   * 更新FamilySystem中的成员数据(补充name等字段)
+   */
+  _updateFamilyMembersData() {
+    console.log('🔄 双向同步FamilySystem和Characters数据');
+    
+    this.familySystem.families.forEach((family, familyName) => {
+      const updatedMembers = family.members.map(member => {
+        const fullChar = Array.from(this.characters.values())
+          .find(c => c.characterId === (member.characterId || member.id) || c.id === member.id);
+        
+        if (fullChar) {
+          // 🔧 反向同步:把families中的generation补充到角色对象
+          if (!fullChar.generation && member.generation) {
+            fullChar.generation = member.generation;
+          }
+          
+          return {
+            ...member,
+            name: fullChar.name,
+            displayName: fullChar.displayName
+          };
+        }
+        return member;
+      });
+      
+      family.members = updatedMembers;
+    });
+
+    // 🔧 清空缓存,强制重建
+    this.familySystem.familyMemberCache.clear();
+    
+    console.log('✅ 数据双向同步完成,缓存已清空');
+  }
+
+  /**
+   * 将FamilySystem中的血缘关系映射到角色对象
+   */
+  _mapBloodRelationsToCharacters() {
+    console.log('🔗 开始映射血缘关系到角色对象');
+    
+    // 先建立characterId到角色对象的映射
+    const characterIdMap = new Map();
+    this.characters.forEach(char => {
+      if (char.characterId) {
+        characterIdMap.set(char.characterId, char);
+      }
+    });
+    
+    console.log(`📋 建立ID映射: ${characterIdMap.size}个角色`);
+    
+    let mappedCount = 0;
+    
+    // 关系类型优先级(数字越小优先级越高)
+    const relationPriority = {
+      'father_child': 1,
+      'mother_child': 1,
+      'father': 1,
+      'mother': 1,
+      'son': 1,
+      'daughter': 1,
+      'marriage': 2,
+      'spouse': 2,
+      'sibling': 3,
+      'ancestor': 10,
+      'descendant': 10,
+      'cousin': 11
+    };
+    
+    // 遍历所有家族的关系数据
+    this.familySystem.bloodRelations.forEach((relations, familyName) => {
+      relations.forEach((relation, key) => {
+        const fromChar = characterIdMap.get(relation.fromCharacterId);
+        const toChar = characterIdMap.get(relation.toCharacterId);
+        
+        if (fromChar && toChar) {
+          // 正向关系: from -> to
+          if (fromChar.family) {
+            const existingType = fromChar.family.bloodRelations.get(relation.toCharacterId);
+            const existingPriority = relationPriority[existingType] || 99;
+            const newPriority = relationPriority[relation.bloodRelationType] || 99;
+            
+            // 只有新关系优先级更高时才覆盖
+            if (!existingType || newPriority < existingPriority) {
+              fromChar.family.bloodRelations.set(
+                relation.toCharacterId, 
+                relation.bloodRelationType
+              );
+              mappedCount++;
+            }
+          }
+          
+          // 反向关系: to -> from
+          if (toChar.family) {
+            let reverseType;
+            if (relation.bloodRelationType === 'father_child') {
+              // 子女看父亲,应该存储为father而不是son/daughter
+              reverseType = 'father';
+            } else if (relation.bloodRelationType === 'mother_child') {
+              // 子女看母亲,应该存储为mother
+              reverseType = 'mother';
+            } else if (relation.bloodRelationType === 'sibling') {
+              reverseType = 'sibling';
+            } else if (relation.bloodRelationType === 'marriage') {
+              reverseType = 'spouse';
+            }  else if (relation.bloodRelationType === 'ancestor') {
+              // 🔧 修复: ancestor的反向是descendant
+              reverseType = 'descendant';
+            } else if (relation.bloodRelationType === 'descendant') {
+              // 🔧 修复: descendant的反向是ancestor
+              reverseType = 'ancestor';
+            }else {
+              reverseType = relation.bloodRelationType;
+            }
+            
+            const existingType = toChar.family.bloodRelations.get(relation.fromCharacterId);
+            const existingPriority = relationPriority[existingType] || 99;
+            const newPriority = relationPriority[reverseType] || 99;
+            
+            if (!existingType || newPriority < existingPriority) {
+              toChar.family.bloodRelations.set(
+                relation.fromCharacterId,
+                reverseType
+              );
+              mappedCount++;
+            }
+          }
+        }
+      });
+    });
+    
+    console.log(`✅ 血缘关系映射完成: ${mappedCount}条关系`);
   }
   
   // =============== 游戏循环系统 ===============

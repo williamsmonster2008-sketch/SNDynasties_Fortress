@@ -242,14 +242,28 @@ class FamilySystem {
       console.warn('relationshipData数据为空');
       return;
     }
+
+    // 🔧 补充完整数据:从gameEngine.characters获取name等字段
+    const completeCharacters = characters.map(char => {
+      // 🔧 修复: 同时匹配characterId和id
+      const charId = char.characterId || char.id;
+      const fullChar = Array.from(this.gameEngine.characters.values())
+        .find(c => c.characterId === (char.characterId || char.id) || c.id === char.id);
+      
+      return {
+        ...char,
+        name: fullChar?.name || char.name,
+        displayName: fullChar?.displayName || char.displayName
+      };
+    });
     
     // 确保bloodRelations存在
-    const bloodRelations = relationshipData.bloodRelations || [];
+    //const bloodRelations = relationshipData.bloodRelations || [];
     //console.log('血缘关系数据:', bloodRelations.length, '条');
     
-    // 按家族分组
+    // 按家族分组 - 使用补充后的数据
     const familyGroups = new Map();
-    characters.forEach(character => {
+    completeCharacters.forEach(character => {
       const familyName = character.familyName || character.surname || '未知';
       if (!familyGroups.has(familyName)) {
         familyGroups.set(familyName, []);
@@ -516,6 +530,18 @@ class FamilySystem {
       if (!familyMemberIds.has(fromId) || !familyMemberIds.has(toId)) return;
 
       const key = `${fromId}_${toId}`;
+      // 🔧 关键修复: 如果已存在更具体的关系,不要用ancestor覆盖
+      if (familyBloodRelations.has(key)) {
+        const existingRelation = familyBloodRelations.get(key);
+        const existingType = existingRelation.bloodRelationType;
+        
+        // 如果已有father_child或mother_child,不要用ancestor覆盖
+        if ((existingType === 'father_child' || existingType === 'mother_child') && 
+            type === 'ancestor') {
+          return; // 跳过,保留更具体的关系
+        }
+      }
+      
       if (processedRelations.has(key)) return;
 
       const fromPerson = memberMap.get(fromId);
@@ -575,11 +601,29 @@ class FamilySystem {
             if (cousinId === childId) return;
             const cousinPerson = memberMap.get(cousinId);
             if (!cousinPerson) return;
-
+          
             // 家族边界检查：堂兄弟必须同姓，不同姓不建立堂兄弟关系
             const cousinFamily = cousinPerson.familyName || cousinPerson.surname || '';
             if (childFamily === cousinFamily) {
-              addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
+              // 🔧 检查代际差,区分堂兄弟和堂侄
+              const childGen = childPerson.generation;
+              const cousinGen = cousinPerson.generation;
+              
+              if (Number.isFinite(childGen) && Number.isFinite(cousinGen)) {
+                if (childGen === cousinGen) {
+                  // 同辈 - 堂兄弟
+                  addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
+                } else if (childGen < cousinGen) {
+                  // child是长辈,cousin是晚辈 - child看cousin是堂侄
+                  addBidirectional(childId, cousinId, BloodRelationType.NEPHEW_NIECE, BloodRelationType.UNCLE_AUNT, 55);
+                } else {
+                  // child是晚辈,cousin是长辈 - child看cousin是堂叔伯
+                  addBidirectional(childId, cousinId, BloodRelationType.UNCLE_AUNT, BloodRelationType.NEPHEW_NIECE, 55);
+                }
+              } else {
+                // generation数据缺失,保持原逻辑
+                addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
+              }
             }
           });
         });
@@ -1483,6 +1527,7 @@ class FamilySystem {
     const memberMap = this._getFamilyMembersMap(familyName);
     // 🔧 修复:过滤出真正属于本家族的成员(originalFamily匹配或isNative为true)
     const filteredMemberMap = new Map();
+    const bloodRelations = this.bloodRelations.get(familyName);
     memberMap.forEach((member, id) => {
       const belongsToFamily = member.originalFamily === familyName || 
                             (member.isNative !== false && member.familyName === familyName);
@@ -1490,6 +1535,25 @@ class FamilySystem {
         filteredMemberMap.set(id, member);
       }
     });
+
+    // 🔧 补充:添加focus角色的直系亲属(即使他们是外来配偶)
+    const focusMemberTemp = filteredMemberMap.get(focusCharacterId);
+    if (focusMemberTemp && bloodRelations) {
+      bloodRelations.forEach((relation) => {
+        // 如果focus角色是这条关系的一方,且关系类型是直系亲属
+        if ((relation.fromCharacterId === focusCharacterId || relation.toCharacterId === focusCharacterId) &&
+            (relation.bloodRelationType === 'father_child' || 
+            relation.bloodRelationType === 'mother_child' ||
+            relation.bloodRelationType === 'marriage')) {
+          const relativeId = relation.fromCharacterId === focusCharacterId ? 
+                            relation.toCharacterId : relation.fromCharacterId;
+          const relative = memberMap.get(relativeId);
+          if (relative && !filteredMemberMap.has(relativeId)) {
+            filteredMemberMap.set(relativeId, relative);
+          }
+        }
+      });
+    }
     const focusMember = filteredMemberMap.get(focusCharacterId);
     if (!focusMember) return null;
 

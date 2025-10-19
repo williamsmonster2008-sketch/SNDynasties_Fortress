@@ -548,6 +548,10 @@ class Character {
     this.birthDate = config.birthDate || Date.now() - (this.age * 365 * 24 * 60 * 60 * 1000);
 
     // 添加家族相关字段
+    this.family = {
+      bloodRelations: new Map(),
+      familyMembers: new Map()
+    };
     this.familyName = config.familyName || null;
     this.originalFamily = config.originalFamily || null;
     this.currentFamily = config.currentFamily || null;

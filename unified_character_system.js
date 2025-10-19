@@ -275,6 +275,7 @@ export default class UnifiedCharacterSystem {
           gender: characterTemplate.gender,
           age: characterTemplate.age || 20,
           socialClass: characterTemplate.socialClass,
+          generation: characterTemplate.generation, 
 
           // 家族信息
           familyName: characterTemplate.familyName,

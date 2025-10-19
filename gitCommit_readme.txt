@@ -17,7 +17,10 @@ git commit -m "Backup 2025-10-17"
 
 推送
 
-git push origin feature/daily-backup
+git config --global http.proxy http://127.0.0.1:7890
+git config --global https.proxy http://127.0.0.1:7890
+
+git push origin alpha
 可选：打标签
 
 git tag backup-2025-10-17
