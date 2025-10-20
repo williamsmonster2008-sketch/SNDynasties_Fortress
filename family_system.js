@@ -516,16 +516,10 @@ class FamilySystem {
     return familyBloodRelations;
   }
 
-  _addDerivedRelations({
-    familyBloodRelations,
-    memberMap,
-    parentToChildren,
-    childToParents,
-    siblingMap,
-    processedRelations,
-    familyMemberIds
-  }) {
-    const addRelation = (fromId, toId, type, strength = 80, generationOverride = null) => {
+  _addDerivedRelations({familyBloodRelations,memberMap,parentToChildren,childToParents,siblingMap,processedRelations,familyMemberIds}) 
+  {
+    const addRelation = (fromId, toId, type, strength = 80, generationOverride = null) => 
+    {
       if (!fromId || !toId) return;
       if (!familyMemberIds.has(fromId) || !familyMemberIds.has(toId)) return;
 
@@ -566,11 +560,14 @@ class FamilySystem {
       });
     };
 
-    const addBidirectional = (idA, idB, typeAB, typeBA, strength = 70) => {
+    const addBidirectional = (idA, idB, typeAB, typeBA, strength = 70) => 
+    {
       addRelation(idA, idB, typeAB, strength);
       addRelation(idB, idA, typeBA, strength);
     };
 
+    // 🔧 注释掉部分1: 叔伯姑侄关系推导
+    /*
     parentToChildren.forEach((children, parentId) => {
       if (!children || children.size === 0) return;
       const siblings = siblingMap.get(parentId);
@@ -597,39 +594,14 @@ class FamilySystem {
           const cousinChildren = parentToChildren.get(uncleId);
           if (!cousinChildren || cousinChildren.size === 0) return;
 
-          cousinChildren.forEach(cousinId => {
-            if (cousinId === childId) return;
-            const cousinPerson = memberMap.get(cousinId);
-            if (!cousinPerson) return;
           
-            // 家族边界检查：堂兄弟必须同姓，不同姓不建立堂兄弟关系
-            const cousinFamily = cousinPerson.familyName || cousinPerson.surname || '';
-            if (childFamily === cousinFamily) {
-              // 🔧 检查代际差,区分堂兄弟和堂侄
-              const childGen = childPerson.generation;
-              const cousinGen = cousinPerson.generation;
-              
-              if (Number.isFinite(childGen) && Number.isFinite(cousinGen)) {
-                if (childGen === cousinGen) {
-                  // 同辈 - 堂兄弟
-                  addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
-                } else if (childGen < cousinGen) {
-                  // child是长辈,cousin是晚辈 - child看cousin是堂侄
-                  addBidirectional(childId, cousinId, BloodRelationType.NEPHEW_NIECE, BloodRelationType.UNCLE_AUNT, 55);
-                } else {
-                  // child是晚辈,cousin是长辈 - child看cousin是堂叔伯
-                  addBidirectional(childId, cousinId, BloodRelationType.UNCLE_AUNT, BloodRelationType.NEPHEW_NIECE, 55);
-                }
-              } else {
-                // generation数据缺失,保持原逻辑
-                addBidirectional(childId, cousinId, BloodRelationType.COUSIN, BloodRelationType.COUSIN, 60);
-              }
-            }
-          });
         });
       });
     });
+    */
 
+    // 🔧 注释掉部分2: 祖孙关系推导
+    /*
     childToParents.forEach((parents, childId) => {
       if (!parents || parents.size === 0) return;
       parents.forEach(parentId => {
@@ -642,7 +614,10 @@ class FamilySystem {
         });
       });
     });
+    */
 
+    // 🔧 注释掉部分3: 深度直系关系推导
+    /*
     const maxGenerationDepth = 4;
     const computeLineageStrength = depth => Math.max(40, 85 - depth * 5);
 
@@ -687,6 +662,7 @@ class FamilySystem {
       addLineageRelations(memberId, 'up');
       addLineageRelations(memberId, 'down');
     });
+    */
   }
 
    /**
@@ -976,339 +952,201 @@ class FamilySystem {
     return result;
   }
 
+  /**
+   * 根据路径长度和代际差判断父系血亲称谓
+   * @param {number} pathLength - 路径步数
+   * @param {number} generationGap - 代际差绝对值
+   * @param {number} generationDelta - 代际差(带正负,正数表示对方辈分更高)
+   * @param {string} targetGender - 对方性别
+   * @returns {string} 称谓
+   */
+  _determineKinshipByPathLength(pathLength, generationGap, generationDelta, targetGender) {
+    const isOlder = generationDelta > 0; // 对方辈分更高
+    const isMale = targetGender === '男';
+    
+    // ===== pathLength = 1: 父子/母子 =====
+    if (pathLength === 1 && generationGap === 1) {
+      return isOlder ? (isMale ? '父亲' : '母亲') : (isMale ? '儿子' : '女儿');
+    }
+    
+    // ===== pathLength = 2: 兄弟姐妹 / 祖孙 =====
+    if (pathLength === 2) {
+      if (generationGap === 0) {
+        // 兄弟姐妹 - 暂不区分长幼,统一用基础称谓
+        return isMale ? '兄弟' : '姐妹';
+      }
+      if (generationGap === 2) {
+        return isOlder ? (isMale ? '祖父' : '祖母') : (isMale ? '孙子' : '孙女');
+      }
+    }
+    
+    // ===== pathLength = 3: 叔侄 / 曾祖曾孙 =====
+    if (pathLength === 3) {
+      if (generationGap === 1) {
+        return isOlder ? (isMale ? '叔父' : '姑母') : (isMale ? '侄子' : '侄女');
+      }
+      if (generationGap === 3) {
+        return isOlder ? (isMale ? '曾祖父' : '曾祖母') : (isMale ? '曾孙' : '曾孙女');
+      }
+    }
+    
+    // ===== pathLength = 4: 堂兄弟 / 叔祖侄孙 / 高祖玄孙 =====
+    if (pathLength === 4) {
+      if (generationGap === 0) {
+        return isMale ? '堂兄弟' : '堂姐妹';
+      }
+      if (generationGap === 2) {
+        return isOlder ? (isMale ? '叔祖父' : '姑祖母') : (isMale ? '侄孙' : '侄孙女');
+      }
+      if (generationGap === 4) {
+        return isOlder ? (isMale ? '高祖父' : '高祖母') : (isMale ? '玄孙' : '玄孙女');
+      }
+    }
+    
+    // ===== pathLength = 5: 堂叔侄 / 叔曾祖侄曾孙 / 天祖来孙 =====
+    if (pathLength === 5) {
+      if (generationGap === 1) {
+        return isOlder ? (isMale ? '堂叔父' : '堂姑母') : (isMale ? '堂侄' : '堂侄女');
+      }
+      if (generationGap === 3) {
+        return isOlder ? (isMale ? '叔曾祖' : '姑曾祖') : (isMale ? '侄曾孙' : '侄曾孙女');
+      }
+      if (generationGap === 5) {
+        return isOlder ? (isMale ? '天祖父' : '天祖母') : (isMale ? '来孙' : '来孙女');
+      }
+    }
+    
+    // ===== pathLength = 6: 从堂兄弟 / 堂叔祖堂侄孙 / 叔高祖堂侄玄孙 =====
+    if (pathLength === 6) {
+      if (generationGap === 0) {
+        return isMale ? '从堂兄弟' : '从堂姐妹';
+      }
+      if (generationGap === 2) {
+        return isOlder ? (isMale ? '堂叔祖父' : '堂姑祖母') : (isMale ? '堂侄孙' : '堂侄孙女');
+      }
+      if (generationGap === 4) {
+        return isOlder ? (isMale ? '叔高祖' : '姑高祖') : (isMale ? '堂侄玄孙' : '堂侄玄孙女');
+      }
+    }
+    
+    // ===== pathLength ∈ [7,8]: 族+称谓 =====
+    if (pathLength >= 7 && pathLength <= 8) {
+      let baseName = '';
+      if (generationGap === 0) {
+        baseName = isMale ? '兄弟' : '姐妹';
+      } else if (generationGap === 1) {
+        baseName = isOlder ? (isMale ? '叔父' : '姑母') : (isMale ? '侄' : '侄女');
+      } else if (generationGap === 2) {
+        baseName = isOlder ? (isMale ? '叔祖父' : '姑祖母') : (isMale ? '侄孙' : '侄孙女');
+      } else if (generationGap === 3) {
+        baseName = isOlder ? (isMale ? '叔曾祖' : '姑曾祖') : (isMale ? '侄曾孙' : '侄曾孙女');
+      } else if (generationGap === 4) {
+        baseName = isOlder ? (isMale ? '叔高祖' : '姑高祖') : (isMale ? '侄玄孙' : '侄玄孙女');
+      } else if (generationGap === 5) {
+        baseName = isOlder ? (isMale ? '叔天祖' : '姑天祖') : (isMale ? '侄来孙' : '侄来孙女');
+      } else {
+        baseName = isOlder ? '长辈' : '晚辈';
+      }
+      return '族' + baseName;
+    }
+    
+    // ===== pathLength ≥ 9: 族人 =====
+    if (pathLength >= 9) {
+      return '族人';
+    }
+    
+    // ===== 其他情况: 亲属 =====
+    return '亲属';
+  }
+
+
   _describeKinshipFromPath(path, sourceMember, targetMember) {
     if (!path || path.length === 0) {
-      return {
-        title: '本人',
-        relationType: 'self',
-        generationGap: 0,
-        generationDelta: 0
+      return { 
+        title: '本人', 
+        relationType: 'self', 
+        generationGap: 0, 
+        generationDelta: 0 
       };
     }
-
-    const lastRelation = path[path.length - 1].relation;
-    if (path.length === 1) {
-      return {
-        title: this._getBloodRelationTitle(lastRelation),
-        relationType: lastRelation.bloodRelationType,
-        generationGap: lastRelation.generationGap ?? 0,
-        generationDelta: this._computeGenerationDeltaFromRelation(lastRelation)
-      };
-    }
-
-    let generationDelta = 0;
-
-    let hasSibling = false;
-
-    let hasCousin = false;
-
-    let hasMarriage = false;
-
-    let hasInLaw = false;
-
-    let hasUncleAunt = false;
-
-    let hasNephew = false;
-
-
-
-    path.forEach(edge => {
-
-      const relation = edge.relation;
-
-      const relationType = relation.bloodRelationType;
-
-
-
-      if (relationType === BloodRelationType.SIBLING) hasSibling = true;
-
-      if (relationType === BloodRelationType.COUSIN) hasCousin = true;
-
-      if (relationType === BloodRelationType.UNCLE_AUNT) hasUncleAunt = true;
-
-      if (relationType === BloodRelationType.NEPHEW_NIECE) hasNephew = true;
-
-      if (relationType === BloodRelationType.IN_LAW) hasInLaw = true;
-
-      if (relationType === 'marriage' || relationType === BloodRelationType.SPOUSE) hasMarriage = true;
-
-
-
-      const fromGen = relation.fromPerson?.generation;
-
-      const toGen = relation.toPerson?.generation;
-
-      if (Number.isFinite(fromGen) && Number.isFinite(toGen)) {
-
-        generationDelta += (toGen - fromGen);
-
-      } else {
-
-        generationDelta += this._computeGenerationDeltaFromRelation(relation);
-
-      }
-
-    });
-
-
-
-    const normalizedTargetGender = this._getGenderCode(targetMember);
-    const genderKey = normalizedTargetGender === 'female' ? 'female' : 'male';
-    const gap = Math.abs(generationDelta);
-
-
-
-    const resolveUncleAuntTitle = () => {
-
-      let parentGender = null;
-
-      for (let i = 0; i < path.length; i++) {
-
-        const relationType = path[i].relation?.bloodRelationType;
-
-        if (relationType === BloodRelationType.SIBLING) {
-
-          const prevEdge = path[i - 1];
-
-          const candidateGender =
-
-            prevEdge?.relation?.toPerson?.gender ?? prevEdge?.relation?.fromPerson?.gender ?? null;
-
-          if (candidateGender) {
-
-            parentGender = candidateGender;
-
-          }
-
-          break;
-
-        }
-
-      }
-
-      const parentGenderCode = this._getGenderCode(parentGender);
-      const isMaternal = parentGenderCode === 'female';
-      const isMale = normalizedTargetGender === 'male';
-
-      return isMaternal ? (isMale ? '舅父' : '姨母') : (isMale ? '叔父' : '姑母');
-
-    };
-
-
-
-    const resolveNephewTitle = () => {
-      const isMale = normalizedTargetGender === 'male';
-      return isMale ? '侄子' : '侄女';
-    };
+  
+    const pathLength = path.length;
+    const generationDelta = (sourceMember?.generation ?? 0) - (targetMember?.generation ?? 0);
+    const generationGap = Math.abs(generationDelta);
+    const targetGender = targetMember?.gender || '男';
+  
+    // 🔧 使用新的路径长度判断逻辑
+    const title = this._determineKinshipByPathLength(
+      pathLength, 
+      generationGap, 
+      generationDelta, 
+      targetGender
+    );
     
-
-
-
-    const resolveCousinTitle = () => {
-
-      if (!this.kinshipTitles?.collateral_titles?.cousin_titles) {
-        return normalizedTargetGender === 'male' ? '堂兄弟' : '堂姐妹';
-      }
-
-      const ageDiff = (targetMember?.age ?? 0) - (sourceMember?.age ?? 0);
-
-      const isOlder = Math.abs(ageDiff) >= 1 ? ageDiff > 0 : false;
-
-      const category = isOlder ? 'older' : 'younger';
-
-      const titles = this.kinshipTitles.collateral_titles.cousin_titles[category];
-
-      if (!titles) {
-        return normalizedTargetGender === 'male' ? '堂兄弟' : '堂姐妹';
-      }
-
-      const titleKey = normalizedTargetGender === 'male' ? 'male' : 'female';
-
-      return titles[titleKey] || (titleKey === 'male' ? '堂兄弟' : '堂姐妹');
-
-    };
-
-
-
-    const resolveInLawTitle = () => {
-
-      const isMale = normalizedTargetGender === 'male';
-
-      if (gap === 0) {
-        return '姻亲';
-      }
-
-      if (generationDelta < 0) {
-        return gap === 1 ? (isMale ? '岳父' : '岳母') : '姻亲长辈';
-      }
-
-      return gap === 1 ? (isMale ? '女婿' : '儿媳') : '姻亲晚辈';
-
-    };
-
-
-
-    if (hasMarriage || hasInLaw) {
-
-      const title = hasMarriage && !hasInLaw && gap === 0
-
-        ? (this.kinshipTitles?.spouse_titles?.[genderKey] || (genderKey === 'male' ? '夫君' : '妻子'))
-
-        : resolveInLawTitle();
-
-
-
-      const relationType = hasMarriage && !hasInLaw && gap === 0
-
-        ? BloodRelationType.SPOUSE
-
-        : BloodRelationType.IN_LAW;
-
-
-
-      return {
-
-        title,
-
-        relationType,
-
-        generationGap: relationType === BloodRelationType.SPOUSE ? 0 : gap,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
-    if (hasUncleAunt || (hasSibling && generationDelta < 0)) {
-
-      return {
-
-        title: resolveUncleAuntTitle(),
-
-        relationType: BloodRelationType.UNCLE_AUNT,
-
-        generationGap: gap || 1,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
-    if (hasNephew || (hasSibling && generationDelta > 0)) {
-
-      return {
-
-        title: resolveNephewTitle(),
-
-        relationType: BloodRelationType.NEPHEW_NIECE,
-
-        generationGap: gap || 1,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
-    if (hasCousin || (hasSibling && generationDelta === 0)) {
-
-      return {
-
-        title: resolveCousinTitle(),
-
-        relationType: BloodRelationType.COUSIN,
-
-        generationGap: 0,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
-    if (hasSibling) {
-
-      const title = normalizedTargetGender === 'male' ? '兄弟' : '姐妹';
-
-      return {
-
-        title,
-
-        relationType: BloodRelationType.SIBLING,
-
-        generationGap: 0,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
-    if (generationDelta < 0) {
-
-      const title = this.kinshipTitles.ancestor_titles[gap]?.[genderKey] || 直系长辈代;
-
-      return {
-
-        title,
-
-        relationType: BloodRelationType.ANCESTOR,
-
-        generationGap: gap,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
-    if (generationDelta > 0) {
-
-      const title = this.kinshipTitles.descendant_titles[gap]?.[genderKey] || 直系晚辈代;
-
-      return {
-
-        title,
-
-        relationType: BloodRelationType.DESCENDANT,
-
-        generationGap: gap,
-
-        generationDelta
-
-      };
-
-    }
-
-
-
+    // 根据称谓推导relationType
+    const relationType = this._getRelationTypeFromTitle(title);
+  
     return {
-
-      title: '亲属',
-
-      relationType: BloodRelationType.NO_RELATION,
-
-      generationGap: 0,
-
+      title,
+      relationType,
+      generationGap,
       generationDelta
-
     };
+  }
 
-  }  _computeGenerationDeltaFromRelation(relation) {
+
+  /**
+   * 根据称谓推导关系类型
+   * @param {string} title - 称谓
+   * @returns {string} 关系类型
+   */
+  _getRelationTypeFromTitle(title) {
+    if (title === '本人') {
+      return 'self';
+    }
+    
+    // 直系祖先
+    if (title.includes('父') && (title.includes('祖') || title === '父亲')) {
+      return BloodRelationType.ANCESTOR;
+    }
+    if (title.includes('母') && (title.includes('祖') || title === '母亲')) {
+      return BloodRelationType.ANCESTOR;
+    }
+    
+    // 直系后代
+    if (title.includes('子') || title.includes('女') || title.includes('孙')) {
+      return BloodRelationType.DESCENDANT;
+    }
+    
+    // 兄弟姐妹(含堂、从堂、族)
+    if (title.includes('兄') || title.includes('弟') || title.includes('姐') || title.includes('妹')) {
+      if (title.includes('堂') || title.includes('从堂') || title.includes('族')) {
+        return BloodRelationType.COUSIN;
+      }
+      return BloodRelationType.SIBLING;
+    }
+    
+    // 叔伯姑舅
+    if (title.includes('叔') || title.includes('姑') || title.includes('伯') || title.includes('舅')) {
+      return BloodRelationType.UNCLE_AUNT;
+    }
+    
+    // 侄甥
+    if (title.includes('侄') || title.includes('甥')) {
+      return BloodRelationType.NEPHEW_NIECE;
+    }
+    
+    // 配偶
+    if (title.includes('夫') || title.includes('妻')) {
+      return BloodRelationType.SPOUSE;
+    }
+    
+    // 其他
+    return BloodRelationType.NO_RELATION;
+  }
+
+
+  _computeGenerationDeltaFromRelation(relation) {
     const type = relation.bloodRelationType;
     const gap = relation.generationGap ?? 1;
     switch (type) {
@@ -1343,19 +1181,26 @@ class FamilySystem {
 
   _buildRelationGraph(familyBloodRelations) {
     const graph = new Map();
-
+  
     familyBloodRelations.forEach(relation => {
       const fromId = relation.fromCharacterId;
       const toId = relation.toCharacterId;
       if (!fromId || !toId) return;
-
+  
+      // 🔧 只使用父子关系,不使用sibling等推导关系
+      const allowedTypes = ['father_child', 'mother_child'];
+      if (!allowedTypes.includes(relation.bloodRelationType)) {
+        return; // 跳过其他类型的关系
+      }
+  
       // 添加前向边
       if (!graph.has(fromId)) graph.set(fromId, []);
       graph.get(fromId).push({ id: toId, relation });
-
-      // 🔧 婚姻关系特殊处理：不创建反向边，避免重复
-      const isMarriage = relation.bloodRelationType === 'marriage' || relation.bloodRelationType === BloodRelationType.SPOUSE;
-
+  
+      // 婚姻关系特殊处理
+      const isMarriage = relation.bloodRelationType === 'marriage' || 
+                         relation.bloodRelationType === BloodRelationType.SPOUSE;
+  
       if (!isMarriage) {
         // 非婚姻关系：正常创建反向边
         if (!graph.has(toId)) graph.set(toId, []);
@@ -1371,11 +1216,10 @@ class FamilySystem {
           }
         });
       } else {
-        // 婚姻关系：只创建反向查找的空邻接表，但不添加反向边
         if (!graph.has(toId)) graph.set(toId, []);
       }
     });
-
+  
     return graph;
   }
 
@@ -1604,6 +1448,8 @@ class FamilySystem {
         relationType: proximity.relationType,
         closeness: proximity.closeness,
         distance: proximity.distance,
+        generationGap: proximity.generationGap,      
+        generationDelta: proximity.generationDelta, 
         isFocus: memberId === focusCharacterId,
         vitalStatus: member.vitalStatus || 'unknown',
         path: proximity.path

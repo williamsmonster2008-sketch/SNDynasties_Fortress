@@ -427,7 +427,7 @@ export class GameEngine {
           .find(c => c.characterId === (member.characterId || member.id) || c.id === member.id);
         
         if (fullChar) {
-          // 🔧 反向同步:把families中的generation补充到角色对象
+          // 反向同步:把families中的generation补充到角色对象
           if (!fullChar.generation && member.generation) {
             fullChar.generation = member.generation;
           }
@@ -443,7 +443,7 @@ export class GameEngine {
       
       family.members = updatedMembers;
     });
-
+    
     // 🔧 清空缓存,强制重建
     this.familySystem.familyMemberCache.clear();
     

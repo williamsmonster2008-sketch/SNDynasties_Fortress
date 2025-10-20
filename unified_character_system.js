@@ -283,6 +283,11 @@ export default class UnifiedCharacterSystem {
           originalFamily: characterTemplate.originalFamily || characterTemplate.familyName,
           currentFamily: characterTemplate.marriedIntoFamily || characterTemplate.familyName,
           
+          // 婚姻信息
+          spouseId: characterTemplate.spouseId,
+          marriageStatus: characterTemplate.marriageStatus || 'single',
+          hasSpouse: characterTemplate.hasSpouse || false,
+
           // 角色定位
           familyRole: characterTemplate.role,
           relationshipRole: characterTemplate.relationshipRole,
