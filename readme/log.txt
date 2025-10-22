@@ -1,89 +1,160 @@
-📋 修复进度记录 - 人际关系与家族谱系显示
-✅ 已完成修复
-1. 名称显示问题
+## 📋 南北朝坞堡模拟器 - 亲属关系系统开发进度记录
 
-✅ 主界面角色卡片名称后缀清理（ui_components.js - CharacterCard.create()）
-✅ 详情页标题名称后缀清理（ui_components.js - CharacterDetailModal.create()）
-✅ 家族谱系节点名称后缀清理（ui_components.js - renderFamilyTree()）
+**开发时间:** 2025年
 
-2. 已故成员显示
+---
 
-✅ 家族谱系中已故成员标注"(已故)"（ui_components.js - renderFamilyTree()）
-✅ 主界面过滤已故角色，只显示存活成员（game_interface.js）
-✅ 人际关系列表过滤已故成员（ui_components.js - renderRelationships()）
+## ✅ 已完成功能
 
-3. 配偶关系去重
+### 阶段1: 父系血亲系统
+- ✅ 路径长度算法实现
+- ✅ 称谓映射表完整(pathLength 1-9+)
+- ✅ 支持称谓:
+  - 直系:父子、祖孙、曾祖孙等
+  - 旁系:堂兄弟、堂侄、从堂兄弟、族兄弟等
+- ✅ 家族谱系显示(只显示父系同姓成员)
 
-✅ 禁止推导配偶关系（family_system.js - getKinship() 第809-812行）
-✅ 家族谱系只显示本家族成员（family_system.js - getFamilyTreeData() 使用 originalFamily 过滤）
+### 阶段2: 母系血亲系统
+- ✅ 路径分类算法(`_classifyPath`)
+- ✅ 母系称谓映射表
+- ✅ 支持称谓:外祖父母、舅父姨母、表兄弟、从表兄弟等
+- ⚠️ **无数据验证**(refugee模式配偶无原生家族)
 
-4. 称谓显示修正
+### 阶段3: 姻亲关系系统
+- ✅ 婚姻边加入关系图(`_buildRelationGraph`)
+- ✅ 姻亲路径识别(pathType: 'in_law')
+- ✅ 已实现称谓:
+  - **直接配偶:** 夫君/妻子
+  - **类型A(血亲的配偶):** 嫂子/弟媳、叔母/姑母
+  - **类型B(配偶的血亲):** 叔母、大姑/小姑
+  - **复合姻亲:** 妯娌/连襟
 
-✅ 叔祖父/姑祖母称谓（UI层面修正 - ui_components.js renderFamilyTree()）
-✅ 侄孙/侄孙女称谓（UI层面修正 - ui_components.js renderFamilyTree()）
-✅ Generation字段兼容（family_system.js - _getBloodRelationTitle() 第17行兼容 generationLevel）
+### 配偶数据传递修复
+- ✅ 从`relationships`数组提取`spouseId`
+- ✅ `marriageStatus`设置为'married'
+- ✅ `Character`构造函数接收配偶字段
 
-5. 数据同步修复
+### 关键参数调整
+- ✅ `maxDepth`从6提高到8(支持更远姻亲)
+- ✅ 路径格式统一为`{from, to, relationType}`
 
-✅ _cacheFamilyMembers() 方法回滚错误修改（避免覆盖正确的generation值）
+---
 
+## ❌ 已知问题(未修复)
 
-❌ 已知严重Bug（待后续修复）
-Bug #1: Refugee模式旁系血缘关系缺失
+### 1. 称谓精细化
+- ❌ **嫂子/弟媳未区分** - 需要`birthOrder`判断长幼
+- ❌ **伯叔未区分** - 需要父亲的`birthOrder`
+- ❌ **叔母/姑母合并显示** - 需要判断血亲路径类型
 
-现象: 堂兄弟、堂侄等关系显示为"亲属"或"同族"
-根本原因: storeBloodRelationsFromService() 只存储直接关系（父子、兄弟、配偶），未推导和存储旁系关系（堂兄弟、堂侄等）
-影响范围: 所有refugee模式生成的人口
-临时方案: 显示"亲属"
-长期修复: 需要重构血缘关系存储逻辑，添加完整的旁系关系推导算法
+### 2. UI显示问题
+- ❌ **配偶不显示在家族谱系** - 需要修改`getFamilyTreeData`和UI渲染逻辑
+- ❌ **外来配偶不在兄弟姐妹的人际关系列表** - 已在关系图但UI可能过滤
 
-Bug #2: 部分角色父母数据缺失
+### 3. 数据生成问题
+- ❌ **初代父母同姓** - `_generateInitialFamilyStructure`未设置matriarch的`originalFamily`
+- ❌ **配偶原生家族缺失** - refugee模式配偶独立生成,无父母兄弟
 
-现象: 年轻代际只有父亲没有母亲，或只有母亲没有父亲
-可能原因: 数据生成阶段的配偶分配逻辑问题
-待验证: 需要检查 _addSpousesForGeneration() 方法
+### 4. 算法待完善
+- ⚠️ **类型B姻亲不完整** - 岳父/公公、大舅子等未实现(需跨家族婚姻数据测试)
+- ⚠️ **复杂姻亲** - 配偶的旁系血亲配偶(姨夫等)未实现
 
-Bug #3: Generation字段不一致
+---
 
-现象: 部分配偶的characterId显示为gen3但generation字段是4
-示例: 胡婉华 ID为 spouse_wife_3 但 generation=4
-影响: 可能导致辈分判断错误
+## 🔧 关键代码修改位置
 
-Bug #4: 伯叔区分未实现
+### family_system.js
+```javascript
+// 1. 路径分类(约600行)
+_classifyPath(path) {
+  // 检查marriage、mother_child
+  // 返回: 'paternal' / 'maternal' / 'in_law'
+}
 
-现象: 所有父辈兄弟统一显示"叔父"，未区分"伯父"
-原因: 需要 birthOrder 数据判断年龄大小
-优先级: 低（可后续优化）
+// 2. 父系称谓判断(约650行)
+_determineKinshipByPathLength(pathLength, generationGap, generationDelta, targetGender)
 
+// 3. 母系称谓判断(约750行)
+_determineMaternalTitle(pathLength, generationGap, generationDelta, targetGender)
 
-🔧 关键修改点汇总
-family_system.js:
+// 4. 姻亲称谓判断(约850行)
+_determineInLawTitle(path, pathLength, generationGap, generationDelta, targetGender)
 
-Line 17: _getBloodRelationTitle() 兼容 generationLevel 字段
-Line 809-812: 禁止推导配偶关系
-getFamilyTreeData(): 使用 originalFamily 过滤家族成员
+// 5. 辅助方法(约950行)
+_convertToSpouseTitle() // 类型A
+_convertToInLawTitle()  // 类型B
 
-ui_components.js:
+// 6. 关系图构建(约1050行)
+_buildRelationGraph() // 添加marriage边,allowedTypes包含'marriage'
 
-CharacterCard.create(): 添加 sanitizeName() 清理名称后缀
-CharacterDetailModal.create(): 标题使用 sanitizeName()
-renderFamilyTree():
+// 7. 路径计算(约1150行)
+_calculateProximityMap() // maxDepth改为8
+// 路径构建添加relationType提取
+```
 
-节点名称使用 sanitizeName()
-添加"(已故)"标记
-根据 relativeLevel 修正称谓（叔祖父、侄孙等）
+### unified_character_system.js
+```javascript
+// 配偶数据提取(约270行)
+_generateCharactersFromNetwork() {
+  // 从relationships提取spouseId
+  // 传递marriageStatus、hasSpouse
+  // 删除重复的marriageStatus
+}
+```
 
+### character_module.js
+```javascript
+// Character构造函数(约50行)
+constructor(config) {
+  this.spouseId = config.spouseId || null;
+  this.marriageStatus = config.marriageStatus || 'single';
+  this.hasSpouse = config.hasSpouse || false;
+}
+```
 
-renderRelationships(): 过滤已故成员（targetChar.vitalStatus === 'deceased'）
+### family_network_service.js
+```javascript
+// 初代配偶姓氏(约740行)
+_generateInitialFamilyStructure() {
+  // matriarch添加originalFamily字段(已尝试但有风险,暂未修复)
+}
+```
 
-game_interface.js:
+---
 
-updateCharacterDisplay(): 只显示存活角色
+## 📝 待办事项(优先级排序)
 
+### 高优先级
+1. **刷新测试所有姻亲称谓** - 验证阶段3修改是否生效
+2. **修复配偶在家族谱系显示** - UI层修改
+3. **区分嫂子/弟媳、伯叔** - 使用birthOrder
 
-📝 下一步计划
+### 中优先级
+4. **完善类型B姻亲** - 岳父/公公、大舅子等
+5. **初代父母同姓问题** - 等跨家族婚姻系统
 
-修复旁系关系存储 - 这是最重要的架构问题
-验证父母数据完整性
-优化称谓系统 - 考虑伯叔区分等细节
-完善数据生成逻辑 - 修复generation字段不一致问题
+### 低优先级
+6. **母系血亲测试** - 等跨家族婚姻或手动创建数据
+7. **复杂姻亲** - 姨夫等多跳姻亲
+8. **称谓别名系统** - 正式/口语/亲昵称谓
+
+---
+
+## 📚 参考文档
+
+- `readme/kinship_algorithm_framework.md` - 完整算法设计文档
+- `readme/log.txt` - 之前的修复记录
+
+---
+
+## 🎯 下一步行动
+
+**建议顺序:**
+1. 刷新页面测试姻亲称谓(验证阶段3)
+2. 如果成功,修复配偶在谱系显示(UI)
+3. 实现嫂子/弟媳区分(逻辑)
+4. 考虑跨家族婚姻系统(长期)
+
+---
+
+**记录完成,可在新对话中继续开发。**

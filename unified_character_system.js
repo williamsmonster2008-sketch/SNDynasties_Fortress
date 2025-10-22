@@ -245,8 +245,7 @@ export default class UnifiedCharacterSystem {
           generationLevel: this._calculateGenerationLevel(characterTemplate),
           
           // 生命状态
-          vitalStatus: characterTemplate.vitalStatus || 'living',
-          marriageStatus: characterTemplate.marriageStatus || 'single',
+          vitalStatus: characterTemplate.vitalStatus || 'living',          
           
           // 特殊属性
           specialTraits: characterTemplate.specialTraits || [],
@@ -263,6 +262,20 @@ export default class UnifiedCharacterSystem {
           gender: characterTemplate.gender,
           socialClass: characterTemplate.socialClass
         });
+
+        // 在createCharacter之前添加
+        // 从relationships数组中提取spouseId
+        let spouseId = characterTemplate.spouseId;
+        if (!spouseId && characterTemplate.relationships) {
+          const spouseRel = characterTemplate.relationships.find(r => r.type === 'spouse');
+          spouseId = spouseRel?.targetId;
+          if (spouseId) {
+            console.log(`✅ 从relationships提取配偶: ${characterTemplate.characterId} → ${spouseId}`);
+          }
+        } else if (spouseId) {
+          console.log(`✅ 已有spouseId: ${characterTemplate.characterId} → ${spouseId}`);
+        }
+        
         // 创建完整角色对象
         const character = await this.gameEngine.dataManager.createCharacter({
           // 基础信息
@@ -284,9 +297,9 @@ export default class UnifiedCharacterSystem {
           currentFamily: characterTemplate.marriedIntoFamily || characterTemplate.familyName,
           
           // 婚姻信息
-          spouseId: characterTemplate.spouseId,
-          marriageStatus: characterTemplate.marriageStatus || 'single',
-          hasSpouse: characterTemplate.hasSpouse || false,
+          spouseId: spouseId,
+          marriageStatus: spouseId ? 'married' : 'single',
+          hasSpouse: !!spouseId,
 
           // 角色定位
           familyRole: characterTemplate.role,
@@ -294,8 +307,7 @@ export default class UnifiedCharacterSystem {
           generationLevel: this._calculateGenerationLevel(characterTemplate),
           
           // 生命状态
-          vitalStatus: characterTemplate.vitalStatus || 'living',
-          marriageStatus: characterTemplate.marriageStatus || 'single',
+          vitalStatus: characterTemplate.vitalStatus || 'living',          
           
           // 特殊属性
           specialTraits: characterTemplate.specialTraits || [],

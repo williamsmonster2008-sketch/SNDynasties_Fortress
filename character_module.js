@@ -561,6 +561,11 @@ class Character {
     this.vitalStatus = config.vitalStatus || 'living';
     this.bloodlineTitle = config.bloodlineTitle || null;
 
+    // 婚姻信息
+    this.spouseId = config.spouseId || null;
+    this.marriageStatus = config.marriageStatus || 'single';
+    this.hasSpouse = config.hasSpouse || false;
+
     // 外观属性
     this.appearance = {
       height: config.height || Utils.Math.randomInt(150, 180),
