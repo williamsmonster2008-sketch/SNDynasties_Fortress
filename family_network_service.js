@@ -3928,7 +3928,7 @@ _storeBloodRelationsToFamilySystem(characters, networkData) {
 
 _storeFromFamilyTrees(familyTrees) {
   familyTrees.forEach(familyTree => {
-    const characters = familyTree.members || [];  // 直接使用members
+    const characters = familyTree.allMembers || familyTree.members || [];  // 家族全部members
     
     // 从familyTree中提取血缘关系数据
     const bloodRelations = familyTree.relationships || [];

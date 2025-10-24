@@ -329,6 +329,21 @@ export default class UnifiedCharacterSystem {
       }
     }
 
+    // 🔧 转换spouseId: characterId → 新游戏ID
+    console.log('🔧 开始转换spouseId...');
+    const idMapping = new Map();
+    characters.forEach(char => {
+      idMapping.set(char.characterId, char.id);
+    });
+
+    characters.forEach(char => {
+      if (char.spouseId && idMapping.has(char.spouseId)) {
+        const oldSpouseId = char.spouseId;
+        char.spouseId = idMapping.get(char.spouseId);
+        console.log(`✅ 转换配偶ID: ${char.name} 的配偶 ${oldSpouseId} → ${char.spouseId}`);
+      }
+    });
+    
     return characters;
   }
 
