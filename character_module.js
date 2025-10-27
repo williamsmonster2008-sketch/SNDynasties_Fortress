@@ -540,8 +540,9 @@ export class EmotionalState {
 class Character {
   constructor(config = {}) {
     // 基础信息
-    this.characterId = config.characterId || config.id || Utils.String.generateId();
-    this.id = config.id || this.characterId;
+    const resolvedId = config.characterId || config.id || Utils.String.generateId();
+    this.id = resolvedId;
+    this.characterId = resolvedId;
     this.name = config.name || this.generateRandomName(config.gender);
     this.age = config.age || Utils.Math.randomInt(16, 60);
     this.gender = config.gender || (Math.random() > 0.5 ? '男' : '女');

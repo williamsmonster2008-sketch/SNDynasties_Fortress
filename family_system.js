@@ -113,6 +113,12 @@ class FamilySystem {
     this.familyMemberCache = new Map();  // 家族成员索引缓存
     this.familyLineageCache = new Map(); // 亲缘索引缓存
     // 删除 this.familyTrees = new Map(); 因为相关方法已删除
+    this.compoundSurnames = [
+      '欧阳','司马','司徒','司空','上官','夏侯','诸葛','闻人','东方','皇甫','尉迟','公孙',
+      '长孙','慕容','宇文','司寇','南宫','百里','呼延','端木','独孤','申屠','令狐','钟离',
+      '闾丘','东郭','子车','范阳','太史','完颜','纳兰','耶律','拓跋','轩辕','澹台','公羊',
+      '公冶','夏侯','梁丘','濮阳','诸葛','皇甫'
+    ];
     
     // 血缘关系配置
     this.generationConfig = this._initGenerationConfig();
@@ -934,7 +940,7 @@ class FamilySystem {
           neighborMember: neighborMember?.characterId
         });
 
-        const description = this._describeKinshipFromPath(nextPath, sourceMember, neighborMember);
+        const description = this._describeKinshipFromPath(nextPath, sourceMember, neighborMember, members, familyName);
         
         console.log('🔍 调用后结果:', description);
 
@@ -1078,7 +1084,7 @@ class FamilySystem {
    * 判断母系血亲称谓(表亲系统)
    */
   _determineMaternalTitle(pathLength, generationGap, generationDelta, targetGender) {
-    const isOlder = generationDelta < 0;
+    const isOlder = generationDelta > 0;
     const genderText = targetGender === '男' ? '男性' : '女性';
     
     // ===== pathLength = 1: 母亲/儿女 =====
@@ -1160,7 +1166,18 @@ class FamilySystem {
   /**
    * 判断姻亲称谓
    */
-  _determineInLawTitle(path, pathLength, generationGap, generationDelta, targetGender) {
+  _determineInLawTitle(path, pathLength, generationGap, generationDelta, targetGender, context = {}) {
+    const {
+      sourceMember = null,
+      targetMember = null,
+      familyMembers = null,
+      fallbackSurname = null
+    } = context;
+    const getMemberById = (id) => {
+      if (!id || !familyMembers) return null;
+      return familyMembers.get(id) || null;
+    };
+
     // 特殊情况:直接配偶
     if (pathLength === 1) {
       console.log('→ 直接配偶');
@@ -1170,7 +1187,8 @@ class FamilySystem {
     // 找到所有婚姻跳转点
     const marriageIndices = [];
     path.forEach((step, i) => {
-      if (step.relationType === 'marriage') {
+      const stepType = step.relation?.originalRelationType || step.relationType;
+      if (stepType === 'marriage') {
         marriageIndices.push(i);
       }
     });
@@ -1188,18 +1206,37 @@ class FamilySystem {
     
     // 情况2: 只有一个婚姻边,在最后 → 类型A: 血亲的配偶
     if (marriageIndices.length === 1 && marriageIndices[0] === path.length - 1) {
-      return this._convertToSpouseTitle(pathLength - 1, generationGap, generationDelta, targetGender);
+      const bloodRelativeId = pathLength >= 2 ? path[pathLength - 1].from : null;
+      const bloodRelative = getMemberById(bloodRelativeId);
+      const sameSurnameWithRelative = this._haveSameSurname(sourceMember, bloodRelative, fallbackSurname);
+
+      return this._convertToSpouseTitle(
+        pathLength - 1,
+        generationGap,
+        generationDelta,
+        targetGender,
+        {
+          sameSurnameWithRelative
+        }
+      );
     }
     
+    const sourceGender = sourceMember?.gender || null;
     // 情况3: 两个婚姻边,在两端 → 复合姻亲(妯娌、连襟等)
     if (marriageIndices.length === 2 && marriageIndices[0] === 0 && marriageIndices[1] === path.length - 1) {
       const middlePathLength = pathLength - 2;
       
       if (middlePathLength === 2 && generationGap === 0) {
+        if (sourceGender && targetGender && sourceGender !== targetGender) {
+          return '姻亲';
+        }
         return targetGender === '女' ? '妯娌' : '连襟';
       }
       
       if (middlePathLength === 3 && generationGap === 1) {
+        if (sourceGender && targetGender && sourceGender !== targetGender) {
+          return '姻亲';
+        }
         return targetGender === '女' ? '堂嫂/堂弟媳' : '堂姐夫/堂妹夫';
       }
       
@@ -1213,11 +1250,15 @@ class FamilySystem {
    * 转换血亲称谓为配偶称谓(类型A)
    * 血亲的配偶
    */
-  _convertToSpouseTitle(bloodPathLength, generationGap, generationDelta, targetGender) {
+  _convertToSpouseTitle(bloodPathLength, generationGap, generationDelta, targetGender, context = {}) {
     const isOlder = generationDelta < 0;
+    const sameSurnameWithRelative = context.sameSurnameWithRelative || false;
     
     // 同辈配偶
     if (generationGap === 0) {
+      if (sameSurnameWithRelative) {
+        return targetGender === '男' ? '堂姐夫/堂妹夫' : '堂嫂/堂弟媳';
+      }
       return targetGender === '男' ? '姐夫/妹夫' : '嫂子/弟媳';
     }
     
@@ -1231,6 +1272,9 @@ class FamilySystem {
     
     // 晚辈配偶
     if (!isOlder && generationGap === 1) {
+      if (sameSurnameWithRelative) {
+        return targetGender === '男' ? '堂侄' : '堂侄媳';
+      }
       return targetGender === '男' ? '侄子/外甥' : '侄媳/外甥媳';
     }
     
@@ -1288,16 +1332,19 @@ class FamilySystem {
     
     for (const step of path) {
       // 检查是否经过婚姻
-      if (step.relationType === 'marriage') {
+      const relationType = step.relationType;
+      const originalType = step.relation?.originalRelationType || relationType;
+
+      if (relationType === 'marriage' || originalType === 'marriage') {
         hasMarriage = true;
       }
-      
+
       // 检查是否经过母系
-      if (step.relationType === 'mother_child') {
+      if (originalType === 'mother_child') {
         hasFemaleAncestor = true;
       }
     }
-    
+
     // 姻亲优先级最高
     if (hasMarriage) return 'in_law';
     if (hasFemaleAncestor) return 'maternal';
@@ -1305,7 +1352,47 @@ class FamilySystem {
   }
 
 
-  _describeKinshipFromPath(path, sourceMember, targetMember) {
+  _extractSurnameFromText(text) {
+    if (!text || typeof text !== 'string') return null;
+    const trimmed = text.trim();
+    if (!trimmed) return null;
+    const matchedCompound = this.compoundSurnames.find(surname => trimmed.startsWith(surname));
+    if (matchedCompound) return matchedCompound;
+    return trimmed.charAt(0);
+  }
+
+  _getMemberSurname(member) {
+    if (!member) return null;
+    return (
+      member.familyName ||
+      member.surname ||
+      member.originalFamily ||
+      this._extractSurnameFromText(member.displayName) ||
+      this._extractSurnameFromText(member.name) ||
+      null
+    );
+  }
+
+  _haveSameSurname(memberA, memberB, fallbackSurname = null) {
+    const surnameA = this._getMemberSurname(memberA) || fallbackSurname;
+    const surnameB = this._getMemberSurname(memberB) || fallbackSurname;
+    if (!surnameA || !surnameB) return false;
+    return surnameA === surnameB;
+  }
+
+  _normalizePathType(path, originalType, sourceMember, targetMember, fallbackSurname = null) {
+    if (!path || path.length === 0) return originalType;
+
+    if (originalType === 'maternal') {
+      if (this._haveSameSurname(sourceMember, targetMember, fallbackSurname)) {
+        return 'paternal';
+      }
+    }
+
+    return originalType;
+  }
+
+  _describeKinshipFromPath(path, sourceMember, targetMember, familyMembers, familyName) {
     if (!path || path.length === 0) {
       return { 
         title: '本人', 
@@ -1323,13 +1410,32 @@ class FamilySystem {
   
     // 🆕 路径分类
     const pathType = this._classifyPath(path);
+    const normalizedPathType = this._normalizePathType(
+      path,
+      pathType,
+      sourceMember,
+      targetMember,
+      familyName
+    );
 
      // 根据路径类型调用不同的称谓判断
     let title;
-    if (pathType === 'in_law') {
+    if (normalizedPathType === 'in_law') {
       // 🔧 姻亲称谓判断
-      title = this._determineInLawTitle(path, pathLength, generationGap, generationDelta, targetGender);
-    } else if (pathType === 'maternal') {
+      title = this._determineInLawTitle(
+        path,
+        pathLength,
+        generationGap,
+        generationDelta,
+        targetGender,
+        {
+          sourceMember,
+          targetMember,
+          familyMembers,
+          fallbackSurname: familyName
+        }
+      );
+    } else if (normalizedPathType === 'maternal') {
       title = this._determineMaternalTitle(pathLength, generationGap, generationDelta, targetGender);
     } else {
       title = this._determineKinshipByPathLength(pathLength, generationGap, generationDelta, targetGender);
@@ -1343,7 +1449,7 @@ class FamilySystem {
       title,
       relationType,
       generationGap,
-      pathType,
+      pathType: normalizedPathType,
       generationDelta
     };
   }
@@ -1440,22 +1546,27 @@ class FamilySystem {
       const fromId = relation.fromCharacterId;
       const toId = relation.toCharacterId;
       if (!fromId || !toId) return;
-  
+
       // 🔧 允许的关系类型:父子+婚姻
       const allowedTypes = ['father_child', 'mother_child', 'marriage'];
       if (!allowedTypes.includes(relation.bloodRelationType)) {
         return;
       }
-  
+
+      const forwardRelation = {
+        ...relation,
+        originalRelationType: relation.originalRelationType || relation.bloodRelationType
+      };
+
       // 添加前向边
       if (!graph.has(fromId)) graph.set(fromId, []);
-      graph.get(fromId).push({ id: toId, relation });
-  
+      graph.get(fromId).push({ id: toId, relation: forwardRelation });
+
       // 婚姻关系和父子关系都需要反向边
       const isMarriage = relation.bloodRelationType === 'marriage';
-  
+
       if (!graph.has(toId)) graph.set(toId, []);
-      
+
       if (isMarriage) {
         // 婚姻关系:反向边也是marriage(对称关系)
         graph.get(toId).push({
@@ -1466,7 +1577,8 @@ class FamilySystem {
             toCharacterId: fromId,
             fromPerson: relation.toPerson,
             toPerson: relation.fromPerson,
-            bloodRelationType: 'marriage'
+            bloodRelationType: 'marriage',
+            originalRelationType: relation.originalRelationType || relation.bloodRelationType
           }
         });
       } else {
@@ -1479,12 +1591,13 @@ class FamilySystem {
             toCharacterId: fromId,
             fromPerson: relation.toPerson,
             toPerson: relation.fromPerson,
-            bloodRelationType: this._reverseRelationType(relation.bloodRelationType)
+            bloodRelationType: this._reverseRelationType(relation.bloodRelationType),
+            originalRelationType: relation.originalRelationType || relation.bloodRelationType
           }
         });
       }
     });
-  
+
     return graph;
   }
 

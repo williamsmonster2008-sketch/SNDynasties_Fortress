@@ -158,3 +158,109 @@ _generateInitialFamilyStructure() {
 ---
 
 **记录完成,可在新对话中继续开发。**
+
+
+2025-10-27 AM 7:27
+
+## ID系统统一化修复计划
+
+### 问题诊断
+
+**当前数据流：**
+```
+FamilyNetworkService生成数据
+  ↓ (使用characterId: char_unit_xxx_xxx)
+bloodRelations存储关系
+  ↓
+Character构造函数
+  ↓ (错误：生成新id，导致双ID)
+角色拥有两个ID: characterId(旧) ≠ id(新)
+  ↓
+UI查询关系
+  ↓ (使用新id查询)
+getKinship查询bloodRelations
+  ↓ (bloodRelations使用characterId)
+❌ ID不匹配，查询失败
+```
+
+**根本原因：**
+Character构造函数同时维护两个ID（characterId和id），但bloodRelations只认characterId，UI查询时用id，导致匹配失败。
+
+### 解决方案
+
+**废除双ID系统，统一使用一个ID**
+
+**修改位置：** `character_module.js` 约50-60行
+
+**当前代码（错误）：**
+```javascript
+this.characterId = config.characterId || config.id || Utils.String.generateId();
+this.id = config.id || this.characterId;
+```
+
+**修改为（正确）：**
+```javascript
+this.id = config.characterId || config.id || Utils.String.generateId();
+this.characterId = this.id; // 统一：两个字段指向同一个ID
+```
+
+### 为什么这样修改
+
+1. **FamilyNetworkService生成characterId在前**
+   - buildFamilyUnits() → 生成完整的characterId
+   - 这个ID已经在bloodRelations中作为关系键使用
+
+2. **Character对象创建在后**
+   - 接收config.characterId
+   - 应该直接使用这个ID，而不是生成新的
+
+3. **统一ID后的效果**
+   - 角色只有一个ID
+   - bloodRelations和UI都用同一个ID
+   - 不需要ID转换逻辑
+   - 查询直接匹配成功
+
+### 影响范围
+
+**只需修改一个文件：** `character_module.js`
+
+**其他文件不需要改动：**
+- ✅ FamilyNetworkService - 继续生成characterId
+- ✅ bloodRelations - 继续使用characterId作为键
+- ✅ UI查询 - 会自动使用统一的ID
+- ✅ getKinship - 不需要ID转换
+
+### 预期效果
+
+修改后刷新页面：
+- 角色的id和characterId相同
+- 人际关系正常显示（不再是"暂无关系"）
+- 家族谱系正常显示
+- 姻亲称谓正确计算
+
+### 回滚方案
+
+如果修改后有问题，只需恢复这两行代码即可。
+
+---
+
+**今天的教训：** 不要局部修补，要先理清数据流，找到根本原因，一次性解决。
+
+晚上修改时就改这两行代码，其他什么都不要动。---
+
+2025-10-27 PM 9:45
+
+问题: _determineMaternalTitle 把代际差判断方向写反了，导致在母系路径下把本应“外甥/儿子”的关系误判成“舅父”。
+修复步骤:
+
+打开 family_system.js:1070 左右，把 const isOlder = generationDelta < 0; 改成 const isOlder = generationDelta > 0;，确保“代际差大于0”才判定目标辈分更高。
+保存后运行 node scripts/check_relations.mjs，确认日志里父子、外甥等称谓已恢复正常。
+
+
+问题: 修正同姓亲属被判定为表亲/表侄，以及堂亲配偶显示“嫂子/弟媳”等称谓错误。
+修复步骤:
+
+在 family_system.js:1349-1409 增加 _getMemberSurname、_normalizePathType 等逻辑，同时在 _describeKinshipFromPath 中使用，确保同姓路径优先按父系处理，配合 family_system.js:1080 的代际符号修正，避免父辈出现“表侄女”等称谓。
+于 family_system.js:1501-1533 给关系图缓存记录 originalRelationType，并在 _classifyPath、_determineInLawTitle（family_system.js:1163-1234）里改用原始关系类型识别婚姻与母系链路，传入成员信息判定是否同姓。
+扩展 _convertToSpouseTitle（family_system.js:1235-1266）在同姓堂亲场景输出“堂嫂/堂弟媳”“堂姐夫/堂妹夫”“堂侄/堂侄媳”称谓，纠正唐文姬一家的配偶显示。
+

@@ -383,6 +383,10 @@ export class UnifiedDataManager {
     if (!validatedConfig.id) {
       validatedConfig.id = Utils.String.generateId();
     }
+
+    if (!validatedConfig.characterId) {
+      validatedConfig.characterId = validatedConfig.id;
+    }
          
     if (!validatedConfig.name) {
       validatedConfig.name = await this.generateRandomName(validatedConfig.gender);
