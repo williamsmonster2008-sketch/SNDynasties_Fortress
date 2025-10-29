@@ -1,0 +1,93 @@
+const game = window.gameLauncher?.gameInstance;
+const chars = Array.from(game.characters.values());
+
+console.log('🔍 开始检测配偶谱系缺失问题...\n');
+
+// 清除缓存
+game.familySystem.familyGraphCache.clear();
+
+const missingSpouses = [];
+
+// 随机抽样10个已婚角色
+const marriedChars = chars.filter(c => c.spouseId).sort(() => Math.random() - 0.5).slice(0, 10);
+
+marriedChars.forEach(char => {
+  const spouse = chars.find(c => c.id === char.spouseId);
+  if (!spouse) return;
+  
+  // 获取家族谱系
+  const tree = game.familySystem.getFamilyTreeData(char.familyName, char.id);
+  if (!tree) return;
+  
+  // 检查配偶是否在谱系中
+  const spouseInTree = tree.nodes.find(n => n.id === spouse.id);
+  
+  if (!spouseInTree) {
+    missingSpouses.push({
+      focus: char.name,
+      focusGen: char.generation,
+      spouse: spouse.name,
+      spouseGen: spouse.generation,
+      spouseFamilyName: spouse.familyName,
+      spouseOriginalFamily: spouse.originalFamily
+    });
+  }
+  
+  // 同时反向检查：从配偶角度看是否能看到焦点角色
+  if (spouse.familyName === char.familyName) {
+    const reverseTree = game.familySystem.getFamilyTreeData(spouse.familyName, spouse.id);
+    const charInReverseTree = reverseTree?.nodes.find(n => n.id === char.id);
+    
+    if (!charInReverseTree) {
+      missingSpouses.push({
+        focus: spouse.name,
+        focusGen: spouse.generation,
+        spouse: char.name,
+        spouseGen: char.generation,
+        spouseFamilyName: char.familyName,
+        spouseOriginalFamily: char.originalFamily,
+        reverseCheck: true
+      });
+    }
+  }
+});
+
+if (missingSpouses.length === 0) {
+  console.log('✅ 检测通过！所有配偶都在家族谱系中。');
+} else {
+  console.log(`❌ 发现 ${missingSpouses.length} 个配偶缺失:\n`);
+  missingSpouses.forEach(item => {
+    console.log(`${item.focus} (G${item.focusGen}) 的配偶 ${item.spouse} (G${item.spouseGen}, 原姓${item.spouseOriginalFamily}) 不在谱系中`);
+    console.log(`  配偶家族姓: ${item.spouseFamilyName}`);
+    if (item.reverseCheck) {
+      console.log(`  (反向检查)`);
+    }
+  });
+  
+  // 详细分析第一个案例
+  if (missingSpouses.length > 0) {
+    const firstCase = missingSpouses[0];
+    const char = chars.find(c => c.name === firstCase.focus);
+    const spouse = chars.find(c => c.name === firstCase.spouse);
+    
+    console.log('\n📋 详细分析第一个案例:');
+    console.log('焦点角色:', char.name, char.id);
+    console.log('配偶:', spouse.name, spouse.id);
+    
+    // 检查血缘关系中是否有 marriage 记录
+    const relations = game.familySystem.bloodRelations.get(char.familyName);
+    const marriageKey1 = `${char.id}_${spouse.id}`;
+    const marriageKey2 = `${spouse.id}_${char.id}`;
+    
+    console.log('marriage 关系是否存在:');
+    console.log(`  ${marriageKey1}:`, relations?.has(marriageKey1));
+    console.log(`  ${marriageKey2}:`, relations?.has(marriageKey2));
+    
+    // 检查图中是否有 marriage 边
+    const graph = game.familySystem._getFamilyRelationGraph(char.familyName);
+    const edges = graph?.get(char.id);
+    const marriageEdge = edges?.find(e => e.id === spouse.id && e.relation.bloodRelationType === 'marriage');
+    
+    console.log('图中是否有 marriage 边:', !!marriageEdge);
+  }
+}

@@ -500,15 +500,11 @@ export class FamilyNetworkService {
   }
   
   async _processNewFormatData(familyData, socialClass, unitId) {
-    //console.log(`_processNewFormatData接收到的数据:`);
-    //console.log(`members总数: ${familyData.members.size}`);
-    //console.log(`【家族${unitId}】_processNewFormatData处理前外来配偶数量: ${Array.from(familyData.members.keys()).filter(id => id.includes('spouse_')).length}`);
-    const { members, structure } = familyData;
+    
+    const { members, structure, familyName } = familyData;  // 🔧 解构获取 familyName
     const characters = [];
 
-    this._enforceMonogamyAndSyncSpouses(structure, members);
-
-    const familyName = await this._generateFamilyName(socialClass);
+    this._enforceMonogamyAndSyncSpouses(structure, members);        
 
     for (const [memberId, memberData] of members) {
       // 🔧 修复：外来配偶和母亲应该使用自己的originalFamily，而不是家族姓氏
@@ -539,7 +535,7 @@ export class FamilyNetworkService {
         // 🔧 关键修复：originalFamily记录成员的原生家族
         // 本家成员：originalFamily = familyName
         // 外来成员：originalFamily = 他们的原生姓氏（用于生成姓名）
-        originalFamily: isNativeMember ? familyName : (memberData.originalFamily || '未知'),
+        originalFamily: memberData.originalFamily || (isNativeMember ? familyName : '未知'),
         birthOrder: memberData.birthOrder ?? null,
         birthIndex: memberData.birthIndex ?? null,
 
@@ -677,7 +673,7 @@ export class FamilyNetworkService {
     );
     
     // 4. 获取前两代家族结构（人数+关系）    
-    const structure = this._generateInitialFamilyStructure(
+    const structure = await this._generateInitialFamilyStructure(
       idManager, 
       members, 
       greatGreatGrandfatherAge, 
@@ -685,26 +681,40 @@ export class FamilyNetworkService {
       unitId,
       socialClass
     );   
-    
+
+    // 🔧 新增：从 structure 中提取 familyName
+    const familyName = structure.familyName;
+
     // 5. 基于前两代关系数据生成三至五代家族结构
-    const result = await this._generateAgesFromStructure(structure, fertilityCfg, socialClass, unitId, idManager, members);
-    //console.log(`_generateFiveGenerationFamilyAges返回前检查:`);
-    //console.log(`members总数: ${result.members.size}`);
-    //console.log(`【家族${unitId}】外来配偶数量: ${Array.from(result.members.keys()).filter(id => id.includes('spouse_')).length}`);
-    //console.log(`外来配偶ID列表:`, Array.from(result.members.keys()).filter(id => id.includes('spouse_')));
+    const result = await this._generateAgesFromStructure(
+      structure, 
+      fertilityCfg, 
+      socialClass, 
+      unitId, 
+      idManager, 
+      members,
+      familyName  // 🔧 传入 familyName
+    );
     
-    return result;
+    return {
+      ...result,
+      familyName: familyName
+    };
         
   }
 
    
-  _generateInitialFamilyStructure(idManager, members, ancestorAge, ancestorSpouseAge, unitId, socialClass) {    
+  async _generateInitialFamilyStructure(idManager, members, ancestorAge, ancestorSpouseAge, unitId, socialClass) {    
     console.log(`_generateInitialFamilyStructure开始，members.size: ${members.size}`);
+    // 🔧 新增：生成 familyName
+    const familyName = await this._generateFamilyName(socialClass);
+
     const result = {
       generations: {},
       marriages: [],
       parentChild: [],
-      siblings: []
+      siblings: [],
+      familyName: familyName  // 🔧 添加到返回对象
     };
     
     
@@ -712,26 +722,25 @@ export class FamilyNetworkService {
     const husbandId = idManager.allocateId('patriarch_gen1');
     const wifeId = idManager.allocateId('matriarch_gen1');
     result.generations.第1代 = 2;
-    result.marriages.push({
-      husband: husbandId,
-      wife: wifeId,
-      generation: 1
-    });
 
-    // ✅ 新增：立即将第1代父母数据添加到members中
-    members.set(husbandId, { 
-      characterId: husbandId, 
-      age: ancestorAge, 
-      gender: '男', 
+    // 🔧 为patriarch设置originalFamily
+    members.set(husbandId, {
+      characterId: husbandId,
+      age: ancestorAge,
+      gender: '男',
       generation: 1,
       vitalStatus: 'living',
       canBreed: true,
-      isNative: true,
       currentFamily: unitId,
       socialClass: socialClass,
+      originalFamily: familyName,  // 🔧 使用生成的familyName
       birthOrder: 0,
       birthIndex: 0
     });
+
+    // 🔧 为matriarch生成外来姓氏
+    const matriarchSurname = await this._generateSpouseFamilyName(socialClass, familyName);
+
     members.set(wifeId, { 
       characterId: wifeId, 
       age: ancestorSpouseAge, 
@@ -739,12 +748,21 @@ export class FamilyNetworkService {
       generation: 1,
       vitalStatus: 'living',
       canBreed: true,
-      isNative: true,
+      isNative: false,
       currentFamily: unitId,
       socialClass: socialClass,
+      originalFamily: matriarchSurname,  // 🔧 使用异姓
       birthOrder: 0,
       birthIndex: 0
     });
+    
+    result.marriages.push({
+      husband: husbandId,
+      wife: wifeId,
+      generation: 1
+    });
+
+    
     
     // ✅ 修改：只生成第2代，后续各代改为实时生成
     const firstGenMarriage = result.marriages[0];
@@ -785,7 +803,8 @@ export class FamilyNetworkService {
           birthOrder: i + 1,
           birthIndex: i,
           currentFamily: unitId,
-          socialClass: socialClass
+          socialClass: socialClass,
+          originalFamily: null  // 🔧 新增：标记为本族成员，稍后在_processNewFormatData中设置为familyName
         });
 
         //console.log(`创建第2代成员: ${childId}`);
@@ -812,10 +831,15 @@ export class FamilyNetworkService {
   }
 
   
-  async _generateAgesFromStructure(structure, fertilityCfg, socialClass, unitId, idManager, members) {
-   
-       
-    
+  async _generateAgesFromStructure(structure, fertilityCfg, socialClass, unitId, idManager, members, familyName) {     
+        
+    // 🔧 新增：为本族成员设置 originalFamily
+    for (const memberData of members.values()) {
+      if (memberData.originalFamily === null || memberData.originalFamily === undefined) {
+        memberData.originalFamily = familyName;
+      }
+    }
+
     // 逐代处理(_generateInitialFamilyStructure中已经完成第2代成员的年龄和ID处理)
     for (let gen = 2; gen <= 5; gen++) {      
                        
@@ -895,8 +919,18 @@ export class FamilyNetworkService {
       if (genderCode === 'male') {
         const husbandId = member.characterId;
         const wifeId = manager.allocateId(`spouse_wife_${generation}`);
-        const excludeSurname = member.familyName || member.originalFamily;
+        const excludeSurname = member.originalFamily || member.familyName;
+
+        // 🔧 调试日志
+        console.log(`🔍 为G${generation}男性生成配偶:`, {
+          husband: member.characterId,
+          excludeSurname: excludeSurname,
+          memberOriginalFamily: member.originalFamily,
+          memberFamilyName: member.familyName
+        });
+
         const spouseSurname = await this._generateSpouseFamilyName(socialClass, excludeSurname);
+        console.log(`  生成配偶姓氏: ${spouseSurname}`);
 
         const coupleAgeDiff = fertilityCfg.couple_age_difference;
         const ageDiff = Utils.Math.randomInt(coupleAgeDiff.min, coupleAgeDiff.max);
@@ -929,9 +963,19 @@ export class FamilyNetworkService {
 
         if (marriagePattern === 'matrilocal') {
           const husbandId = manager.allocateId(`spouse_husband_${generation}`);
-          const excludeSurname = member.familyName || member.originalFamily;
+          const excludeSurname = member.originalFamily || member.familyName;
+          
+          // 🔧 调试日志
+          console.log(`🔍 为G${generation}女性生成入赘配偶:`, {
+            wife: member.characterId,
+            excludeSurname: excludeSurname,
+            memberOriginalFamily: member.originalFamily,
+            memberFamilyName: member.familyName
+          });
+          
           const spouseSurname = await this._generateSpouseFamilyName(socialClass, excludeSurname);
-
+          console.log(`  生成配偶姓氏: ${spouseSurname}`);
+          
           const coupleAgeDiff = fertilityCfg.couple_age_difference;
           const ageDiff = Utils.Math.randomInt(coupleAgeDiff.min, coupleAgeDiff.max);
           const rawHusbandAge = Math.random() < 0.4 ? member.age - ageDiff : member.age + ageDiff;
@@ -970,26 +1014,18 @@ export class FamilyNetworkService {
       }
     }
   }
+
   _generateNextGenerationChildren(structure, members, currentGen, idManager) {
     const nextGen = currentGen + 1;
     // ✅ 使用与_assignChildrenAges相同的查找逻辑
     const currentGenMarriages = structure.marriages.filter(m => m.generation === currentGen);
-    //currentGenMarriages.forEach((marriage, index) => {
-      //console.log(`第${currentGen}代婚姻记录${index+1}: husband=${marriage.husband}, wife=${marriage.wife}`);
-    //});
-      
-    //console.log(`🍼 基于第${currentGen}代的${currentGenMarriages.length}对夫妻生成第${nextGen}代子女`);
     
-    //if (currentGenMarriages.length === 0) {
-    //  console.log(`第${currentGen}代无婚姻记录，第${nextGen}代人数为0`);
-    //  return;
-    //}
     
     let totalChildren = 0;
     const config = PopulationRules.getGapPlanningConfig();
     
     currentGenMarriages.forEach((marriage, index) => {
-      //console.log(`🔍 第${currentGen}代第${index+1}对夫妻ID: ${marriage.husband} × ${marriage.wife}`);
+    
       // 复用原有的生育率计算逻辑
       const fertilityWeights = config.fertilityTypeWeights;
       const types = Object.keys(fertilityWeights);
@@ -1015,6 +1051,26 @@ export class FamilyNetworkService {
           // ✅ 改为使用 idManager
           const childId = idManager.allocateId(`child_gen${nextGen}`);
           siblingGroup.push(childId);
+
+          // 🔧 新增：立即创建成员对象
+          const gender = Math.random() < 0.5 ? '男' : '女';
+          const genderCode = gender === '男' ? 'male' : 'female';
+          
+          members.set(childId, {
+            characterId: childId,
+            age: 0,  // 年龄稍后在_assignChildrenAges中分配
+            gender: gender,
+            genderCode: genderCode,
+            generation: nextGen,
+            vitalStatus: 'living',
+            canBreed: true,
+            isNative: true,
+            birthOrder: i + 1,
+            birthIndex: i,
+            currentFamily: members.get(marriage.husband)?.currentFamily,
+            socialClass: members.get(marriage.husband)?.socialClass,
+            originalFamily: null  // 标记为待设置，在_processNewFormatData中设置为familyName
+          });
           
           structure.parentChild.push({
             father: marriage.husband,

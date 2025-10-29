@@ -1,0 +1,35 @@
+const game = window.gameLauncher?.gameInstance;
+const chars = Array.from(game.characters.values());
+
+// 统计各代夫妻的同姓情况
+const summary = {};
+for (let gen = 1; gen <= 4; gen++) {
+  const couples = [];
+  const thisGen = chars.filter(c => c.generation === gen && c.spouseId);
+  
+  thisGen.forEach(c => {
+    const spouse = chars.find(s => s.id === c.spouseId);
+    if (spouse && !couples.some(cp => cp.wife === spouse.name || cp.husband === spouse.name)) {
+      couples.push({
+        husband: c.gender === '男' ? c.name : spouse.name,
+        wife: c.gender === '女' ? c.name : spouse.name,
+        husbandOriginal: c.gender === '男' ? c.originalFamily : spouse.originalFamily,
+        wifeOriginal: c.gender === '女' ? c.originalFamily : spouse.originalFamily,
+        sameSurname: c.originalFamily === spouse.originalFamily
+      });
+    }
+  });
+  
+  const sameCount = couples.filter(c => c.sameSurname).length;
+  summary[`G${gen}`] = `${couples.length}对夫妻, ${sameCount}对同姓`;
+  
+  if (sameCount > 0) {
+    console.log(`\nG${gen}同姓案例:`);
+    couples.filter(c => c.sameSurname).forEach(cp => {
+      console.log(`  ${cp.husband}(${cp.husbandOriginal}) × ${cp.wife}(${cp.wifeOriginal})`);
+    });
+  }
+}
+
+console.log('\n========== 各代同姓统计 ==========');
+console.table(summary);

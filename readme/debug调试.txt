@@ -1,0 +1,47 @@
+题确认： getFamilyTreeData 方法在遍历血缘关系图时，只沿着 father_child/mother_child/sibling 关系遍历，没有包含 marriage 关系。
+需要修复： family_system.js 中的 getFamilyTreeData 或 _calculateProximityMap 方法
+修复思路： 在构建家族图时，当遍历到一个节点后，应该：
+1. 检查该节点是否有marriage关系
+2. 如果有，将配偶也加入谱系图节点
+这个修复比较复杂，涉及图遍历算法。
+
+接下来修复这个问题？我先测试一下同姓问题是否解决。
+
+
+
+G2同姓案例:
+VM721:29   韩文达(韩) × 韩秀勤(韩)
+VM721:27 
+G3同姓案例:
+VM721:29   陈文达(陈) × 陈秀梅(陈)
+VM721:34 
+========== 各代同姓统计 ==========
+VM721:35 
+(index)
+Value
+G1	'7对夫妻, 0对同姓'
+G2	'11对夫妻, 1对同姓'
+G3	'10对夫妻, 1对同姓'
+G4	'12对夫妻, 0对同姓
+
+
+========== G2同姓详情 ==========
+VM725:8 韩文达(韩) × 韩秀勤(韩)
+VM725:9   韩文达 characterId: char_unit_庶族_five_generation_family_1761692489512_v7u6_child_gen2_2_76
+VM725:10   配偶 characterId: char_unit_庶族_five_generation_family_1761692489512_v7u6_spouse_wife_2_79
+VM725:11   是否child: true false
+VM725:8 韩秀勤(韩) × 韩文达(韩)
+VM725:9   韩秀勤 characterId: char_unit_庶族_five_generation_family_1761692489512_v7u6_spouse_wife_2_79
+VM725:10   配偶 characterId: char_unit_庶族_five_generation_family_1761692489512_v7u6_child_gen2_2_76
+VM725:11   是否child: false true
+
+========== G3同姓详情 ==========
+VM732:8 陈秀梅(陈) × 陈文达(陈)
+VM732:9   陈秀梅 characterId: char_unit_寒门_five_generation_family_1761692489513_tp8j_child_gen3_19
+VM732:10   配偶 characterId: char_unit_寒门_five_generation_family_1761692489513_tp8j_spouse_husband_3_22
+VM732:11   是否child: true false
+VM732:8 陈文达(陈) × 陈秀梅(陈)
+VM732:9   陈文达 characterId: char_unit_寒门_five_generation_family_1761692489513_tp8j_spouse_husband_3_22
+VM732:10   配偶 characterId: char_unit_寒门_five_generation_family_1761692489513_tp8j_child_gen3_19
+VM732:11   是否child: false true
+

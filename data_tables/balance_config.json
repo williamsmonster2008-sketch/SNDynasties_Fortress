@@ -71,7 +71,7 @@
     "marriage_system": {
       "legal_constraints": {
         "same_family": false,
-        "same_surname": false,
+        "same_surname": true,
         "max_bloodline_distance": 3,
         "cross_ethnic_marriage": true
       },

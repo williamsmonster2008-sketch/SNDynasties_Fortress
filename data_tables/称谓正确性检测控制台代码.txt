@@ -1,0 +1,115 @@
+const game = window.gameLauncher?.gameInstance;
+const chars = Array.from(game.characters.values());
+
+// 检测函数：验证称谓与代差的一致性
+function validateKinshipTitles() {
+  const errors = [];
+  
+  // 随机抽样检测10个角色
+  const sampleChars = chars
+    .filter(c => c.generation >= 1 && c.generation <= 5)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 10);
+  
+  sampleChars.forEach(char => {
+    const tree = game.familySystem.getFamilyTreeData(char.familyName, char.id);
+    if (!tree) return;
+    
+    tree.nodes.forEach(node => {
+      if (node.isFocus) return; // 跳过本人
+      
+      const generationDelta = node.generationDelta;
+      const relativeLevel = node.relativeLevel;
+      const title = node.relationTitle;
+      
+      // 规则1：generationDelta 和 relativeLevel 应该符号一致
+      if (Math.sign(generationDelta) !== Math.sign(relativeLevel) && relativeLevel !== 0) {
+        errors.push({
+          type: '代差符号不一致',
+          focus: char.name,
+          target: node.name,
+          generationDelta,
+          relativeLevel,
+          title
+        });
+      }
+      
+      // 规则2：长辈称谓（父、祖、伯、叔、舅、姑）应该有 generationDelta < 0
+      const isElderTitle = ['父', '母', '祖', '伯', '叔', '舅', '姑'].some(t => title.includes(t)) 
+                          && !['侄', '孙'].some(t => title.includes(t)); // 排除"叔祖侄孙"这类
+      
+      if (isElderTitle && generationDelta >= 0) {
+        errors.push({
+          type: '长辈称谓但代差为正',
+          focus: char.name,
+          target: node.name,
+          generationDelta,
+          title
+        });
+      }
+      
+      // 规则3：晚辈称谓（子、女、孙、侄、甥）应该有 generationDelta > 0
+      const isJuniorTitle = ['儿子', '女儿', '孙子', '孙女', '侄女', '侄子', '外甥', '外甥女'].some(t                           => title.includes(t));
+
+      if (isJuniorTitle && generationDelta <= 0) {
+        errors.push({
+          type: '晚辈称谓但代差为负或零',
+          focus: char.name,
+          target: node.name,
+          generationDelta,
+          title
+        });
+      }
+      
+      // 规则4：relationType 和 title 应该匹配
+      if (node.relationType === 'uncle_aunt' && !['伯', '叔', '舅', '姑'].some(t => title.includes(t))) {
+        errors.push({
+          type: 'relationType为uncle_aunt但称谓不匹配',
+          focus: char.name,
+          target: node.name,
+          relationType: node.relationType,
+          title
+        });
+      }
+      
+      if (node.relationType === 'nephew_niece' && !['侄', '甥'].some(t => title.includes(t))) {
+        errors.push({
+          type: 'relationType为nephew_niece但称谓不匹配',
+          focus: char.name,
+          target: node.name,
+          relationType: node.relationType,
+          title
+        });
+      }
+    });
+  });
+  
+  return errors;
+}
+
+// 执行检测
+console.log('🔍 开始称谓准确性检测...\n');
+const errors = validateKinshipTitles();
+
+if (errors.length === 0) {
+  console.log('✅ 检测通过！未发现称谓错误。');
+} else {
+  console.log(`❌ 发现 ${errors.length} 个问题:\n`);
+  
+  // 按类型分组显示
+  const grouped = {};
+  errors.forEach(e => {
+    if (!grouped[e.type]) grouped[e.type] = [];
+    grouped[e.type].push(e);
+  });
+  
+  Object.entries(grouped).forEach(([type, items]) => {
+    console.log(`\n【${type}】 ${items.length}个:`);
+    items.slice(0, 3).forEach(item => {
+      console.log(`  ${item.focus} → ${item.target}: ${item.title}`, item);
+    });
+    if (items.length > 3) {
+      console.log(`  ... 还有 ${items.length - 3} 个`);
+    }
+  });
+}

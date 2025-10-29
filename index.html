@@ -529,6 +529,7 @@
         // 页面加载完成后启动游戏
         document.addEventListener('DOMContentLoaded', () => {
             const launcher = new GameLauncher();
+            window.gameLauncher = launcher;  // 暴露launcher实例
             launcher.launch();
         });
         
