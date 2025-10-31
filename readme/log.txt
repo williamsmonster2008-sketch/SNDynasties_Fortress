@@ -372,3 +372,176 @@ this.characterId = this.id; // 统一：两个字段指向同一个ID
 ---
 
 **新对话建议：** 直接从"配偶谱系缺失调试"继续，在 `getFamilyTreeData` 添加详细日志定位问题。
+高优先级任务：
+
+✅ 配偶在家族谱系显示 - 已完成
+区分嫂子/弟媳、伯叔 - 需要 birthOrder 数据
+
+中优先级任务：
+3. 完善类型B姻亲 - 岳父/公公、大舅子等称谓
+建议下一步： 测试姻亲称谓是否正确显示（嫂子/弟媳、叔母/姑母、公公/婆婆等）
+准备好了，请告诉我下一步操作。
+
+最新检测结果分析：
+主要问题： 配偶的 birthOrder 为 null
+嫂子/弟媳：404个未区分（配偶 birthOrder 都是 null）
+姐夫/妹夫：153个未区分（配偶 birthOrder 都是 null）
+大伯/小叔：79个未区分（配偶 birthOrder 为 null）
+大姑/小姑：70个未区分（配偶 birthOrder 为 null）
+根本原因： 外来配偶在生成时没有设置 birthOrder
+
+另有问题重现： 又出现带数字后缀名称
+
+家族谱系中祖父辈、曾祖父辈配偶丢失（只有祖母或者只有祖父，曾祖同样）
+
+
+## 当前进度记录 - 2025年10月31日
+
+已完成诊断的问题
+1. 配偶关系"姻亲"显示问题 ✅ 已定位
+
+问题：6个外来配偶被标记为"姻亲"通用称谓
+根源：getKinship() 返回对象缺少 pathType、pathLength、path 字段
+修复方案：
+
+javascript  // 在 getKinship() 方法中添加缺失字段
+  return {
+    title: proximity.title,
+    type: proximity.type,
+    strength: proximity.closeness,
+    generationGap: proximity.generationGap,
+    pathType: proximity.pathType,      // ← 添加
+    pathLength: proximity.pathLength,  // ← 添加
+    path: proximity.path,              // ← 添加
+    establishedAt: Date.now()
+  };
+
+状态：待修改 family_system.js
+
+
+2. 祖辈配偶在家族谱系中缺失 ✅ 已定位
+
+问题：祖母郑静婉不显示在家族谱系中（只显示祖父崔长陵）
+根源：getFamilyTreeData() 的过滤逻辑将 isNative: false 的外来配偶全部过滤
+测试结果：
+
+proximityMap 中有祖母 ✅
+memberMap 中有祖母 ✅
+过滤逻辑排除了祖母 ❌
+
+
+修复方案：用 proximityMap 作为过滤标准，替代 originalFamily 判断
+
+javascript  // 删除原过滤逻辑，改为：
+  const filteredMemberMap = new Map();
+  proximityMap.forEach((proximity, memberId) => {
+    const member = memberMap.get(memberId);
+    if (member) {
+      filteredMemberMap.set(memberId, member);
+    }
+  });
+
+状态：待修改 family_system.js 的 getFamilyTreeData() 方法
+
+
+3. 名称数字后缀问题 ✅ 已定位
+
+问题：21个角色有数字后缀（如"崔懿之_294"）
+根源：名字池太小导致重名（7个崔懿之、5个崔若华等）
+诊断结果：
+
+后缀在 family.members 中存在
+后缀在 bloodRelations 中不存在
+同代重名严重（G3、G4尤其明显）
+
+
+修复方案：两步走
+
+实现辈分字命名：姓 + 辈分字 + 单字名（如"崔承文"）
+扩充名字池：增加 character_names.csv 中的单字名数量
+
+
+
+
+辈分字命名系统设计 🔄 进行中
+架构设计
+
+配置文件：data_tables/generation_name.json
+
+json   {
+     "generationNames": [
+       ["长", "绍", "承", "启", "裕"],
+       ["元", "继", "弘", "昌", "茂"],
+       // ... 15组辈分序列
+     ]
+   }
+
+分配机制：
+
+每个家族分配一组辈分序列（5个字）
+不同家族使用不同序列（避免重复）
+同家族同辈使用相同辈分字
+
+
+修改位置：
+
+✅ 创建 generation_name.json
+⏳ 修改 nameGenerator.js 的 generateName() 方法
+⏳ 添加 assignGenerationSequence() 方法
+⏳ 在 FamilyNetworkService 调用时传入 generation 参数
+
+
+
+待提供信息
+
+nameGenerator.js 的当前 generateName() 方法代码
+确认数据文件路径（data_tables/ 还是其他路径）
+
+
+其他发现的问题
+4. 只生成4代而非5代 ℹ️ 已确认
+
+现状：G1-G4共50人，G5为0人
+原因：G4婚配率低 + G5生育率极低
+说明：这是预期行为，非bug
+
+5. 婚姻关系双向存储 ⚠️ 待观察
+
+现象：bloodRelations 中每对夫妻有2条记录
+
+husband → wife
+wife → husband
+
+
+可能问题：配合双向索引可能导致重复
+状态：暂不修改，观察修复1和2后的效果
+
+
+下次继续的任务清单
+高优先级：
+
+✅ 创建 generation_name.json 配置文件
+修改 family_system.js 的 getKinship() 方法
+修改 family_system.js 的 getFamilyTreeData() 方法
+修改 nameGenerator.js 实现辈分字命名
+
+中优先级：
+5. 扩充 character_names.csv 单字名池
+6. 测试修复后的姻亲称谓显示
+7. 测试修复后的家族谱系显示
+低优先级：
+8. 验证婚姻关系双向索引是否需要优化
+
+关键文件位置
+
+family_system.js - 需修改2个方法
+nameGenerator.js - 需重构命名逻辑
+data_tables/generation_name.json - 需新建
+character_names.csv - 需扩充
+
+
+备注：
+
+单向/双向索引问题已理清：数据单向，索引双向
+配偶缺失问题根源是过滤逻辑，不是数据缺失
+数字后缀是重名处理的副作用，需从源头避免重名

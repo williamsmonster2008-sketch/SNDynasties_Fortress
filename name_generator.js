@@ -26,20 +26,17 @@ export class NameGenerator {
     this.gameEngine = gameEngine;
     console.log('📝 NameGenerator 初始化 (架构规范重构版)');
     this.nameData = null;
+    this.surnameData = null;  // 🆕 新增
+    this.generationData = null;  // 🆕 新增
     this.configLoaded = false;
     
     // 组织后的数据结构（加载后构建）
-    this.surnames = {
-      门阀士族: [],
-      胡族: [],
-      平民: [],
-      工匠: []
-    };
-    
-    this.names = {
-      男: {},
-      女: {}
-    };
+    this.surnames = new Map();  // 🔧 改为Map: socialClass -> [surnames]
+    this.names = new Map();      // 🔧 改为Map: socialClass -> {gender -> [names]}
+    // 🆕 辈分字管理
+    this.familyGenerationMap = new Map();  // familyName -> generationSequence
+    this.usedCommonSequences = new Set();  // 已使用的平民序列索引
+    this.usedEliteSequences = new Set();   // 已使用的士族序列索引
     
     // 衍生数据（基于CSV数据构建）
     this.courtesyNames = {
@@ -80,133 +77,109 @@ export class NameGenerator {
     
     try {
       // 从CSV文件加载姓名数据
-      this.nameData = await tableManager.getCharacterNamesConfig();
-      
-      if (!this.nameData || this.nameData.length === 0) {
-        throw new Error('character_names.csv 数据为空');
+      const [surnameData, nameData, generationData] = await Promise.all([
+        tableManager.getCharacterSurnameConfig(),
+        tableManager.getCharacterNameConfig(),
+        tableManager.getGenerationNameConfig()
+      ]);
+
+      if (!surnameData || surnameData.length === 0) {
+        throw new Error('character_surname.csv 数据为空');
+      }
+      if (!nameData || nameData.length === 0) {
+        throw new Error('character_name.csv 数据为空');
+      }
+      if (!generationData || !generationData.commonGenerationNames || !generationData.eliteGenerationNames) {
+        throw new Error('generation_name.json 数据格式错误');
       }
       
-      console.log(`✅ 成功加载 ${this.nameData.length} 条姓名数据`);
+      this.surnameData = surnameData;
+      this.nameData = nameData;
+      this.generationData = generationData;
       
-      // 处理和组织数据
-      this.processNameData(this.nameData);
+      console.log(`✅ 成功加载 ${surnameData.length} 条姓氏数据`);
+      console.log(`✅ 成功加载 ${nameData.length} 条名字数据`);
+      console.log(`✅ 成功加载 ${generationData.commonGenerationNames.length} 组平民辈分字`);
+      console.log(`✅ 成功加载 ${generationData.eliteGenerationNames.length} 组士族辈分字`);
+      
+
+      // 🔧 修改：调用新的处理方法
+      this.processSurnameData(surnameData);
+      this.processNameData(nameData);
       
       this.configLoaded = true;
       console.log('✅ NameGenerator 配置加载完成');
       
     } catch (error) {
       console.error('❌ NameGenerator 配置加载失败:', error.message);
-      
-      // 🆕 降级处理：使用最小化备用数据
       console.warn('⚠️ 启用降级模式：使用内置备用姓名数据');
       this.initializeFallbackData();
       this.configLoaded = true;
-      
       throw new Error(`NameGenerator配置加载失败: ${error.message}`);
     }
   }
-  
+
   /**
-   * 处理CSV数据并组织成可用的数据结构
+   * 处理姓氏CSV数据
+   * CSV结构: social_class, surname_type, surname
    */
-  processNameData(rawData) {
-    console.log('🔧 处理和组织姓名数据');
-    console.log('DEBUG: processNameData开始，rawData.length:', rawData.length);
-    console.log('DEBUG: 第一条数据示例:', rawData[0]);
-
-    // 先执行分组逻辑
-    this.socialClassData = {};
-    this.genderData = {};
+  processSurnameData(rawData) {
+    console.log('🔧 处理姓氏数据');
     
-    for (const row of rawData) {
-        if (!this.socialClassData[row.social_class]) {
-            this.socialClassData[row.social_class] = [];
-        }
-        if (!this.genderData[row.gender]) {
-            this.genderData[row.gender] = [];
-        }
-        
-        this.socialClassData[row.social_class].push(row);
-        this.genderData[row.gender].push(row);
-    }
-    
-    // 再输出DEBUG信息
-    console.log('DEBUG: 社会阶层分组结果:', this.socialClassData);
-    console.log('DEBUG: 性别分组结果:', this.genderData);
-    
-    // 清空现有数据
-    Object.keys(this.surnames).forEach(key => {
-      this.surnames[key] = [];
-    });
-    Object.keys(this.names).forEach(key => {
-      this.names[key] = {};
-    });
-    
-    // 处理CSV数据
-    const surnameSet = new Set();
-    const namesByCategory = {
-      男: {},
-      女: {}
-    };
-
-    console.log('DEBUG: 原始CSV数据:', rawData);
+    this.surnames.clear();
     
     rawData.forEach(row => {
-      try {
-        // 处理姓氏数据
-        const socialClass = this.normalizeText(row.social_class);
-        const surname = this.normalizeText(row.surname);
-        
-        if (surname && socialClass && this.surnames[socialClass]) {
-          if (!surnameSet.has(`${socialClass}-${surname}`)) {
-            this.surnames[socialClass].push(surname);
-            surnameSet.add(`${socialClass}-${surname}`);
-          }
-        }
-        
-        // 处理姓名数据
-        const gender = this.normalizeText(row.gender);
-        const nameCategory = this.normalizeText(row.name_category);
-        const name = this.normalizeText(row.name);
-        const meaning = this.normalizeText(row.meaning);
-        
-        if (gender && nameCategory && name && (gender === '男' || gender === '女')) {
-          if (!namesByCategory[gender][nameCategory]) {
-            namesByCategory[gender][nameCategory] = [];
-          }
-          
-          namesByCategory[gender][nameCategory].push({
-            name: name,
-            meaning: meaning || '寓意美好',
-            frequency: row.frequency || 'medium',
-            generation_preference: row.generation_preference || 'all'
-          });
-        }
-        
-      } catch (error) {
-        console.warn('⚠️ 处理数据行时出错:', error.message, row);
+      const socialClass = this.normalizeText(row.social_class);
+      const surname = this.normalizeText(row.surname);
+      
+      if (!socialClass || !surname) return;
+      
+      if (!this.surnames.has(socialClass)) {
+        this.surnames.set(socialClass, []);
       }
+      
+      this.surnames.get(socialClass).push(surname);
     });
     
-    // 更新names对象
-    this.names = namesByCategory;
+    // 输出统计
+    console.log('📊 姓氏数据处理完成:');
+    this.surnames.forEach((surnames, socialClass) => {
+      console.log(`  ${socialClass}: ${surnames.length} 个姓氏`);
+    });
+  }
+  
+  /**
+   * 处理名字CSV数据
+   * CSV结构: social_class, gender, name
+   */
+  processNameData(rawData) {
+    console.log('🔧 处理名字数据');
     
-    // 输出统计信息
-    console.log('📊 数据处理完成:');
-    Object.keys(this.surnames).forEach(socialClass => {
-      if (this.surnames[socialClass].length > 0) {
-        console.log(`  ${socialClass}: ${this.surnames[socialClass].length} 个姓氏`);
+    this.names.clear();
+    
+    rawData.forEach(row => {
+      const socialClass = this.normalizeText(row.social_class);
+      const gender = this.normalizeText(row.gender);
+      const name = this.normalizeText(row.name);
+      
+      if (!socialClass || !gender || !name) return;
+      
+      // 按 socialClass -> gender 组织
+      if (!this.names.has(socialClass)) {
+        this.names.set(socialClass, { male: [], female: [] });
       }
+      
+      const genderKey = gender === '女' || gender === 'female' ? 'female' : 'male';
+      this.names.get(socialClass)[genderKey].push(name);
     });
     
-    Object.keys(this.names).forEach(gender => {
-      const categoryCount = Object.keys(this.names[gender]).length;
-      const totalNames = Object.values(this.names[gender]).reduce((sum, arr) => sum + arr.length, 0);
-      if (totalNames > 0) {
-        console.log(`  ${gender}名: ${categoryCount} 个类别, ${totalNames} 个名字`);
-      }
+    // 输出统计
+    console.log('📊 名字数据处理完成:');
+    this.names.forEach((genderNames, socialClass) => {
+      const maleCount = genderNames.male?.length || 0;
+      const femaleCount = genderNames.female?.length || 0;
+      console.log(`  ${socialClass}: 男${maleCount}个, 女${femaleCount}个`);
     });
-    
   }
   
   /**
@@ -225,36 +198,30 @@ export class NameGenerator {
   initializeFallbackData() {
     console.log('🔧 初始化降级备用数据');
     
-    // 最基本的姓氏数据
-    this.surnames = {
-      门阀士族: ['王', '谢', '袁', '萧', '李', '陈'],
-      胡族: ['慕容', '宇文', '拓跋', '独孤'],
-      平民: ['张', '李', '王', '赵', '刘', '陈'],
-      工匠: ['田', '高', '林', '何', '郭', '马']
-    };
+    // 最基本的姓氏
+    this.surnames = new Map([
+      ['门阀士族', ['王', '谢', '袁', '萧']],
+      ['寒门士人', ['李', '张', '刘', '赵']],
+      ['豪强地主', ['郭', '杨', '孙', '马']],
+      ['自耕农', ['田', '吴', '冯', '牛']],
+      ['佃农', ['石', '铁', '柱', '根']],
+      ['胡族', ['拓跋', '慕容', '宇文', '独孤']]
+    ]);
     
-    // 最基本的名字数据
-    this.names = {
-      男: {
-        文雅: [
-          { name: '明德', meaning: '光明品德', frequency: 'high' },
-          { name: '文华', meaning: '文采华美', frequency: 'high' },
-          { name: '志远', meaning: '志向远大', frequency: 'medium' }
-        ],
-        武勇: [
-          { name: '建功', meaning: '建立功业', frequency: 'medium' },
-          { name: '雄霸', meaning: '雄才霸业', frequency: 'rare' }
-        ]
-      },
-      女: {
-        美德: [
-          { name: '淑慧', meaning: '淑女智慧', frequency: 'high' },
-          { name: '贤良', meaning: '贤惠善良', frequency: 'high' }
-        ],
-        容貌: [
-          { name: '美华', meaning: '美丽华贵', frequency: 'medium' }
-        ]
-      }
+    // 最基本的名字
+    this.names = new Map([
+      ['门阀士族', { male: ['之', '远', '文', '德'], female: ['婉', '怡', '静', '淑'] }],
+      ['寒门士人', { male: ['文', '武', '忠', '义'], female: ['兰', '梅', '竹', '菊'] }],
+      ['豪强地主', { male: ['虎', '龙', '威', '雄'], female: ['凤', '霞', '云', '鸾'] }],
+      ['自耕农', { male: ['牛', '福', '贵', '财'], female: ['花', '叶', '桃', '杏'] }],
+      ['佃农', { male: ['根', '栓', '柱', '墩'], female: ['妞', '翠', '巧', '丫'] }],
+      ['胡族', { male: ['跋', '律', '破', '贺'], female: ['罗', '娜', '奴', '可'] }]
+    ]);
+    
+    // 降级辈分字数据
+    this.generationData = {
+      commonGenerationNames: [['富', '贵', '荣', '华', '福']],
+      eliteGenerationNames: [['国', '家', '兴', '盛', '世']]
     };
     
     console.log('✅ 降级备用数据初始化完成');
@@ -303,28 +270,65 @@ export class NameGenerator {
     console.log(`🎭 生成姓名: ${gender}性, ${socialClass}, 世代${generation}`);
   
     try {
-      // 1. 生成或使用指定的姓氏（优先使用传入的surname）
+      // 1. 生成或使用指定的姓氏
       const finalSurname = surname || familyName || this._generateSurname(socialClass);
       
-      // 2. 生成名字
-      const nameData = this._generateGivenName(gender, socialClass, generation, role);
+      // 2. 🆕 判断是否胡族（胡族不用辈分字）
+      if (socialClass === '胡族') {
+        const singleName = this._getNameFromPool(socialClass, gender);
+        return {
+          fullName: finalSurname + singleName,
+          surname: finalSurname,
+          givenName: singleName,
+          courtesyName: null,
+          title: this._generateTitle(gender, generation, role, socialClass),
+          nameInfo: {
+            meaning: '胡族名字',
+            category: socialClass,
+            hasTaboo: false
+          }
+        };
+      }
       
-      // 3. 生成表字
-      const courtesyName = useCourtesyName ? this._generateCourtesyName(nameData.name, gender) : null;
+      // 3. 🆕 获取辈分字
+      const generationChar = this._getGenerationChar(finalSurname, socialClass, generation);
       
-      // 4. 生成称谓
+      // 4. 生成单字名
+      const singleName = this._getNameFromPool(socialClass, gender);
+
+      // 🔧 新增：如果辈分字和单字名相同，重新生成（最多尝试5次）
+      let attempts = 0;
+      while (singleName === generationChar && attempts < 5) {
+        console.warn(`⚠️ 辈分字"${generationChar}"与名字"${singleName}"重复，重新生成`);
+        singleName = this._getNameFromPool(socialClass, gender);
+        attempts++;
+      }
+
+      // 如果尝试5次仍然重复，强制修改
+      if (singleName === generationChar) {
+        singleName = genderKey === 'male' ? '重辈男' : '重辈女';
+      }
+      
+      // 5. 组合完整名字：姓 + 辈分字 + 名
+      const fullName = finalSurname + generationChar + singleName;
+      
+      // 6. 生成表字（可选）
+      const courtesyName = useCourtesyName ? 
+        this._generateCourtesyName(generationChar + singleName, gender) : null;
+      
+      // 7. 生成称谓
       const title = this._generateTitle(gender, generation, role, socialClass);
       
       const result = {
-        fullName: finalSurname + nameData.name,
+        fullName: fullName,
         surname: finalSurname,
-        givenName: nameData.name,
+        givenName: generationChar + singleName,
         courtesyName: courtesyName,
         title: title,
         nameInfo: {
-          meaning: nameData.meaning,
-          category: nameData.category,
-          hasTaboo: false // 可扩展避讳检查
+          meaning: `${socialClass}第${generation}代`,
+          category: socialClass,
+          hasTaboo: false
         }
       };
       
@@ -333,12 +337,106 @@ export class NameGenerator {
       
     } catch (error) {
       console.error('❌ 姓名生成失败:', error.message);
-      
-      // 降级处理：生成基础姓名
       return this._generateFallbackName(gender, socialClass);
     }
   }
   
+
+  /**
+   * 🆕 获取辈分字
+   * @param {string} familyName - 家族姓氏
+   * @param {string} socialClass - 社会阶层
+   * @param {number} generation - 世代（1-15）
+   * @returns {string} 辈分字
+   */
+  _getGenerationChar(familyName, socialClass, generation) {
+    console.log(`🔍 获取辈分字: 家族=${familyName}, 阶层=${socialClass}, 世代=${generation}`);
+    // 获取或分配该家族的辈分序列
+    let sequence = this.familyGenerationMap.get(familyName);
+    
+    if (!sequence) {
+      sequence = this._assignGenerationSequence(familyName, socialClass);
+    }
+    
+    // generation从1开始，数组从0开始
+    const index = generation - 1;
+    
+    if (index < 0 || index >= sequence.length) {
+      console.warn(`⚠️ 世代${generation}超出范围，使用默认辈分字`);
+      return '承';  // 默认辈分字
+    }
+    
+    return sequence[index];
+  }
+
+  /**
+   * 🆕 为家族分配辈分序列
+   * @param {string} familyName - 家族姓氏
+   * @param {string} socialClass - 社会阶层
+   * @returns {Array} 辈分字序列（15个字的数组）
+   */
+  _assignGenerationSequence(familyName, socialClass) {
+    if (this.familyGenerationMap.has(familyName)) {
+      return this.familyGenerationMap.get(familyName);
+    }
+    
+    // 判断使用哪类辈分字
+    const isElite = ['门阀士族', '寒门士人', '豪强地主'].includes(socialClass);
+    const sequencePool = isElite 
+      ? this.generationData.eliteGenerationNames 
+      : this.generationData.commonGenerationNames;
+    
+    const usedSet = isElite ? this.usedEliteSequences : this.usedCommonSequences;
+    
+    // 找到未使用的序列
+    let selectedSeq = null;
+    let selectedIndex = -1;
+    
+    for (let i = 0; i < sequencePool.length; i++) {
+      if (!usedSet.has(i)) {
+        selectedSeq = sequencePool[i];
+        selectedIndex = i;
+        break;
+      }
+    }
+    
+    // 如果所有序列都用完了，重置或使用第一个
+    if (!selectedSeq) {
+      console.warn(`⚠️ ${isElite ? '士族' : '平民'}辈分序列已用完，开始重用`);
+      selectedSeq = sequencePool[0];
+      selectedIndex = 0;
+    }
+    
+    // 标记为已使用
+    usedSet.add(selectedIndex);
+    
+    // 存储映射
+    this.familyGenerationMap.set(familyName, selectedSeq);
+    
+    console.log(`📜 为家族"${familyName}"分配辈分序列: ${selectedSeq.join('')}`);
+    
+    return selectedSeq;
+  }
+
+  /**
+   * 🆕 从名字池中获取单字名
+   * @param {string} socialClass - 社会阶层
+   * @param {string} gender - 性别
+   * @returns {string} 单字名
+   */
+  _getNameFromPool(socialClass, gender) {
+    const genderKey = gender === '女' || gender === 'female' ? 'female' : 'male';
+    
+    let namePool = this.names.get(socialClass)?.[genderKey];
+    
+    if (!namePool || namePool.length === 0) {
+      // 🔧 不再跨阶层借用，而是使用降级默认值
+      console.warn(`⚠️ 未找到${socialClass}/${gender}的名字池，使用默认名字`);
+      return genderKey === 'male' ? '无名男' : '无名女';
+    }
+    
+    return Utils.Array.randomChoice(namePool);
+  }
 
   /**
    * 生成随机姓氏（公共接口）
@@ -357,19 +455,14 @@ export class NameGenerator {
    * 生成姓氏
    */
   _generateSurname(socialClass) {
-    console.log('DEBUG: 查找姓氏数据', this.surnames);
-    const surnamePool = this.surnames[socialClass];
+    const surnamePool = this.surnames.get(socialClass);
     
     if (!surnamePool || surnamePool.length === 0) {
       console.warn(`⚠️ 未找到 ${socialClass} 的姓氏数据，使用默认`);
-      return '李'; // 默认姓氏
+      return '李';
     }
     
-    const surname = Utils.Array.randomChoice(surnamePool);
-    console.log('Debug _generateSurname 返回:', surname);
-    
-    // 确保返回的是纯姓氏，不包含"氏"
-    return surname.replace(/氏$/, '');
+    return Utils.Array.randomChoice(surnamePool);
   }
   
   /**

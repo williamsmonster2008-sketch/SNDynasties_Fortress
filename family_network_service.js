@@ -13,6 +13,7 @@
 
 import { PopulationRules, configManager } from './population_rules.js';
 import { Utils } from './utils_module.js';
+import NameGenerator from './name_generator.js';
 
 /**
  * 家族ID管理器 - 统一管理家族成员ID分配
@@ -471,31 +472,31 @@ export class FamilyNetworkService {
    */
   async _generateFamilyName(socialClass) {
     try {
-      if (!this.gameEngine?.dataManager?.dataTableManager) {
-        throw new Error('DataManager不可用');
+      if (!this.gameEngine?.nameGenerator) {
+        throw new Error('NameGenerator不可用');
       }
       
-      const nameData = await this.gameEngine.dataManager.dataTableManager.getCharacterNamesConfig();
-      
-      // 过滤出对应社会等级的记录
-      const classRecords = nameData.filter(row => row.social_class === socialClass);
-      
-      if (classRecords.length === 0) {
-        // 如果没找到对应等级，使用所有记录
-        const allSurnames = [...new Set(nameData.map(row => row.surname))];
-        const randomSurname = allSurnames[Math.floor(Math.random() * allSurnames.length)];
-        return randomSurname;
+      // 🔧 检查并加载配置
+      if (!this.gameEngine.nameGenerator.configLoaded) {
+        console.log('🔄 NameGenerator配置未加载，正在加载...');
+        await this.gameEngine.nameGenerator.loadConfigurations(
+          this.gameEngine.dataManager.dataTableManager
+        );
       }
       
-      // 从对应社会等级中获取唯一的姓氏列表
-      const surnames = [...new Set(classRecords.map(row => row.surname))];
-      const randomSurname = surnames[Math.floor(Math.random() * surnames.length)];
-      
-      return randomSurname;
+      return this.gameEngine.nameGenerator.generateSurname(socialClass);
       
     } catch (error) {
-      console.warn('CSV访问错误:', error);
-      throw error;
+      console.warn('姓氏生成错误:', error);
+      const fallbackSurnames = {
+        '门阀士族': '王',
+        '寒门士人': '李',
+        '豪强地主': '郭',
+        '自耕农': '田',
+        '佃农': '石',
+        '胡族': '拓跋'
+      };
+      return fallbackSurnames[socialClass] || '李';
     }
   }
   
@@ -921,13 +922,13 @@ export class FamilyNetworkService {
         const wifeId = manager.allocateId(`spouse_wife_${generation}`);
         const excludeSurname = member.originalFamily || member.familyName;
 
-        // 🔧 调试日志
-        console.log(`🔍 为G${generation}男性生成配偶:`, {
-          husband: member.characterId,
-          excludeSurname: excludeSurname,
-          memberOriginalFamily: member.originalFamily,
-          memberFamilyName: member.familyName
-        });
+        // // 🔧 调试日志
+        // console.log(`🔍 为G${generation}男性生成配偶:`, {
+        //   husband: member.characterId,
+        //   excludeSurname: excludeSurname,
+        //   memberOriginalFamily: member.originalFamily,
+        //   memberFamilyName: member.familyName
+        // });
 
         const spouseSurname = await this._generateSpouseFamilyName(socialClass, excludeSurname);
         console.log(`  生成配偶姓氏: ${spouseSurname}`);
@@ -950,7 +951,9 @@ export class FamilyNetworkService {
           originalFamily: spouseSurname,
           familyName: member.familyName || spouseSurname,
           currentFamily: member.currentFamily || unitId,
-          socialClass: this._determineSpouseSocialClass(socialClass)
+          socialClass: this._determineSpouseSocialClass(socialClass),
+          birthOrder: 0,
+          birthIndex: 0,
         });
 
         this._recordMarriage(structure, members, husbandId, wifeId, generation);
@@ -996,7 +999,9 @@ export class FamilyNetworkService {
             currentFamily: member.currentFamily || unitId,
             socialClass: this._determineSpouseSocialClass(socialClass),
             marriageType: 'matrilocal',
-            adoptedIntoFamily: member.currentFamily || unitId
+            adoptedIntoFamily: member.currentFamily || unitId,
+            birthOrder: 0,
+            birthIndex: 0,
           });
 
           this._recordMarriage(structure, members, husbandId, member.characterId, generation);
@@ -1682,34 +1687,36 @@ export class FamilyNetworkService {
     return baseCondition && Math.random() < scenario.probability;
   }
   
-  async _generateSpouseFamilyName(currentSocialClass, excludeSurname) {
+  async _generateSpouseFamilyName(socialClass, originalFamilyName) {
     try {
-      const nameData = await this.gameEngine.dataManager.dataTableManager.getCharacterNamesConfig();
-     // 过滤出对应社会等级的姓氏，排除本家族姓氏
-      const classRecords = nameData.filter(row => 
-        row.social_class === currentSocialClass && 
-        row.surname !== excludeSurname
-      );
-      
-      if (classRecords.length > 0) {
-        const randomRecord = classRecords[Math.floor(Math.random() * classRecords.length)];
-        return randomRecord.surname;
+      if (!this.gameEngine?.nameGenerator) {
+        throw new Error('NameGenerator不可用');
       }
       
-      // 降级方案：从其他等级选择
-      const fallbackRecords = nameData.filter(row => 
-        row.surname !== excludeSurname
-      );
-      
-      if (fallbackRecords.length > 0) {
-        const randomRecord = fallbackRecords[Math.floor(Math.random() * fallbackRecords.length)];
-        return randomRecord.surname;
+      // 🔧 检查并加载配置
+      if (!this.gameEngine.nameGenerator.configLoaded) {
+        await this.gameEngine.nameGenerator.loadConfigurations(
+          this.gameEngine.dataManager.dataTableManager
+        );
       }
       
-      throw new Error('无法找到合适的配偶姓氏');
+      // 生成配偶姓氏（不能和原家族同姓）
+      let spouseSurname = this.gameEngine.nameGenerator.generateSurname(socialClass);
+      
+      // 如果和原姓氏相同，重试几次
+      let attempts = 0;
+      while (spouseSurname === originalFamilyName && attempts < 5) {
+        spouseSurname = this.gameEngine.nameGenerator.generateSurname(socialClass);
+        attempts++;
+      }
+      
+      return spouseSurname;
+      
     } catch (error) {
       console.error('配偶姓氏生成失败:', error);
-      throw error;
+      // 降级处理
+      const fallbackSurnames = ['郑', '裴', '韦', '杨', '陈'];
+      return fallbackSurnames[Math.floor(Math.random() * fallbackSurnames.length)];
     }
   }
   

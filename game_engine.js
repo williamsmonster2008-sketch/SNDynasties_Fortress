@@ -234,7 +234,11 @@ export class GameEngine {
     
     try {
       await this.dataManager.dataTableManager.getVirtueSystemConfig();
-      await this.dataManager.dataTableManager.getCharacterNamesConfig();
+
+      await this.dataManager.dataTableManager.getCharacterSurnameConfig();
+      await this.dataManager.dataTableManager.getCharacterNameConfig();
+      await this.dataManager.dataTableManager.getGenerationNameConfig();
+      
       await this.dataManager.dataTableManager.getBalanceConfig();
 
       await this.nameGenerator.loadConfigurations(this.dataManager.dataTableManager);

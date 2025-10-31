@@ -1,0 +1,158 @@
+// 长幼称谓检测脚本
+(function() {
+  console.log('🔍 开始检测长幼称谓区分...\n');
+  
+  const familySystem = window.gameEngine?.familySystem;
+  if (!familySystem) {
+    console.error('❌ 未找到 familySystem');
+    return;
+  }
+  
+  const families = Array.from(familySystem.families.keys());
+  if (families.length === 0) {
+    console.error('❌ 没有家族数据');
+    return;
+  }
+  
+  console.log(`📊 共有 ${families.length} 个家族\n`);
+  
+  let totalTests = 0;
+  let eldersCount = 0;
+  let youngersCount = 0;
+  let unspecifiedCount = 0;
+  
+  const issuesByType = {
+    '嫂子/弟媳未区分': [],
+    '姐夫/妹夫未区分': [],
+    '伯父/叔父未区分': [],
+    '伯母/叔母未区分': [],
+    '大伯/小叔未区分': [],
+    '大姑/小姑未区分': []
+  };
+  
+  families.forEach(familyName => {
+    const bloodRelations = familySystem.bloodRelations.get(familyName);
+    if (!bloodRelations) return;
+    
+    const members = familySystem._getFamilyMembersMap(familyName);
+    if (!members) return;
+    
+    members.forEach((sourceMember, sourceId) => {
+      members.forEach((targetMember, targetId) => {
+        if (sourceId === targetId) return;
+        
+        totalTests++;
+        
+        const relation = familySystem.getKinship(familyName, sourceId, targetId);
+        if (!relation || !relation.title) return;
+        
+        const title = relation.title;
+        
+        if (title.includes('/')) {
+          unspecifiedCount++;
+          
+          if (title === '嫂子/弟媳') {
+            issuesByType['嫂子/弟媳未区分'].push({
+              familyName,
+              from: sourceMember.name,
+              to: targetMember.name,
+              fromBirthOrder: sourceMember.birthOrder,
+              toBirthOrder: targetMember.birthOrder,
+              title
+            });
+          } else if (title === '姐夫/妹夫') {
+            issuesByType['姐夫/妹夫未区分'].push({
+              familyName,
+              from: sourceMember.name,
+              to: targetMember.name,
+              fromBirthOrder: sourceMember.birthOrder,
+              toBirthOrder: targetMember.birthOrder,
+              title
+            });
+          } else if (title === '叔父/姑父') {
+            issuesByType['伯父/叔父未区分'].push({
+              familyName,
+              from: sourceMember.name,
+              to: targetMember.name,
+              fromBirthOrder: sourceMember.birthOrder,
+              toBirthOrder: targetMember.birthOrder,
+              title
+            });
+          } else if (title === '叔母/姑母') {
+            issuesByType['伯母/叔母未区分'].push({
+              familyName,
+              from: sourceMember.name,
+              to: targetMember.name,
+              fromBirthOrder: sourceMember.birthOrder,
+              toBirthOrder: targetMember.birthOrder,
+              title
+            });
+          } else if (title === '大伯/小叔') {
+            issuesByType['大伯/小叔未区分'].push({
+              familyName,
+              from: sourceMember.name,
+              to: targetMember.name,
+              fromBirthOrder: sourceMember.birthOrder,
+              toBirthOrder: targetMember.birthOrder,
+              title
+            });
+          } else if (title === '大姑/小姑') {
+            issuesByType['大姑/小姑未区分'].push({
+              familyName,
+              from: sourceMember.name,
+              to: targetMember.name,
+              fromBirthOrder: sourceMember.birthOrder,
+              toBirthOrder: targetMember.birthOrder,
+              title
+            });
+          }
+        } else {
+          if (['嫂子', '弟媳', '姐夫', '妹夫', '伯父', '叔父', '伯母', '叔母', '大伯', '小叔', '大姑', '小姑'].includes(title)) {
+            if (['嫂子', '姐夫', '伯父', '伯母', '大伯', '大姑'].includes(title)) {
+              eldersCount++;
+            } else {
+              youngersCount++;
+            }
+          }
+        }
+      });
+    });
+  });
+  
+  console.log('📊 统计结果：');
+  console.log(`   总关系数: ${totalTests}`);
+  console.log(`   已区分为长辈: ${eldersCount}`);
+  console.log(`   已区分为晚辈: ${youngersCount}`);
+  console.log(`   未区分: ${unspecifiedCount}\n`);
+  
+  let hasIssues = false;
+  Object.entries(issuesByType).forEach(([type, issues]) => {
+    if (issues.length > 0) {
+      hasIssues = true;
+      console.log(`\n❌ ${type}: ${issues.length} 个`);
+      
+      issues.slice(0, 5).forEach(issue => {
+        console.log(`   ${issue.from} → ${issue.to}`);
+        console.log(`      家族: ${issue.familyName}`);
+        console.log(`      称谓: ${issue.title}`);
+        console.log(`      birthOrder: ${issue.fromBirthOrder} → ${issue.toBirthOrder}`);
+      });
+      
+      if (issues.length > 5) {
+        console.log(`   ... 还有 ${issues.length - 5} 个`);
+      }
+    }
+  });
+  
+  if (!hasIssues) {
+    console.log('\n✅ 所有长幼称谓均已正确区分！');
+  }
+  
+  return {
+    totalTests,
+    eldersCount,
+    youngersCount,
+    unspecifiedCount,
+    issuesByType
+  };
+})();

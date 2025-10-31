@@ -159,11 +159,7 @@ f
   // 便捷方法
   async getVirtueSystemConfig() {
     return await this.loadTable('virtue_config', 'json');
-  }
-
-  async getCharacterNamesConfig() {
-    return await this.loadTable('character_names', 'csv');
-  }
+  }  
 
   async getBalanceConfig() {
     return await this.loadTable('balance_config', 'json');
@@ -183,6 +179,18 @@ f
   
   async getEmotionalReactions() {
     return await this.loadTable('emotional_reactions', 'json');
+  }  
+
+  async getCharacterSurnameConfig() {
+    return await this.loadTable('character_surname', 'csv');
+  }
+
+  async getCharacterNameConfig() {
+    return await this.loadTable('character_name', 'csv');
+  }
+
+  async getGenerationNameConfig() {
+    return await this.loadTable('generation_name', 'json');
   }
 }
 
@@ -322,12 +330,11 @@ export class UnifiedDataManager {
       
       // 2. 加载外部配置
       const virtueConfig = await this.dataTableManager.getVirtueSystemConfig();
-      const nameConfig = await this.dataTableManager.getCharacterNamesConfig();
+      
       
       // 3. 构建完整角色对象
       const character = await this.buildCompleteCharacter(validatedConfig, {
-        virtueConfig,
-        nameConfig
+        virtueConfig
       });
       
       
@@ -605,11 +612,7 @@ export class UnifiedDataManager {
   // 便捷方法
   async getVirtueSystemConfig() {
     return await this.dataTableManager.getVirtueSystemConfig();
-  }
-
-  async getCharacterNamesConfig() {
-    return await this.dataTableManager.getCharacterNamesConfig();
-  }
+  }  
 
   async getBalanceConfig() {
     return await this.dataTableManager.getBalanceConfig();
@@ -1171,13 +1174,19 @@ export class UnifiedDataManager {
 
   async generateRandomName(gender) {
     try {
-      const nameConfig = await this.dataTableManager.getCharacterNamesConfig();
-      // 这里可以根据CSV数据生成随机名字
-      // 简化实现
-      return gender === '男' ? '张明德' : '李淑慧';
+      // 🔧 使用 nameGenerator 生成名字
+      const nameResult = await this.gameEngine.nameGenerator.generateName({
+        gender: gender,
+        socialClass: '平民',  // 或根据需要传入
+        generation: 3
+      });
+      
+      return nameResult.fullName;
+      
     } catch (error) {
-      console.warn('无法加载姓名配置，使用默认名字');
-      return gender === '男' ? '王小明' : '李小红';
+      console.error('随机名字生成失败:', error);
+      // 降级处理
+      return gender === '女' ? '李氏' : '李明';
     }
   }
 }
