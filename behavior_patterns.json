@@ -1,0 +1,366 @@
+{
+  "$schema": "behavior_pattern_schema_v1",
+  "version": "1.0.0",
+  "lastModified": "2025-11-02",
+  "description": "南北朝坞堡模拟器 - 行为模式配置表",
+  
+  "behaviors": [
+    {
+      "id": "eat_drink",
+      "name": "进食饮水",
+      "displayName": "进食饮水",
+      "category": "physiological",
+      "description": "补充饥饿和口渴",
+      
+      "requirements": {
+        "needs": {
+          "hunger": { "min": 0, "urgent": 30 },
+          "thirst": { "min": 0, "urgent": 20 }
+        },
+        "states": {
+          "health": { "min": 10 }
+        }
+      },
+      
+      "effects": {
+        "needs": {
+          "hunger": 40,
+          "thirst": 50
+        },
+        "states": {
+          "energy": 5,
+          "happiness": 10
+        }
+      },
+      
+      "duration": {
+        "min": 15,
+        "max": 30,
+        "unit": "minutes"
+      },
+      
+      "validLocations": ["民居", "井台", "农田"],
+      "validTimeOfDay": ["清晨", "午间", "傍晚", "夜晚"],
+      
+      "mutuallyExclusive": [],
+      "canBeInterrupted": true,
+      "priority": 85,
+      
+      "resourceCosts": {
+        "食物": 1,
+        "水": 1
+      },
+      
+      "skillImpact": {},
+      
+      "emotionalTriggers": {
+        "happiness": { "change": 5, "condition": "success" },
+        "sadness": { "change": -10, "condition": "failure" }
+      },
+      
+      "tags": ["生理需求", "日常", "必需"]
+    },
+    
+    {
+      "id": "rest_sleep",
+      "name": "休息睡眠",
+      "displayName": "休息睡眠",
+      "category": "physiological",
+      "description": "恢复体力和睡眠",
+      
+      "requirements": {
+        "needs": {
+          "sleep": { "min": 0, "urgent": 30 },
+          "energy": { "min": 0, "urgent": 20 }
+        }
+      },
+      
+      "effects": {
+        "needs": {
+          "sleep": 60,
+          "energy": 50
+        },
+        "states": {
+          "health": 10,
+          "stress": -20
+        }
+      },
+      
+      "duration": {
+        "min": 180,
+        "max": 480,
+        "unit": "minutes"
+      },
+      
+      "validLocations": ["民居", "农田", "作坊"],
+      "validTimeOfDay": ["夜晚", "午间"],
+      
+      "mutuallyExclusive": ["所有行为"],
+      "canBeInterrupted": false,
+      "priority": 90,
+      
+      "tags": ["生理需求", "日常", "必需", "长时"]
+    },
+    
+    {
+      "id": "farm_cultivate",
+      "name": "垦荒耕钟",
+      "displayName": "垦荒耕作",
+      "category": "production",
+      "description": "在农田中耕种劳作",
+      
+      "requirements": {
+        "needs": {
+          "hunger": { "min": 40 },
+          "energy": { "min": 30 }
+        },
+        "states": {
+          "health": { "min": 30 }
+        },
+        "skills": {
+          "农耕": { "min": 0 }
+        }
+      },
+      
+      "effects": {
+        "needs": {
+          "hunger": -20,
+          "thirst": -15,
+          "energy": -30
+        },
+        "states": {
+          "busyness": 40
+        },
+        "skills": {
+          "农耕": 2
+        }
+      },
+      
+      "duration": {
+        "min": 120,
+        "max": 360,
+        "unit": "minutes"
+      },
+      
+      "validLocations": ["农田"],
+      "validTimeOfDay": ["清晨", "白昼"],
+      "validSeasons": ["春季", "夏季", "秋季"],
+      
+      "mutuallyExclusive": ["所有生产类"],
+      "canBeInterrupted": true,
+      "priority": 60,
+      
+      "resourceProduction": {
+        "粮食": { "min": 2, "max": 5, "skillMultiplier": 1.5 }
+      },
+      
+      "virtueImpact": {
+        "俭": 1,
+        "信": 1
+      },
+      
+      "tags": ["生产", "农业", "体力劳动"]
+    },
+    
+    {
+      "id": "socialize_greet",
+      "name": "问候交谈",
+      "displayName": "问候交谈",
+      "category": "social",
+      "description": "与他人简单问候交流",
+      
+      "requirements": {
+        "needs": {
+          "social": { "min": 0, "urgent": 40 }
+        },
+        "states": {
+          "happiness": { "min": 20 }
+        }
+      },
+      
+      "effects": {
+        "needs": {
+          "social": 20,
+          "loneliness": -15
+        },
+        "states": {
+          "happiness": 10
+        }
+      },
+      
+      "duration": {
+        "min": 5,
+        "max": 15,
+        "unit": "minutes"
+      },
+      
+      "validLocations": ["井台", "街道", "广场"],
+      "validTimeOfDay": ["清晨", "白昼", "傍晚"],
+      
+      "requiresTarget": true,
+      "targetType": "character",
+      "targetCount": { "min": 1, "max": 3 },
+      
+      "relationshipImpact": {
+        "familiarity": 2,
+        "compatibility": 1
+      },
+      
+      "mutuallyExclusive": [],
+      "canBeInterrupted": true,
+      "priority": 40,
+      
+      "virtueRequirements": {
+        "礼": { "min": 30 }
+      },
+      
+      "tags": ["社交", "简单", "日常"]
+    },
+    
+    {
+      "id": "craft_handwork",
+      "name": "手工雕琢",
+      "displayName": "手工制作",
+      "category": "production",
+      "description": "进行手工艺品制作",
+      
+      "requirements": {
+        "needs": {
+          "hunger": { "min": 40 },
+          "energy": { "min": 40 }
+        },
+        "skills": {
+          "手工": { "min": 10 }
+        }
+      },
+      
+      "effects": {
+        "needs": {
+          "energy": -25,
+          "hunger": -10
+        },
+        "skills": {
+          "手工": 3,
+          "创造力": 1
+        },
+        "states": {
+          "focus": 20
+        }
+      },
+      
+      "duration": {
+        "min": 60,
+        "max": 240,
+        "unit": "minutes"
+      },
+      
+      "validLocations": ["作坊", "民居"],
+      "validTimeOfDay": ["白昼", "傍晚"],
+      
+      "mutuallyExclusive": ["所有生产类"],
+      "canBeInterrupted": true,
+      "priority": 50,
+      
+      "resourceCosts": {
+        "木材": 1,
+        "工具": 0.1
+      },
+      
+      "resourceProduction": {
+        "手工艺品": { "min": 1, "max": 2, "skillMultiplier": 2.0 }
+      },
+      
+      "abilityImpact": {
+        "创造指数": 0.5,
+        "专注指数": 0.3
+      },
+      
+      "tags": ["生产", "手工", "技能成长"]
+    },
+    
+    {
+      "id": "pray_worship",
+      "name": "祝祷祭祀",
+      "displayName": "祝祷祭祀",
+      "category": "religious",
+      "description": "进行宗教祭祀活动",
+      
+      "requirements": {
+        "states": {
+          "anxiety": { "min": 40 },
+          "sadness": { "min": 30 }
+        }
+      },
+      
+      "effects": {
+        "states": {
+          "anxiety": -30,
+          "sadness": -20,
+          "peacefulness": 25
+        },
+        "needs": {
+          "spirituality": 40
+        }
+      },
+      
+      "duration": {
+        "min": 30,
+        "max": 60,
+        "unit": "minutes"
+      },
+      
+      "validLocations": ["寺庙"],
+      "validTimeOfDay": ["清晨", "傍晚"],
+      
+      "mutuallyExclusive": [],
+      "canBeInterrupted": false,
+      "priority": 55,
+      
+      "virtueImpact": {
+        "让": 2,
+        "恭": 1
+      },
+      
+      "tags": ["宗教", "情绪调节"]
+    }
+  ],
+  
+  "behaviorCategories": {
+    "physiological": {
+      "name": "生理需求类",
+      "description": "满足基本生理需求的行为",
+      "basePriority": 80
+    },
+    "production": {
+      "name": "生产类",
+      "description": "创造资源和物品的行为",
+      "basePriority": 60
+    },
+    "social": {
+      "name": "社交类",
+      "description": "与他人互动的行为",
+      "basePriority": 50
+    },
+    "religious": {
+      "name": "宗教类",
+      "description": "宗教和精神活动",
+      "basePriority": 45
+    },
+    "entertainment": {
+      "name": "娱乐类",
+      "description": "休闲娱乐活动",
+      "basePriority": 35
+    }
+  },
+  
+  "globalConstraints": {
+    "maxConcurrentBehaviors": 1,
+    "minRestBetweenActions": 5,
+    "energyCostMultiplier": {
+      "清晨": 0.9,
+      "白昼": 1.0,
+      "傍晚": 1.1,
+      "夜晚": 1.3
+    }
+  }
+}

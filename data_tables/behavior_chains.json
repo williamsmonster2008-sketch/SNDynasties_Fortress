@@ -1,0 +1,373 @@
+{
+  "$schema": "behavior_chains_schema_v1",
+  "version": "1.0.0",
+  "lastModified": "2025-11-02",
+  "description": "南北朝坞堡模拟器 - 行为链定义 (Phase 2-3使用)",
+  
+  "chains": [
+    {
+      "id": "daily_routine",
+      "name": "日常作息链",
+      "description": "正常的一天作息安排",
+      "category": "daily",
+      "priority": 80,
+      
+      "triggers": {
+        "always": true,
+        "conditions": []
+      },
+      
+      "sequence": [
+        {
+          "phase": "morning",
+          "timeRange": ["黎明", "清晨"],
+          "behaviors": ["盥洗沐浴", "进食饮水"],
+          "weight": 0.8,
+          "flexible": true
+        },
+        {
+          "phase": "work_morning",
+          "timeRange": ["清晨", "白昼"],
+          "behaviors": ["垦荒耕钟", "手工雕琢", "经义研读", "拓地伐林"],
+          "weight": 0.9,
+          "flexible": true,
+          "selectOne": true
+        },
+        {
+          "phase": "lunch",
+          "timeRange": ["午间"],
+          "behaviors": ["进食饮水", "休息睡眠"],
+          "weight": 0.7,
+          "flexible": false
+        },
+        {
+          "phase": "work_afternoon",
+          "timeRange": ["白昼", "傍晚"],
+          "behaviors": ["继续工作", "觅求好友"],
+          "weight": 0.8,
+          "flexible": true
+        },
+        {
+          "phase": "evening",
+          "timeRange": ["傍晚"],
+          "behaviors": ["进食饮水", "饮酒聚宴", "追求伴侣"],
+          "weight": 0.6,
+          "flexible": true
+        },
+        {
+          "phase": "night",
+          "timeRange": ["夜晚"],
+          "behaviors": ["休息睡眠"],
+          "weight": 0.9,
+          "flexible": false
+        }
+      ],
+      
+      "breakConditions": {
+        "urgentNeed": {
+          "hunger": 20,
+          "thirst": 15,
+          "sleep": 20,
+          "health": 30
+        },
+        "emergencyEvent": true
+      }
+    },
+    
+    {
+      "id": "work_day",
+      "name": "劳动日链",
+      "description": "专注工作的一天",
+      "category": "work",
+      "priority": 70,
+      
+      "triggers": {
+        "conditions": [
+          { "type": "trait", "trait": "忙碌倾向", "min": 60 },
+          { "type": "need", "need": "money", "max": 30 },
+          { "type": "season", "seasons": ["春季", "夏季", "秋季"] }
+        ],
+        "matchType": "any"
+      },
+      
+      "sequence": [
+        {
+          "phase": "early_start",
+          "timeRange": ["黎明"],
+          "behaviors": ["盥洗沐浴", "进食饮水"],
+          "weight": 0.9,
+          "flexible": false
+        },
+        {
+          "phase": "intensive_work",
+          "timeRange": ["清晨", "白昼"],
+          "behaviors": ["垦荒耕钟", "拓地伐林", "手工雕琢"],
+          "duration": { "min": 240, "max": 360 },
+          "weight": 1.0,
+          "flexible": false,
+          "selectOne": true
+        },
+        {
+          "phase": "short_break",
+          "timeRange": ["午间"],
+          "behaviors": ["进食饮水"],
+          "duration": { "min": 30, "max": 45 },
+          "weight": 0.8,
+          "flexible": false
+        },
+        {
+          "phase": "continue_work",
+          "timeRange": ["白昼", "傍晚"],
+          "behaviors": ["继续工作"],
+          "duration": { "min": 120, "max": 180 },
+          "weight": 0.9,
+          "flexible": false
+        },
+        {
+          "phase": "early_rest",
+          "timeRange": ["傍晚", "夜晚"],
+          "behaviors": ["进食饮水", "休息睡眠"],
+          "weight": 0.7,
+          "flexible": false
+        }
+      ],
+      
+      "effects": {
+        "endOfDay": {
+          "skills": {
+            "相关技能": 5
+          },
+          "states": {
+            "satisfaction": 10,
+            "fatigue": 30
+          }
+        }
+      }
+    },
+    
+    {
+      "id": "social_day",
+      "name": "社交日链",
+      "description": "重点社交的一天",
+      "category": "social",
+      "priority": 60,
+      
+      "triggers": {
+        "conditions": [
+          { "type": "need", "need": "loneliness", "min": 60 },
+          { "type": "need", "need": "social", "max": 30 },
+          { "type": "event", "eventType": "festival" },
+          { "type": "trait", "trait": "合群倾向", "min": 60 }
+        ],
+        "matchType": "any"
+      },
+      
+      "sequence": [
+        {
+          "phase": "preparation",
+          "timeRange": ["清晨"],
+          "behaviors": ["盥洗沐浴", "进食饮水"],
+          "weight": 0.8,
+          "flexible": false
+        },
+        {
+          "phase": "socialize_morning",
+          "timeRange": ["白昼"],
+          "behaviors": ["觅求好友"],
+          "duration": { "min": 60, "max": 120 },
+          "weight": 1.0,
+          "flexible": true
+        },
+        {
+          "phase": "group_activity",
+          "timeRange": ["午间", "傍晚"],
+          "behaviors": ["饮酒聚宴", "踏青出游"],
+          "weight": 0.9,
+          "flexible": true,
+          "selectOne": true
+        },
+        {
+          "phase": "deep_connection",
+          "timeRange": ["傍晚"],
+          "behaviors": ["追求伴侣", "觅求好友"],
+          "weight": 0.8,
+          "flexible": true
+        }
+      ],
+      
+      "effects": {
+        "endOfDay": {
+          "needs": {
+            "loneliness": -40,
+            "social": 50
+          },
+          "states": {
+            "happiness": 20
+          }
+        }
+      }
+    },
+    
+    {
+      "id": "rest_day",
+      "name": "休息日链",
+      "description": "放松休息的一天",
+      "category": "rest",
+      "priority": 75,
+      
+      "triggers": {
+        "conditions": [
+          { "type": "need", "need": "fatigue", "min": 70 },
+          { "type": "need", "need": "health", "max": 40 },
+          { "type": "state", "state": "illness", "active": true }
+        ],
+        "matchType": "any"
+      },
+      
+      "sequence": [
+        {
+          "phase": "sleep_in",
+          "timeRange": ["黎明", "清晨"],
+          "behaviors": ["休息睡眠"],
+          "weight": 0.9,
+          "flexible": false
+        },
+        {
+          "phase": "light_activity",
+          "timeRange": ["白昼"],
+          "behaviors": ["进食饮水", "盥洗沐浴", "踏青出游"],
+          "weight": 0.6,
+          "flexible": true
+        },
+        {
+          "phase": "relaxation",
+          "timeRange": ["午间", "傍晚"],
+          "behaviors": ["经义研读", "踏青出游"],
+          "weight": 0.5,
+          "flexible": true
+        },
+        {
+          "phase": "early_sleep",
+          "timeRange": ["夜晚"],
+          "behaviors": ["休息睡眠"],
+          "weight": 1.0,
+          "flexible": false
+        }
+      ],
+      
+      "effects": {
+        "endOfDay": {
+          "needs": {
+            "fatigue": -50,
+            "sleep": 80
+          },
+          "states": {
+            "health": 15
+          }
+        }
+      }
+    },
+    
+    {
+      "id": "cultural_day",
+      "name": "文化日链",
+      "description": "专注文化学习的一天",
+      "category": "cultural",
+      "priority": 50,
+      
+      "triggers": {
+        "conditions": [
+          { "type": "trait", "trait": "好奇倾向", "min": 60 },
+          { "type": "socialClass", "classes": ["门阀士族", "商贾"] },
+          { "type": "skill", "skill": "学识", "max": 50 }
+        ],
+        "matchType": "any"
+      },
+      
+      "sequence": [
+        {
+          "phase": "morning_study",
+          "timeRange": ["清晨", "白昼"],
+          "behaviors": ["经义研读"],
+          "duration": { "min": 120, "max": 240 },
+          "weight": 1.0,
+          "flexible": false
+        },
+        {
+          "phase": "lunch_break",
+          "timeRange": ["午间"],
+          "behaviors": ["进食饮水", "休息睡眠"],
+          "weight": 0.7,
+          "flexible": false
+        },
+        {
+          "phase": "afternoon_study",
+          "timeRange": ["白昼", "傍晚"],
+          "behaviors": ["经义研读", "手工雕琢"],
+          "duration": { "min": 90, "max": 180 },
+          "weight": 0.9,
+          "flexible": true,
+          "selectOne": true
+        },
+        {
+          "phase": "evening_reflection",
+          "timeRange": ["傍晚", "夜晚"],
+          "behaviors": ["祝祷祭祀", "经义研读"],
+          "weight": 0.6,
+          "flexible": true
+        }
+      ],
+      
+      "effects": {
+        "endOfDay": {
+          "skills": {
+            "学识": 8
+          },
+          "states": {
+            "wisdom": 5
+          }
+        }
+      }
+    }
+  ],
+  
+  "chainTransitions": {
+    "description": "行为链之间的转换规则",
+    "rules": [
+      {
+        "from": "daily_routine",
+        "to": "work_day",
+        "conditions": [
+          { "type": "consecutiveDays", "min": 2 },
+          { "type": "trait", "trait": "忙碌倾向", "min": 60 }
+        ],
+        "probability": 0.4
+      },
+      {
+        "from": "work_day",
+        "to": "rest_day",
+        "conditions": [
+          { "type": "consecutiveDays", "min": 3 },
+          { "type": "need", "need": "fatigue", "min": 60 }
+        ],
+        "probability": 0.7
+      },
+      {
+        "from": "daily_routine",
+        "to": "social_day",
+        "conditions": [
+          { "type": "dayOfWeek", "days": ["休息日", "节日"] },
+          { "type": "need", "need": "loneliness", "min": 50 }
+        ],
+        "probability": 0.6
+      }
+    ]
+  },
+  
+  "globalSettings": {
+    "allowChainOverride": true,
+    "emergencyBreakEnabled": true,
+    "minimumChainDuration": 4,
+    "maximumChainDuration": 12
+  }
+}

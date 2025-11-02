@@ -1329,18 +1329,18 @@ class FamilySystem {
     // 判断视角：入赘男性按男方视角，其他按性别判断    
     const sourceGender = sourceMember?.gender || '男';  
     
-    // 🆕 完整调试
-    console.log('🔍 配偶的血亲详细:', {
-      sourceName: sourceMember?.name,
-      sourceGender,
-      targetGender,
-      bloodPathLength,
-      generationGap,
-      generationDelta,
-      isOlder,
-      isUxorilocal,
-      path路径: path.map((p, i) => `[${i}] ${p.from}->${p.to} (${p.relationType})`)
-    });
+    // // 🆕 完整调试
+    // console.log('🔍 配偶的血亲详细:', {
+    //   sourceName: sourceMember?.name,
+    //   sourceGender,
+    //   targetGender,
+    //   bloodPathLength,
+    //   generationGap,
+    //   generationDelta,
+    //   isOlder,
+    //   isUxorilocal,
+    //   path路径: path.map((p, i) => `[${i}] ${p.from}->${p.to} (${p.relationType})`)
+    // });
   
     let perspective;
     if (isUxorilocal) {
@@ -1349,7 +1349,7 @@ class FamilySystem {
       perspective = sourceGender === '男' ? '男方视角_妻子家' : '女方视角_夫家';
     }
   
-    console.log('📍 选择视角:', perspective);
+   // console.log('📍 选择视角:', perspective);
     
     const perspectiveConfig = config[perspective];
     if (!perspectiveConfig) {
@@ -1369,7 +1369,7 @@ class FamilySystem {
         // 远房堂/表兄弟
         key = `同辈_远房_gap_${generationGap}`;
       }
-      console.log('→ 同辈查询:', key, perspectiveConfig[key]);
+   //   console.log('→ 同辈查询:', key, perspectiveConfig[key]);
       return perspectiveConfig[key]?.[genderKey] || '姻亲';
     }
     
@@ -1386,7 +1386,7 @@ class FamilySystem {
     
     // 祖辈
     if (isOlder && generationGap === 2) {
-      console.log('→ 祖辈查询: 祖辈_gap_2', perspectiveConfig.祖辈_gap_2);
+  //    console.log('→ 祖辈查询: 祖辈_gap_2', perspectiveConfig.祖辈_gap_2);
       return perspectiveConfig.祖辈_gap_2?.[genderKey] || '姻亲';
     }
     
@@ -1397,7 +1397,7 @@ class FamilySystem {
         const bloodPath = path.slice(1);
         const hasFatherChild = bloodPath.some(step => step.relationType === 'father_child');
         const pathType = hasFatherChild ? '晚辈_父系' : '晚辈_母系';
-        console.log('  晚辈类型:', pathType);
+    //    console.log('  晚辈类型:', pathType);
         return perspectiveConfig[pathType]?.[genderKey] || '姻亲';
       } else {
         return perspectiveConfig.晚辈_gap_1?.[genderKey] || '姻亲';
@@ -1502,12 +1502,12 @@ class FamilySystem {
     const pathType = this._classifyPath(path);
 
     // 🆕 添加调试
-    console.log('🔍 路径分类结果:', {
-      targetName: targetMember?.name,
-      pathType,
-      pathLength,
-      path: path.map((p, i) => `[${i}] ${p.relationType}`)
-    });
+    // console.log('🔍 路径分类结果:', {
+    //   targetName: targetMember?.name,
+    //   pathType,
+    //   pathLength,
+    //   path: path.map((p, i) => `[${i}] ${p.relationType}`)
+    // });
 
     
     // 🔧 修正1：添加normalizedPathType

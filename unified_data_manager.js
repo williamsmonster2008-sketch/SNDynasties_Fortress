@@ -26,7 +26,8 @@ class DataManagerError extends Error {
 
 // 数据表加载器
 class DataTableManager {
-  constructor() {
+  constructor(validator) {
+    this.validator = validator;  // 保存validator引用
     this.tables = new Map();
     this.loadPromises = new Map();
     this.parsers = {
@@ -80,8 +81,13 @@ class DataTableManager {
       if (!parser) {
         throw new Error(`不支持的格式: ${format}`);
       }
-
-      return parser(text);
+  
+      const data = parser(text);
+      
+      // ============ 新增: 自动校验逻辑 ============
+      this._validateDataTable(fileName, data);
+      
+      return data;
     } catch (error) {
       console.error(`加载数据表失败: ${filePath}`, error);
       throw new DataManagerError(`加载数据表失败: ${fileName}`, 'load_error', {
@@ -90,6 +96,81 @@ class DataTableManager {
         filePath,
         originalError: error.message
       });
+    }
+  }
+
+  /**
+   * 新增方法: 自动校验数据表
+   */
+  _validateDataTable(tableName, data) {
+    // 获取validator实例(需要从UnifiedDataManager传入，或创建共享实例)
+    // 这里假设有全局validator可用
+    const validator = this.validator || new DataValidator();
+    
+    // locations.json 校验
+    if (tableName === 'locations' && data.locations && Array.isArray(data.locations)) {
+      let validCount = 0;
+      let errorCount = 0;
+      
+      for (const location of data.locations) {
+        const validation = validator.validate('location', location);
+        if (!validation.isValid) {
+          console.error(`❌ 地点数据不合法: ${location.id || 'unknown'}`, validation.errors);
+          errorCount++;
+        } else {
+          validCount++;
+        }
+      }
+      
+      if (errorCount > 0) {
+        throw new Error(`locations.json 包含 ${errorCount} 个不合法数据`);
+      }
+      
+      console.log(`✅ locations.json 校验通过 (${validCount}条)`);
+    }
+    
+    // behavior_patterns.json 校验
+    if (tableName === 'behavior_patterns' && data.behaviors && Array.isArray(data.behaviors)) {
+      let validCount = 0;
+      let errorCount = 0;
+      
+      for (const behavior of data.behaviors) {
+        const validation = validator.validate('behavior', behavior);
+        if (!validation.isValid) {
+          console.error(`❌ 行为数据不合法: ${behavior.id || 'unknown'}`, validation.errors);
+          errorCount++;
+        } else {
+          validCount++;
+        }
+      }
+      
+      if (errorCount > 0) {
+        throw new Error(`behavior_patterns.json 包含 ${errorCount} 个不合法数据`);
+      }
+      
+      console.log(`✅ behavior_patterns.json 校验通过 (${validCount}条)`);
+    }
+    
+    // interaction_patterns.json 校验
+    if (tableName === 'interaction_patterns' && data.interactions && Array.isArray(data.interactions)) {
+      let validCount = 0;
+      let errorCount = 0;
+      
+      for (const interaction of data.interactions) {
+        const validation = validator.validate('interaction', interaction);
+        if (!validation.isValid) {
+          console.error(`❌ 互动数据不合法: ${interaction.id || 'unknown'}`, validation.errors);
+          errorCount++;
+        } else {
+          validCount++;
+        }
+      }
+      
+      if (errorCount > 0) {
+        throw new Error(`interaction_patterns.json 包含 ${errorCount} 个不合法数据`);
+      }
+      
+      console.log(`✅ interaction_patterns.json 校验通过 (${validCount}条)`);
     }
   }
 
@@ -192,6 +273,29 @@ f
   async getGenerationNameConfig() {
     return await this.loadTable('generation_name', 'json');
   }
+
+  // ============ Phase 1 新增数据表加载方法 ============
+  /**
+   * 获取地点配置
+   */
+  async getLocations() {
+    return await this.loadTable('locations', 'json');
+  }
+
+  /**
+   * 获取行为模式配置
+   */
+  async getBehaviorPatterns() {
+    // 注意: 这个方法已存在，保留原样或确保返回新的behavior_patterns.json
+    return await this.loadTable('behavior_patterns', 'json');
+  }
+
+  /**
+   * 获取互动模式配置  
+   */
+  async getInteractionPatterns() {
+    return await this.loadTable('interaction_patterns', 'json');
+  }
 }
 
 // 数据验证器
@@ -228,6 +332,135 @@ class DataValidator {
       constraints: {
         virtues: (value) => value instanceof Map,
         traits: (value) => value instanceof Map
+      }
+    });
+
+    // ============ Phase 1 新增数据校验器 ============
+    // 地点数据校验器
+    this.validators.set('location', {
+      required: ['id', 'name', 'category', 'capacity', 'allowedActions'],
+      types: {
+        id: 'string',
+        name: 'string',
+        displayName: 'string',
+        category: 'string',
+        description: 'string',
+        capacity: 'object',
+        attributes: 'object',
+        allowedActions: 'array',
+        connections: 'array',
+        movementCost: 'number',
+        isPublic: 'boolean',
+        requiresOwnership: 'boolean'
+      },
+      constraints: {
+        // ID必须是小写字母+数字+下划线
+        id: (value) => /^[a-z_0-9]+$/.test(value),
+        // 名称长度限制
+        name: (value) => value.length > 0 && value.length <= 20,
+        // 类别枚举
+        category: (value) => ['residence', 'production', 'social', 'religious', 'commercial'].includes(value),
+        // 移动成本范围
+        movementCost: (value) => value >= 1 && value <= 10,
+        // allowedActions不能为空
+        allowedActions: (arr) => Array.isArray(arr) && arr.length > 0
+      }
+    });
+
+    // 行为模式校验器
+    this.validators.set('behavior', {
+      required: ['id', 'name', 'category', 'description', 'requirements', 'effects', 'duration', 'validLocations'],
+      types: {
+        id: 'string',
+        name: 'string',
+        displayName: 'string',
+        category: 'string',
+        description: 'string',
+        requirements: 'object',
+        effects: 'object',
+        duration: 'object',
+        validLocations: 'array',
+        validTimeOfDay: 'array',
+        priority: 'number',
+        canBeInterrupted: 'boolean',
+        mutuallyExclusive: 'array',
+        tags: 'array',
+        // 🆕 添加这些扩展字段
+        requiresTarget: 'boolean',
+        targetType: 'string',
+        targetCount: 'object',
+        targetGender: 'string',
+        relationshipImpact: 'object',
+        successFactors: 'object',
+        outcomes: 'object',
+        abilityImpact: 'object',
+        virtueImpact: 'object',
+        socialClassPreference: 'object',
+        virtueRequirements: 'object',
+        dangerLevel: 'number'
+      },
+      constraints: {
+        // ID必须是小写字母+下划线
+        id: (value) => /^[a-z_]+$/.test(value),
+        // 名称长度
+        name: (value) => value.length > 0 && value.length <= 20,
+        // 类别枚举
+        category: (value) => ['physiological', 'production', 'social', 'religious', 'entertainment', 'crime'].includes(value),
+        // 优先级范围
+        priority: (value) => value >= 0 && value <= 100,
+        canBeInterrupted: (value) => typeof value === 'boolean',
+        // duration对象校验
+        duration: (value) => {
+          if (typeof value !== 'object') return false;
+          return value.hasOwnProperty('min') && 
+                 value.hasOwnProperty('max') && 
+                 typeof value.min === 'number' && 
+                 typeof value.max === 'number';
+        },
+        // validLocations不能为空
+        validLocations: (arr) => Array.isArray(arr) && arr.length > 0,
+        // 🆕 添加这些约束 (重要: 必须允许 undefined)
+        requiresTarget: (value) => value === undefined || typeof value === 'boolean',
+        targetType: (value) => value === undefined || ['character', 'object', 'location'].includes(value),
+        targetGender: (value) => value === undefined || ['男', '女', '异性', '同性', '任意'].includes(value),
+        dangerLevel: (value) => value === undefined || (value >= 0 && value <= 1)
+      }
+    });
+
+    // 互动模式校验器
+    this.validators.set('interaction', {
+      required: ['id', 'name', 'category', 'participantRequirements', 'phases', 'outcomes', 'duration'],
+      types: {
+        id: 'string',
+        name: 'string',
+        displayName: 'string',
+        category: 'string',
+        description: 'string',
+        participantRequirements: 'object',
+        relationshipRequirements: 'object',
+        validLocations: 'array',
+        validTimeOfDay: 'array',
+        phases: 'array',
+        outcomes: 'object',
+        duration: 'number',
+        priority: 'number',
+        canBeRejected: 'boolean',
+        interruptible: 'boolean',
+        tags: 'array'
+      },
+      constraints: {
+        // ID必须是小写字母+下划线
+        id: (value) => /^[a-z_]+$/.test(value),
+        // 名称长度
+        name: (value) => value.length > 0,
+        // 类别枚举
+        category: (value) => ['social_basic', 'cooperation', 'conflict', 'social_entertainment', 'romance'].includes(value),
+        // 时长限制(分钟)
+        duration: (value) => value > 0 && value <= 1440,
+        // 优先级范围
+        priority: (value) => value >= 0 && value <= 100,
+        // phases至少有1个阶段
+        phases: (arr) => Array.isArray(arr) && arr.length > 0
       }
     });
   }
@@ -288,9 +521,9 @@ export class UnifiedDataManager {
   constructor(gameEngine) {
     this.gameEngine = gameEngine;
     
-    // 核心组件
-    this.dataTableManager = new DataTableManager();
+    // 核心组件    
     this.validator = new DataValidator();
+    this.dataTableManager = new DataTableManager(this.validator);
     
     // 数据存储
     this.dataStore = new Map(); // 权威数据存储

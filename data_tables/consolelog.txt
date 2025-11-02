@@ -1,0 +1,35 @@
+unified_data_manager.js:140 ❌ 行为数据不合法: eat_drink 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: rest_sleep 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: wash_bathe 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: farm_cultivate 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: logging_forestry 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: craft_handwork 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: socialize_friends 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: feast_drink 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: pursue_romance 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: study_classics 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: leisure_outing 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:140 ❌ 行为数据不合法: pray_worship 
+(4) [{…}, {…}, {…}, {…}]
+unified_data_manager.js:92 加载数据表失败: data_tables/behavior_patterns.json Error: behavior_patterns.json 包含 12 个不合法数据
+    at DataTableManager._validateDataTable (unified_data_manager.js:148:15)
+    at DataTableManager._loadTableFromFile (unified_data_manager.js:88:12)
+    at async DataTableManager.loadTable (unified_data_manager.js:55:20)
+    at async DataTableManager.getBehaviorPatterns (unified_data_manager.js:290:12)
+    at async <anonymous>:2:19
+unified_data_manager.js:94 Uncaught DataManagerError: 加载数据表失败: behavior_patterns
+    at DataTableManager._loadTableFromFile (unified_data_manager.js:93:13)
+    at async DataTableManager.loadTable (unified_data_manager.js:55:20)
+    at async DataTableManager.getBehaviorPatterns (unified_data_manager.js:290:12)
+    at async <anonymous>:2:19

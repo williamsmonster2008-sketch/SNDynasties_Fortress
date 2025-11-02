@@ -1,0 +1,276 @@
+{
+  "$schema": "behavior_context_modifiers_schema_v1",
+  "version": "1.0.0",
+  "lastModified": "2025-11-02",
+  "description": "南北朝坞堡模拟器 - 行为上下文修正系统 (Phase 2使用)",
+  
+  "weatherModifiers": {
+    "晴朗": {
+      "name": "晴朗",
+      "moodBonus": 5,
+      "outdoorActivityBonus": 1.2,
+      "indoorActivityBonus": 1.0,
+      "workEfficiencyBonus": 1.1,
+      "staminaDrain": 1.0,
+      "healthEffect": 0,
+      "anxietyEffect": 0
+    },
+    "多云": {
+      "name": "多云",
+      "moodBonus": 0,
+      "outdoorActivityBonus": 1.0,
+      "indoorActivityBonus": 1.0,
+      "workEfficiencyBonus": 1.0,
+      "staminaDrain": 1.0,
+      "healthEffect": 0,
+      "anxietyEffect": 0
+    },
+    "下雨": {
+      "name": "下雨",
+      "moodBonus": -5,
+      "outdoorActivityBonus": 0.3,
+      "indoorActivityBonus": 1.3,
+      "workEfficiencyBonus": 0.8,
+      "staminaDrain": 1.2,
+      "healthEffect": -1,
+      "anxietyEffect": 2
+    },
+    "大雾": {
+      "name": "大雾",
+      "moodBonus": -3,
+      "outdoorActivityBonus": 0.5,
+      "indoorActivityBonus": 1.1,
+      "workEfficiencyBonus": 0.7,
+      "staminaDrain": 1.0,
+      "healthEffect": 0,
+      "anxietyEffect": 3
+    },
+    "风雪": {
+      "name": "风雪",
+      "moodBonus": -8,
+      "outdoorActivityBonus": 0.2,
+      "indoorActivityBonus": 1.5,
+      "workEfficiencyBonus": 0.5,
+      "staminaDrain": 1.5,
+      "healthEffect": -2,
+      "anxietyEffect": 5
+    }
+  },
+  
+  "timeOfDayModifiers": {
+    "黎明": {
+      "name": "黎明",
+      "energyMultiplier": 0.8,
+      "workEfficiency": 0.9,
+      "socialActivity": 0.5,
+      "restActivity": 1.0,
+      "preferredBehaviors": ["盥洗沐浴", "进食饮水"],
+      "discouragedBehaviors": ["饮酒聚宴", "追求伴侣"]
+    },
+    "清晨": {
+      "name": "清晨",
+      "energyMultiplier": 1.0,
+      "workEfficiency": 1.1,
+      "socialActivity": 0.7,
+      "restActivity": 0.8,
+      "preferredBehaviors": ["垦荒耕钟", "拓地伐林", "盥洗沐浴"],
+      "discouragedBehaviors": ["休息睡眠"]
+    },
+    "白昼": {
+      "name": "白昼",
+      "energyMultiplier": 1.2,
+      "workEfficiency": 1.3,
+      "socialActivity": 1.0,
+      "restActivity": 0.5,
+      "preferredBehaviors": ["垦荒耕钟", "手工雕琢", "经义研读", "觅求好友"],
+      "discouragedBehaviors": ["休息睡眠"]
+    },
+    "午间": {
+      "name": "午间",
+      "energyMultiplier": 1.0,
+      "workEfficiency": 0.9,
+      "socialActivity": 1.2,
+      "restActivity": 1.5,
+      "preferredBehaviors": ["进食饮水", "休息睡眠", "觅求好友"],
+      "discouragedBehaviors": ["重体力劳动"]
+    },
+    "傍晚": {
+      "name": "傍晚",
+      "energyMultiplier": 0.7,
+      "workEfficiency": 0.8,
+      "socialActivity": 1.4,
+      "restActivity": 1.2,
+      "preferredBehaviors": ["饮酒聚宴", "追求伴侣", "踏青出游"],
+      "discouragedBehaviors": ["体力劳动"]
+    },
+    "夜晚": {
+      "name": "夜晚",
+      "energyMultiplier": 0.5,
+      "workEfficiency": 0.6,
+      "socialActivity": 0.8,
+      "restActivity": 2.0,
+      "preferredBehaviors": ["休息睡眠", "经义研读"],
+      "discouragedBehaviors": ["户外活动", "生产劳动"]
+    }
+  },
+  
+  "seasonModifiers": {
+    "春季": {
+      "name": "春季",
+      "moodBonus": 8,
+      "workMotivation": 1.3,
+      "socialActivity": 1.2,
+      "healthEffect": 2,
+      "preferredBehaviors": ["垦荒耕钟", "踏青出游", "追求伴侣"],
+      "seasonalBonus": {
+        "farm_cultivate": 1.3,
+        "leisure_outing": 1.5
+      }
+    },
+    "夏季": {
+      "name": "夏季",
+      "moodBonus": 5,
+      "workMotivation": 1.1,
+      "socialActivity": 1.1,
+      "staminaDrain": 1.2,
+      "healthEffect": 0,
+      "preferredBehaviors": ["农田劳作", "盥洗沐浴"],
+      "seasonalBonus": {
+        "wash_bathe": 1.3
+      }
+    },
+    "秋季": {
+      "name": "秋季",
+      "moodBonus": 3,
+      "workMotivation": 1.2,
+      "socialActivity": 1.1,
+      "healthEffect": 1,
+      "preferredBehaviors": ["收获劳作", "踏青出游"],
+      "seasonalBonus": {
+        "farm_cultivate": 1.2,
+        "leisure_outing": 1.2
+      }
+    },
+    "冬季": {
+      "name": "冬季",
+      "moodBonus": -5,
+      "workMotivation": 0.8,
+      "socialActivity": 1.3,
+      "indoorActivity": 1.5,
+      "staminaDrain": 1.1,
+      "healthEffect": -1,
+      "preferredBehaviors": ["经义研读", "手工雕琢", "饮酒聚宴"],
+      "discouragedBehaviors": ["户外劳动", "踏青出游"],
+      "seasonalBonus": {
+        "study_classics": 1.3,
+        "craft_handwork": 1.2,
+        "feast_drink": 1.3
+      }
+    }
+  },
+  
+  "locationModifiers": {
+    "农田": {
+      "name": "农田",
+      "suitableBehaviors": ["垦荒耕钟"],
+      "moodEffect": 2,
+      "staminaDrain": 1.2,
+      "workEfficiency": 1.0,
+      "attributes": {
+        "outdoorLevel": 1.0,
+        "noisyLevel": 0.3,
+        "crowdedLevel": 0.4
+      }
+    },
+    "作坊": {
+      "name": "作坊",
+      "suitableBehaviors": ["手工雕琢"],
+      "creativityBonus": 1.3,
+      "focusBonus": 1.2,
+      "workEfficiency": 1.1,
+      "attributes": {
+        "outdoorLevel": 0.0,
+        "noisyLevel": 0.6,
+        "crowdedLevel": 0.5
+      }
+    },
+    "井台": {
+      "name": "井台",
+      "suitableBehaviors": ["觅求好友", "进食饮水", "盥洗沐浴"],
+      "socialActivity": 1.5,
+      "charismaBonus": 1.2,
+      "attributes": {
+        "outdoorLevel": 1.0,
+        "noisyLevel": 0.7,
+        "crowdedLevel": 0.8
+      }
+    },
+    "书房": {
+      "name": "书房",
+      "suitableBehaviors": ["经义研读"],
+      "focusBonus": 1.4,
+      "memoryBonus": 1.2,
+      "quietBonus": 1.3,
+      "attributes": {
+        "outdoorLevel": 0.0,
+        "noisyLevel": 0.1,
+        "crowdedLevel": 0.1
+      }
+    },
+    "酒楼": {
+      "name": "酒楼",
+      "suitableBehaviors": ["饮酒聚宴", "觅求好友"],
+      "happinessBonus": 1.2,
+      "lonelinessReduction": 1.5,
+      "socialActivity": 1.4,
+      "attributes": {
+        "outdoorLevel": 0.0,
+        "noisyLevel": 0.8,
+        "crowdedLevel": 0.9
+      }
+    },
+    "寺庙": {
+      "name": "寺庙",
+      "suitableBehaviors": ["祝祷祭祀", "经义研读"],
+      "anxietyReduction": 1.3,
+      "peaceBonus": 1.4,
+      "spiritualityBonus": 1.5,
+      "attributes": {
+        "outdoorLevel": 0.2,
+        "noisyLevel": 0.2,
+        "crowdedLevel": 0.4
+      }
+    }
+  },
+  
+  "contextCombinations": {
+    "description": "特定上下文组合的额外效果",
+    "combinations": [
+      {
+        "conditions": {
+          "weather": "晴朗",
+          "season": "春季",
+          "timeOfDay": "白昼"
+        },
+        "effects": {
+          "moodBonus": 5,
+          "outdoorActivityBonus": 1.5
+        },
+        "message": "春日晴朗的好天气"
+      },
+      {
+        "conditions": {
+          "weather": "风雪",
+          "season": "冬季",
+          "timeOfDay": "夜晚"
+        },
+        "effects": {
+          "moodBonus": -10,
+          "indoorActivityBonus": 2.0,
+          "staminaDrain": 1.8
+        },
+        "message": "严寒风雪的夜晚"
+      }
+    ]
+  }
+}
