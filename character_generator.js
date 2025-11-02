@@ -185,7 +185,7 @@ export class CharacterGenerator {
           socialClass: socialClass,
           familyName: options.familyName || null,
           surname: options.surname || null,
-          generation: options.generation || 3,
+          generation: options.generation || 1,
           role: options.role || 'resident',
           useCourtesyName: age >= 20
         });

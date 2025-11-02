@@ -1693,30 +1693,46 @@ export class FamilyNetworkService {
         throw new Error('NameGenerator不可用');
       }
       
-      // 🔧 检查并加载配置
       if (!this.gameEngine.nameGenerator.configLoaded) {
         await this.gameEngine.nameGenerator.loadConfigurations(
           this.gameEngine.dataManager.dataTableManager
         );
       }
       
-      // 生成配偶姓氏（不能和原家族同姓）
+      // 🆕 标准化原姓氏
+      const normalizedOriginalSurname = originalFamilyName ? originalFamilyName.replace(/氏$/, '') : null;
+      
       let spouseSurname = this.gameEngine.nameGenerator.generateSurname(socialClass);
       
-      // 如果和原姓氏相同，重试几次
       let attempts = 0;
-      while (spouseSurname === originalFamilyName && attempts < 5) {
+      while (spouseSurname === normalizedOriginalSurname && attempts < 10) {
         spouseSurname = this.gameEngine.nameGenerator.generateSurname(socialClass);
         attempts++;
+      }
+      
+      // 🆕 如果仍然相同，强制使用不同姓氏
+      if (spouseSurname === normalizedOriginalSurname) {
+        const allFallbacks = ['郑', '王', '李', '陈', '刘', '张', '杨', '赵', '周', '吴', '韦'];
+        const available = allFallbacks.filter(s => s !== normalizedOriginalSurname);
+        spouseSurname = available[Math.floor(Math.random() * available.length)];
+        console.warn(`⚠️ 强制使用不同姓氏: ${spouseSurname} (排除: ${normalizedOriginalSurname})`);
       }
       
       return spouseSurname;
       
     } catch (error) {
       console.error('配偶姓氏生成失败:', error);
-      // 降级处理
-      const fallbackSurnames = ['郑', '裴', '韦', '杨', '陈'];
-      return fallbackSurnames[Math.floor(Math.random() * fallbackSurnames.length)];
+      
+      // 🆕 降级处理也要排除原姓氏
+      const normalizedOriginalSurname = originalFamilyName ? originalFamilyName.replace(/氏$/, '') : null;
+      const fallbackSurnames = ['郑', '王', '李', '韦', '杨', '陈', '刘', '张', '赵', '周'];
+      const available = fallbackSurnames.filter(s => s !== normalizedOriginalSurname);
+      
+      if (available.length === 0) {
+        return '王'; // 最终兜底
+      }
+      
+      return available[Math.floor(Math.random() * available.length)];
     }
   }
   

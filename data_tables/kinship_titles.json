@@ -1,0 +1,421 @@
+{
+  "version": "1.0.0",
+  "description": "南北朝时期亲属称谓配置表",
+  
+  "paternalTitles": {
+    "直系": {
+      "pathLength_1_gap_1": {
+        "male_older": "父亲",
+        "female_older": "母亲",
+        "male_younger": "儿子",
+        "female_younger": "女儿"
+      },
+      "pathLength_2_gap_2": {
+        "male_older": "祖父",
+        "female_older": "祖母",
+        "male_younger": "孙子",
+        "female_younger": "孙女"
+      },
+      "pathLength_3_gap_3": {
+        "male_older": "曾祖父",
+        "female_older": "曾祖母",
+        "male_younger": "曾孙",
+        "female_younger": "曾孙女"
+      },
+      "pathLength_4_gap_4": {
+        "male_older": "高祖父",
+        "female_older": "高祖母",
+        "male_younger": "玄孙",
+        "female_younger": "玄孙女"
+      },
+      "pathLength_5_gap_5": {
+        "male_older": "天祖父",
+        "female_older": "天祖母",
+        "male_younger": "来孙",
+        "female_younger": "来孙女"
+      }
+    },
+    
+    "旁系": {
+      "pathLength_2_gap_0": {
+        "male": "兄弟",
+        "female": "姐妹"
+      },
+      "pathLength_3_gap_1": {
+        "male_older": "叔父",
+        "female_older": "姑母",
+        "male_younger": "侄子",
+        "female_younger": "侄女"
+      },
+      "pathLength_4_gap_0": {
+        "male": "堂兄弟",
+        "female": "堂姐妹"
+      },
+      "pathLength_4_gap_2": {
+        "male_older": "叔祖父",
+        "female_older": "姑祖母",
+        "male_younger": "侄孙",
+        "female_younger": "侄孙女"
+      },
+      "pathLength_5_gap_1": {
+        "male_older": "堂叔父",
+        "female_older": "堂姑母",
+        "male_younger": "堂侄",
+        "female_younger": "堂侄女"
+      },
+      "pathLength_5_gap_3": {
+        "male_older": "叔曾祖",
+        "female_older": "姑曾祖",
+        "male_younger": "侄曾孙",
+        "female_younger": "侄曾孙女"
+      },
+      "pathLength_5_gap_5": {
+        "male_older": "天祖父",
+        "female_older": "天祖母",
+        "male_younger": "来孙",
+        "female_younger": "来孙女"
+      },
+      "pathLength_6_gap_0": {
+        "male": "从堂兄弟",
+        "female": "从堂姐妹"
+      },
+      "pathLength_6_gap_2": {
+        "male_older": "堂叔祖父",
+        "female_older": "堂姑祖母",
+        "male_younger": "堂侄孙",
+        "female_younger": "堂侄孙女"
+      },
+      "pathLength_6_gap_4": {
+        "male_older": "叔高祖",
+        "female_older": "姑高祖",
+        "male_younger": "堂侄玄孙",
+        "female_younger": "堂侄玄孙女"
+      },
+      "pathLength_7_8": {
+        "prefix": "族",
+        "gap_0_male": "兄弟",
+        "gap_0_female": "姐妹",
+        "gap_1_male_older": "叔父",
+        "gap_1_female_older": "姑母",
+        "gap_1_male_younger": "侄",
+        "gap_1_female_younger": "侄女",
+        "gap_2_male_older": "叔祖父",
+        "gap_2_female_older": "姑祖母",
+        "gap_2_male_younger": "侄孙",
+        "gap_2_female_younger": "侄孙女",
+        "gap_3_male_older": "叔曾祖",
+        "gap_3_female_older": "姑曾祖",
+        "gap_3_male_younger": "侄曾孙",
+        "gap_3_female_younger": "侄曾孙女",
+        "gap_4_male_older": "叔高祖",
+        "gap_4_female_older": "姑高祖",
+        "gap_4_male_younger": "侄玄孙",
+        "gap_4_female_younger": "侄玄孙女",
+        "gap_5_male_older": "叔天祖",
+        "gap_5_female_older": "姑天祖",
+        "gap_5_male_younger": "侄来孙",
+        "gap_5_female_younger": "侄来孙女",
+        "gap_other_older": "长辈",
+        "gap_other_younger": "晚辈"
+      },
+      "pathLength_9_plus": {
+        "default": "族人",
+        "fallback": "远房宗亲"
+      }
+    }
+  },
+  
+  "maternalTitles": {
+    "直系": {
+      "pathLength_1_gap_1": {
+        "older": "母亲",
+        "male_younger": "儿子",
+        "female_younger": "女儿"
+      },
+      "pathLength_2_gap_2": {
+        "male_older": "外祖父",
+        "female_older": "外祖母",
+        "male_younger": "外孙",
+        "female_younger": "外孙女"
+      },
+      "pathLength_3_gap_3": {
+        "male_older": "外曾祖父",
+        "female_older": "外曾祖母",
+        "male_younger": "外曾孙",
+        "female_younger": "外曾孙女"
+      },
+      "pathLength_4_gap_4": {
+        "male_older": "外高祖父",
+        "female_older": "外高祖母",
+        "male_younger": "外玄孙",
+        "female_younger": "外玄孙女"
+      }
+    },
+    
+    "旁系": {
+      "pathLength_3_gap_1": {
+        "male_older": "舅父",
+        "female_older": "姨母",
+        "male_younger": "外甥",
+        "female_younger": "外甥女"
+      },
+      "pathLength_4_gap_0": {
+        "male": "表兄弟",
+        "female": "表姐妹"
+      },
+      "pathLength_4_gap_2": {
+        "male_older": "舅祖父",
+        "female_older": "姨祖母",
+        "male_younger": "表侄孙",
+        "female_younger": "表侄孙女"
+      },
+      "pathLength_5_gap_1": {
+        "male_older": "表叔父",
+        "female_older": "表姑母",
+        "male_younger": "表侄",
+        "female_younger": "表侄女"
+      },
+      "pathLength_6_gap_0": {
+        "male": "从表兄弟",
+        "female": "从表姐妹"
+      },
+      "pathLength_6_gap_2": {
+        "male_older": "表叔祖父",
+        "female_older": "表姑母",
+        "male_younger": "表侄孙",
+        "female_younger": "表侄孙女"
+      },
+      "pathLength_7_8": {
+        "prefix": "远表",
+        "gap_0_male": "兄弟",
+        "gap_0_female": "姐妹",
+        "gap_1_older": "长辈",
+        "gap_1_younger": "晚辈",
+        "gap_2_plus": "亲属"
+      },
+      "pathLength_9_plus": {
+        "default": "远表亲属"
+      }
+    }
+  },
+  
+  "inLawTitles": {
+    "直接配偶": {
+      "male": "夫君",
+      "female": "妻子"
+    },
+    
+    "血亲的配偶_类型A": {
+      "同辈": {
+        "直系同辈": {
+          "male": "姐夫/妹夫",
+          "female": "嫂子/弟媳"
+        },
+        "同姓堂亲": {
+          "male": "堂姐夫/堂妹夫",
+          "female": "堂嫂/堂弟媳"
+        },
+        "异姓表亲": {
+          "male": "表姐夫/表妹夫",
+          "female": "表嫂/表弟媳"
+        }
+      },
+
+      "父系长辈": {
+        "pathLength_2_gap_1": {
+          "血亲男_配偶女": "叔母",
+          "血亲女_配偶男": "姑父"
+        },
+        "pathLength_3_gap_2": {
+          "血亲男_配偶女": "叔祖母",
+          "血亲女_配偶男": "姑祖父"
+        },
+        "pathLength_4_gap_3": {
+          "血亲男_配偶女": "叔曾祖母",
+          "血亲女_配偶男": "姑曾祖父"
+        }
+      },
+      
+      "母系长辈": {
+        "pathLength_3_gap_1": {
+          "血亲男_配偶女": "舅母",
+          "血亲女_配偶男": "姨父"
+        },
+        "pathLength_4_gap_2": {
+          "血亲男_配偶女": "舅祖母",
+          "血亲女_配偶男": "姨祖父"
+        },
+        "pathLength_5_gap_3": {
+          "血亲男_配偶女": "舅曾祖母",
+          "血亲女_配偶男": "姨曾祖父"
+        }
+      },
+
+      "晚辈_同姓": {
+        "male": "堂侄婿",
+        "female": "堂侄媳"
+      },
+      "晚辈_异姓": {
+        "male": "姨侄婿/外甥婿",
+        "female": "姨侄媳/外甥媳"
+      },
+      "表亲配偶": {
+        "male": "表姐夫/表妹夫",
+        "female": "表嫂/表弟媳"
+      }
+    },
+    
+    "配偶的血亲_类型B": {
+      "男方视角_妻子家": {
+        "同辈_pathLength_2_gap_0": {
+          "male": "大舅子/小舅子",
+          "female": "姨姐/姨妹"
+        },
+        "同辈_远房_gap_0": {
+          "male": "远房姻亲",
+          "female": "远房姻亲"
+        },
+        "长辈_gap_1": {
+          "male": "岳父",
+          "female": "岳母"
+        },
+        "祖辈_gap_2": {
+          "male": "岳祖父",
+          "female": "岳祖母"
+        },
+        "晚辈_gap_1": {
+          "male": "内侄",
+          "female": "内侄女"
+        }
+      },
+      
+      "女方视角_夫家": {
+        "同辈_pathLength_2_gap_0": {
+          "male": "大伯/小叔",
+          "female": "大姑/小姑"
+        },
+        "同辈_远房_gap_0": {
+          "male": "远房姻亲",
+          "female": "远房姻亲"
+        },
+        "长辈_gap_1": {
+        "male": "公公",
+        "female": "婆婆"
+        },
+        "长辈_旁系_gap_1": {
+          "male": "伯父/叔父",
+          "female": "姑母"
+        },
+        "祖辈_gap_2": {
+          "male": "祖公公",
+          "female": "祖婆婆"
+        },
+        "晚辈_父系": {
+          "male": "侄子",
+          "female": "侄女"
+        },
+        "晚辈_母系": {
+          "male": "外甥",
+          "female": "外甥女"
+        }
+      }
+    },
+    
+    "复合姻亲_类型C": {
+      "同辈_两端婚姻_pathLength_2_gap_0": {
+        "same_gender_male": "连襟",
+        "same_gender_female": "妯娌",
+        "diff_gender": "姻亲"
+      },
+      "同辈_两端婚姻_pathLength_3_gap_1": {
+        "same_gender_male": "堂姐夫/堂妹夫",
+        "same_gender_female": "堂嫂/堂弟媳",
+        "diff_gender": "姻亲"
+      },
+      "default": "姻亲"
+    }
+  },
+  
+  "长幼区分": {
+    "description": "需要birthOrder字段支持",
+    "兄弟": {
+      "older": "兄长",
+      "younger": "弟弟"
+    },
+    "姐妹": {
+      "older": "姐姐",
+      "younger": "妹妹"
+    },
+    "叔伯": {
+      "older_than_father": "伯父",
+      "younger_than_father": "叔父"
+    },
+    "姑母": {
+      "older_than_father": "大姑",
+      "younger_than_father": "小姑"
+    },
+    "舅子": {
+      "older_than_wife": "大舅子",
+      "younger_than_wife": "小舅子"
+    }
+  },
+  
+  "称谓别名": {
+    "description": "正式/口语/亲昵称谓",
+    "父亲": {
+      "formal": "父亲",
+      "colloquial": "爹爹",
+      "intimate": "阿爹"
+    },
+    "母亲": {
+      "formal": "母亲",
+      "colloquial": "娘",
+      "intimate": "阿娘"
+    },
+    "祖父": {
+      "formal": "祖父",
+      "colloquial": "爷爷",
+      "intimate": "阿公"
+    },
+    "祖母": {
+      "formal": "祖母",
+      "colloquial": "奶奶",
+      "intimate": "阿婆"
+    },
+    "兄长": {
+      "formal": "兄长",
+      "colloquial": "哥哥",
+      "intimate": "阿兄"
+    },
+    "堂兄": {
+      "formal": "堂兄",
+      "colloquial": "堂哥",
+      "intimate": "X哥"
+    }
+  },
+  
+  "特殊规则": {
+    "同姓优先": "同姓路径优先判定为父系",
+    "入赘标识": "familyAffiliation === 'uxorilocal'",
+    "辈分字段": "generation",
+    "路径类型": ["paternal", "maternal", "in_law"],
+    "默认称谓": "姻亲",
+    "远房称谓": {
+      "paternal_9_plus": "远房宗亲",
+      "maternal_9_plus": "远表亲属",
+      "in_law_default": "姻亲"
+    }
+  },
+  
+  "数据结构说明": {
+    "pathLength": "血缘路径长度(1-9+)",
+    "generationGap": "代际差绝对值(0-5+)",
+    "generationDelta": "代际差带正负(正数=长辈,负数=晚辈)",
+    "targetGender": "目标角色性别(男/女)",
+    "isOlder": "是否长辈(generationDelta < 0)",
+    "sameSurname": "是否同姓",
+    "bloodRelativeGender": "血亲的性别(用于配偶称谓)",
+    "isUxorilocal": "是否入赘",
+    "pathType": "路径类型(paternal/maternal/in_law)"
+  }
+}

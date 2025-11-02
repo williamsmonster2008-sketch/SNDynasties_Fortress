@@ -403,8 +403,9 @@ export class NameGenerator {
     // 如果所有序列都用完了，重置或使用第一个
     if (!selectedSeq) {
       console.warn(`⚠️ ${isElite ? '士族' : '平民'}辈分序列已用完，开始重用`);
-      selectedSeq = sequencePool[0];
-      selectedIndex = 0;
+      const usedIndices = Array.from(usedSet);
+      selectedIndex = usedIndices[Math.floor(Math.random() * usedIndices.length)];
+      selectedSeq = sequencePool[selectedIndex];
     }
     
     // 标记为已使用

@@ -429,7 +429,8 @@ export default class UnifiedCharacterSystem {
       return await this.gameEngine.nameGenerator.generateName({
         gender: characterTemplate.gender,
         socialClass: characterTemplate.socialClass,
-        familyName: surnameToUse
+        familyName: surnameToUse,
+        generation: characterTemplate.generation || 1
       });
     }
 

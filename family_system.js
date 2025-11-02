@@ -117,11 +117,35 @@ class FamilySystem {
     // 血缘关系配置
     this.generationConfig = this._initGenerationConfig();
     this.kinshipTitles = BloodRelationTitles;
+
+    // 🆕 加载亲属称谓配置
+    this.kinshipTitles = null;
+    this._loadKinshipTitles();
     
     // 删除不再使用的家族命名配置
     // this.familyNames = null; 因为姓名生成已移至FamilyNetworkService
     
     //console.log('✅ FamilySystem 血缘关系系统初始化完成');
+  }
+
+  /**
+   * 加载亲属称谓配置文件
+   */
+  async _loadKinshipTitles() {
+    try {
+      const response = await fetch('/data_tables/kinship_titles.json');
+      this.kinshipTitles = await response.json();
+      console.log('✅ 亲属称谓配置已加载');
+    } catch (error) {
+      console.error('❌ 加载亲属称谓配置失败:', error);
+      // 降级：使用空配置
+      this.kinshipTitles = {
+        paternalTitles: {},
+        maternalTitles: {},
+        inLawTitles: {},
+        特殊规则: { 默认称谓: '姻亲' }
+      };
+    }
   }
 
   _normalizeGender(raw) {
@@ -996,186 +1020,110 @@ class FamilySystem {
    * @returns {string} 称谓
    */
   _determineKinshipByPathLength(pathLength, generationGap, generationDelta, targetGender) {
+    if (!this.kinshipTitles) {
+      return targetGender === '男' ? '宗亲' : '族人';
+    }
+    
     // 🔧 修改：负数表示对方辈分更高
     const isOlder = generationDelta < 0; // 对方辈分更高
     const isMale = targetGender === '男';
     
-    // ===== pathLength = 1: 父子/母子 =====
-    if (pathLength === 1 && generationGap === 1) {
-      return isOlder ? (isMale ? '父亲' : '母亲') : (isMale ? '儿子' : '女儿');
+    // 构建查询键
+    const key = `pathLength_${pathLength}_gap_${generationGap}`;
+
+    // 1. 查询直系称谓
+    const directKey = this.kinshipTitles.paternalTitles.直系?.[key];
+    if (directKey) {
+      const ageKey = isOlder ? 'older' : 'younger';
+      const genderKey = isMale ? 'male' : 'female';
+      const fullKey = `${genderKey}_${ageKey}`;
+      return directKey[fullKey] || directKey[genderKey] || '亲属';
     }
-    
-    // ===== pathLength = 2: 兄弟姐妹 / 祖孙 =====
-    if (pathLength === 2) {
+
+    // 2. 查询旁系称谓
+    const sideKey = this.kinshipTitles.paternalTitles.旁系?.[key];
+    if (sideKey) {
+      const genderKey = isMale ? 'male' : 'female';
+      const ageKey = isOlder ? 'older' : 'younger';
+      
       if (generationGap === 0) {
-        // 兄弟姐妹 - 暂不区分长幼,统一用基础称谓
-        return isMale ? '兄弟' : '姐妹';
-      }
-      if (generationGap === 2) {
-        return isOlder ? (isMale ? '祖父' : '祖母') : (isMale ? '孙子' : '孙女');
-      }
-    }
-    
-    // ===== pathLength = 3: 叔侄 / 曾祖曾孙 =====
-    if (pathLength === 3) {
-      if (generationGap === 1) {
-        return isOlder ? (isMale ? '叔父' : '姑母') : (isMale ? '侄子' : '侄女');
-      }
-      if (generationGap === 3) {
-        return isOlder ? (isMale ? '曾祖父' : '曾祖母') : (isMale ? '曾孙' : '曾孙女');
-      }
-    }
-    
-    // ===== pathLength = 4: 堂兄弟 / 叔祖侄孙 / 高祖玄孙 =====
-    if (pathLength === 4) {
-      if (generationGap === 0) {
-        return isMale ? '堂兄弟' : '堂姐妹';
-      }
-      if (generationGap === 2) {
-        return isOlder ? (isMale ? '叔祖父' : '姑祖母') : (isMale ? '侄孙' : '侄孙女');
-      }
-      if (generationGap === 4) {
-        return isOlder ? (isMale ? '高祖父' : '高祖母') : (isMale ? '玄孙' : '玄孙女');
-      }
-    }
-    
-    // ===== pathLength = 5: 堂叔侄 / 叔曾祖侄曾孙 / 天祖来孙 =====
-    if (pathLength === 5) {
-      if (generationGap === 1) {
-        return isOlder ? (isMale ? '堂叔父' : '堂姑母') : (isMale ? '堂侄' : '堂侄女');
-      }
-      if (generationGap === 3) {
-        return isOlder ? (isMale ? '叔曾祖' : '姑曾祖') : (isMale ? '侄曾孙' : '侄曾孙女');
-      }
-      if (generationGap === 5) {
-        return isOlder ? (isMale ? '天祖父' : '天祖母') : (isMale ? '来孙' : '来孙女');
-      }
-    }
-    
-    // ===== pathLength = 6: 从堂兄弟 / 堂叔祖堂侄孙 / 叔高祖堂侄玄孙 =====
-    if (pathLength === 6) {
-      if (generationGap === 0) {
-        return isMale ? '从堂兄弟' : '从堂姐妹';
-      }
-      if (generationGap === 2) {
-        return isOlder ? (isMale ? '堂叔祖父' : '堂姑祖母') : (isMale ? '堂侄孙' : '堂侄孙女');
-      }
-      if (generationGap === 4) {
-        return isOlder ? (isMale ? '叔高祖' : '姑高祖') : (isMale ? '堂侄玄孙' : '堂侄玄孙女');
-      }
-    }
-    
-    // ===== pathLength ∈ [7,8]: 族+称谓 =====
-    if (pathLength >= 7 && pathLength <= 8) {
-      let baseName = '';
-      if (generationGap === 0) {
-        baseName = isMale ? '兄弟' : '姐妹';
-      } else if (generationGap === 1) {
-        baseName = isOlder ? (isMale ? '叔父' : '姑母') : (isMale ? '侄' : '侄女');
-      } else if (generationGap === 2) {
-        baseName = isOlder ? (isMale ? '叔祖父' : '姑祖母') : (isMale ? '侄孙' : '侄孙女');
-      } else if (generationGap === 3) {
-        baseName = isOlder ? (isMale ? '叔曾祖' : '姑曾祖') : (isMale ? '侄曾孙' : '侄曾孙女');
-      } else if (generationGap === 4) {
-        baseName = isOlder ? (isMale ? '叔高祖' : '姑高祖') : (isMale ? '侄玄孙' : '侄玄孙女');
-      } else if (generationGap === 5) {
-        baseName = isOlder ? (isMale ? '叔天祖' : '姑天祖') : (isMale ? '侄来孙' : '侄来孙女');
+        return sideKey[genderKey] || '同辈';
       } else {
-        baseName = isOlder ? '长辈' : '晚辈';
+        const fullKey = `${genderKey}_${ageKey}`;
+        return sideKey[fullKey] || sideKey[genderKey] || '亲属';
       }
-      return '族' + baseName;
     }
     
-    // ===== pathLength ≥ 9: 族人 =====
+    // 3. 处理族人称谓（pathLength 7-8）
+    if (pathLength >= 7 && pathLength <= 8) {
+      const clanConfig = this.kinshipTitles.paternalTitles.旁系?.pathLength_7_8;
+      if (clanConfig) {
+        const prefix = clanConfig.prefix || '族';
+        const gapKey = `gap_${generationGap}_${isMale ? 'male' : 'female'}_${isOlder ? 'older' : 'younger'}`;
+        const baseName = clanConfig[gapKey] || (isOlder ? '长辈' : '晚辈');
+        return prefix + baseName;
+      }
+    }
+    
+    // 4. 远房宗亲（pathLength ≥ 9）
     if (pathLength >= 9) {
-      return '族人';
+      return this.kinshipTitles.paternalTitles.旁系?.pathLength_9_plus?.default || '远房宗亲';
     }
     
-    // ===== 其他情况: 亲属 =====
-    return '远房宗亲';
+    return '宗亲';
   }
 
   /**
    * 判断母系血亲称谓(表亲系统)
    */
   _determineMaternalTitle(pathLength, generationGap, generationDelta, targetGender) {
+    if (!this.kinshipTitles) {
+      return targetGender === '男' ? '表亲' : '表亲';
+    }
     const isOlder = generationDelta < 0;
-    const genderText = targetGender === '男' ? '男性' : '女性';
+    const isMale = targetGender === '男';
+    const key = `pathLength_${pathLength}_gap_${generationGap}`;
     
-    // ===== pathLength = 1: 母亲/儿女 =====
-    if (pathLength === 1 && generationGap === 1) {
-      if (isOlder) {
-        return '母亲';
-      } else {
-        return targetGender === '男' ? '儿子' : '女儿';
-      }
+    // 1. 查询直系母系称谓
+    const directKey = this.kinshipTitles.maternalTitles.直系?.[key];
+    if (directKey) {
+      const ageKey = isOlder ? 'older' : 'younger';
+      const genderKey = isMale ? 'male' : 'female';
+      const fullKey = `${genderKey}_${ageKey}`;
+      return directKey[fullKey] || directKey[genderKey] || '外亲';
     }
     
-    // ===== pathLength = 2: 外祖父母/外孙 =====
-    if (pathLength === 2 && generationGap === 2) {
-      if (isOlder) {
-        return targetGender === '男' ? '外祖父' : '外祖母';
-      } else {
-        return targetGender === '男' ? '外孙' : '外孙女';
-      }
-    }
-    
-    // ===== pathLength = 3: 舅父姨母/外甥、外曾祖 =====
-    if (pathLength === 3) {
-      if (generationGap === 1) {
-        if (isOlder) {
-          return targetGender === '男' ? '舅父' : '姨母';
-        } else {
-          return targetGender === '男' ? '外甥' : '外甥女';
-        }
-      }
-      if (generationGap === 3) {
-        if (isOlder) {
-          return targetGender === '男' ? '外曾祖父' : '外曾祖母';
-        } else {
-          return targetGender === '男' ? '外曾孙' : '外曾孙女';
-        }
-      }
-    }
-    
-    // ===== pathLength = 4: 表兄弟姐妹 =====
-    if (pathLength === 4 && generationGap === 0) {
-      if (targetGender === '男') {
-        return '表兄弟';
-      } else {
-        return '表姐妹';
-      }
-    }
-    
-    // ===== pathLength = 5: 表叔父/表侄 =====
-    if (pathLength === 5 && generationGap === 1) {
-      if (isOlder) {
-        return targetGender === '男' ? '表叔父' : '表姑母';
-      } else {
-        return targetGender === '男' ? '表侄' : '表侄女';
-      }
-    }
-    
-    // ===== pathLength = 6: 从表兄弟姐妹 =====
-    if (pathLength === 6 && generationGap === 0) {
-      if (targetGender === '男') {
-        return '从表兄弟';
-      } else {
-        return '从表姐妹';
-      }
-    }
-    
-    // ===== pathLength >= 7: 远表 =====
-    if (pathLength >= 7) {
+    // 2. 查询旁系母系称谓
+    const sideKey = this.kinshipTitles.maternalTitles.旁系?.[key];
+    if (sideKey) {
+      const genderKey = isMale ? 'male' : 'female';
+      const ageKey = isOlder ? 'older' : 'younger';
+      
       if (generationGap === 0) {
-        return targetGender === '男' ? '远表兄弟' : '远表姐妹';
+        return sideKey[genderKey] || '表亲';
       } else {
-        return isOlder ? '远表长辈' : '远表晚辈';
+        const fullKey = `${genderKey}_${ageKey}`;
+        return sideKey[fullKey] || sideKey[genderKey] || '表亲';
       }
     }
     
-    // 默认
-    return '远房表亲';
+    // 3. 远表亲（pathLength 7-8）
+    if (pathLength >= 7 && pathLength <= 8) {
+      const distantConfig = this.kinshipTitles.maternalTitles.旁系?.pathLength_7_8;
+      if (distantConfig) {
+        const prefix = distantConfig.prefix || '远表';
+        const baseName = generationGap === 0 ? (isMale ? '兄弟' : '姐妹') :
+                        (isOlder ? '长辈' : '晚辈');
+        return prefix + baseName;
+      }
+    }
+    
+    // 4. 远表亲属（pathLength ≥ 9）
+    if (pathLength >= 9) {
+      return this.kinshipTitles.maternalTitles.旁系?.pathLength_9_plus?.default || '远表亲属';
+    }
+    
+    return '表亲';
   }
 
 
@@ -1204,20 +1152,23 @@ class FamilySystem {
   _determineInLawTitle(path, pathLength, generationGap, generationDelta, targetGender, context = {}) {
     const {
       sourceMember = null,
-      targetMember = null,
       familyMembers = null,
-      fallbackSurname = null
+      fallbackSurname = null,
+      pathType = 'paternal'  // 🆕 添加pathType参数
     } = context;
     
     const getMemberById = (id) => {
       if (!id || !familyMembers) return null;
       return familyMembers.get(id) || null;
     };
-
+  
     // 特殊情况:直接配偶
     if (pathLength === 1) {
-      console.log('→ 直接配偶');
-      return targetGender === '男' ? '夫君' : '妻子';
+      if (!this.kinshipTitles) {
+        return targetGender === '男' ? '夫君' : '妻子';
+      }
+      const genderKey = targetGender === '男' ? 'male' : 'female';
+      return this.kinshipTitles.inLawTitles.直接配偶?.[genderKey] || '配偶';
     }
     
     // 找到所有婚姻跳转点
@@ -1226,24 +1177,34 @@ class FamilySystem {
       if (step.relationType === 'marriage') {
         marriageIndices.push(i);
       }
-    });
-    
-    // console.log('→ 婚姻跳转点:', marriageIndices);
+    });    
     
     if (marriageIndices.length === 0) {
-      return '姻亲';
+      return this.kinshipTitles?.特殊规则?.默认称谓 || '姻亲';
     }
     
-    // 情况1: 只有一个婚姻边,在开头 → 类型B
+    // 情况1: 只有一个婚姻边,在开头 → 类型B(配偶的血亲)
     if (marriageIndices[0] === 0 && marriageIndices.length === 1) {
-      return this._convertToInLawTitle(path, pathLength - 1, generationGap, generationDelta, targetGender);
+      // 🆕 添加入赘判断
+      const isUxorilocal = sourceMember?.familyAffiliation === 'uxorilocal';
+      
+      return this._convertToInLawTitle(
+        path, 
+        pathLength - 1, 
+        generationGap, 
+        generationDelta, 
+        targetGender,
+        isUxorilocal,
+        sourceMember
+      );
     }
     
-    // 情况2: 只有一个婚姻边,在最后 → 类型A: 血亲的配偶
+    // 情况2: 只有一个婚姻边,在最后 → 类型A(血亲的配偶)
     if (marriageIndices.length === 1 && marriageIndices[0] === path.length - 1) {
       const bloodRelativeId = pathLength >= 2 ? path[pathLength - 1].from : null;
       const bloodRelative = getMemberById(bloodRelativeId);
-      const sameSurnameWithRelative = this._haveSameSurname(sourceMember, bloodRelative, fallbackSurname);  // ← 添加这行
+      const sameSurnameWithRelative = this._haveSameSurname(sourceMember, bloodRelative, fallbackSurname);
+      
       return this._convertToSpouseTitle(
         pathLength - 1,
         generationGap,
@@ -1251,10 +1212,8 @@ class FamilySystem {
         targetGender,
         {
           sameSurnameWithRelative,
-          sourceMember,
-          targetMember,
-          familyMembers,
-          bloodRelativeId  // 血亲的ID（路径倒数第二个节点）
+          bloodRelativeGender: bloodRelative?.gender,
+          pathType: pathType  // 🆕 传入路径类型
         }
       );
     }
@@ -1262,19 +1221,39 @@ class FamilySystem {
     // 情况3: 两个婚姻边,在两端 → 复合姻亲(妯娌、连襟等)
     if (marriageIndices.length === 2 && marriageIndices[0] === 0 && marriageIndices[1] === path.length - 1) {
       const middlePathLength = pathLength - 2;
+      const sourceGender = sourceMember?.gender || null;
       
-      if (middlePathLength === 2 && generationGap === 0) {
-        return targetGender === '女' ? '妯娌' : '连襟';
+      if (!this.kinshipTitles) {
+        // 降级处理
+        if (middlePathLength === 2 && generationGap === 0) {
+          if (sourceGender && targetGender && sourceGender !== targetGender) {
+            return '姻亲';
+          }
+          return targetGender === '女' ? '妯娌' : '连襟';
+        }
+        if (middlePathLength === 3 && generationGap === 1) {
+          if (sourceGender && targetGender && sourceGender !== targetGender) {
+            return '姻亲';
+          }
+          return targetGender === '女' ? '堂嫂/堂弟媳' : '堂姐夫/堂妹夫';
+        }
+        return '姻亲';
       }
       
-      if (middlePathLength === 3 && generationGap === 1) {
-        return targetGender === '女' ? '堂嫂/堂弟媳' : '堂姐夫/堂妹夫';
-      }
+      // 从配置读取
+      const config = this.kinshipTitles.inLawTitles.复合姻亲_类型C;
+      const key = `同辈_两端婚姻_pathLength_${middlePathLength}_gap_${generationGap}`;
+      const genderMatch = sourceGender === targetGender ? 'same_gender' : 'diff_gender';
       
-      return '姻亲';
+      if (genderMatch === 'same_gender') {
+        const subKey = targetGender === '女' ? 'same_gender_female' : 'same_gender_male';
+        return config?.[key]?.[subKey] || '姻亲';
+      } else {
+        return config?.[key]?.diff_gender || '姻亲';
+      }
     }
     
-    return '姻亲';
+    return this.kinshipTitles?.特殊规则?.默认称谓 || '姻亲';
   }
 
   /**
@@ -1282,52 +1261,54 @@ class FamilySystem {
    * 血亲的配偶
    */
   _convertToSpouseTitle(bloodPathLength, generationGap, generationDelta, targetGender, context = {}) {
-    const isOlder = generationDelta < 0;
-    const {
-      sourceMember = null,
-      targetMember = null,
-      familyMembers = null,
-      sameSurnameWithRelative = false
-    } = context;
+    if (!this.kinshipTitles) return '姻亲';
+
+    const isOlder = generationDelta < 0;        
+    const bloodRelativeGender = context.bloodRelativeGender; // 🆕 血亲性别
+    const sameSurnameWithRelative = context.sameSurnameWithRelative || false;
+    const pathType = context.pathType || 'paternal';
+
+    const config = this.kinshipTitles.inLawTitles.血亲的配偶_类型A;
+    if (!config) return '姻亲';
+    
+    const genderKey = targetGender === '男' ? 'male' : 'female';
     
     // 同辈配偶
     if (generationGap === 0) {
-      if (sameSurnameWithRelative) {
-        return targetGender === '男' ? '堂姐夫/堂妹夫' : '堂嫂/堂弟媳';
+      // 区分直系、堂亲、表亲
+      if (bloodPathLength === 2) {
+        // 直系兄弟姐妹的配偶
+        return config.同辈?.直系同辈?.[genderKey] || '姻亲';
+      } else if (pathType === 'paternal' && sameSurnameWithRelative) {
+        // 同姓堂亲的配偶
+        return config.同辈?.同姓堂亲?.[genderKey] || '姻亲';
+      } else if (pathType === 'maternal') {
+        // 异姓表亲的配偶
+        return config.同辈?.异姓表亲?.[genderKey] || '姻亲';
       }
-      
-      // 使用血亲的 birthOrder 判断
-      if (sourceMember && targetMember && familyMembers) {
-        // 找到血亲（配偶的兄弟姐妹）
-        const bloodRelativeId = context.bloodRelativeId;
-        const bloodRelative = bloodRelativeId ? familyMembers.get(bloodRelativeId) : null;
-        
-        if (bloodRelative && Number.isFinite(sourceMember.birthOrder) && Number.isFinite(bloodRelative.birthOrder)) {
-          const isBloodRelativeOlder = bloodRelative.birthOrder < sourceMember.birthOrder;
-          if (targetGender === '男') {
-            return isBloodRelativeOlder ? '姐夫' : '妹夫';
-          } else {
-            return isBloodRelativeOlder ? '嫂子' : '弟媳';
-          }
-        }
-      }
-      
-      return targetGender === '男' ? '姐夫/妹夫' : '嫂子/弟媳';
+      // 降级
+      return config.同辈?.直系同辈?.[genderKey] || '姻亲';
     }
     
     // 长辈配偶
-    if (isOlder && generationGap === 1) {
-      if (bloodPathLength === 2) {
-        return targetGender === '男' ? '叔父/姑父' : '叔母/姑母';
-      }
+    if (isOlder && generationGap >= 1 && bloodPathLength >= 2) {
+      const key = `pathLength_${bloodPathLength}_gap_${generationGap}`;
+      const relationKey = `血亲${bloodRelativeGender === '男' ? '男' : '女'}_配偶${targetGender === '男' ? '男' : '女'}`;
+      
+      // 判断是父系还是母系
+      const lineageType = pathType === 'maternal' ? '母系长辈' : '父系长辈';
+      
+      const title = config[lineageType]?.[key]?.[relationKey];
+      if (title) return title;
     }
     
     // 晚辈配偶
     if (!isOlder && generationGap === 1) {
       if (sameSurnameWithRelative) {
-        return targetGender === '男' ? '堂侄' : '堂侄媳';
+        return config.晚辈_同姓?.[genderKey] || '姻亲';
+      } else {
+        return config.晚辈_异姓?.[genderKey] || '姻亲';
       }
-      return targetGender === '男' ? '侄子/外甥' : '侄媳/外甥媳';
     }
     
     return '姻亲';
@@ -1338,37 +1319,92 @@ class FamilySystem {
    * 转换为配偶血亲称谓(类型B)
    * 配偶的血亲
    */
-  _convertToInLawTitle(path, bloodPathLength, generationGap, generationDelta, targetGender) {
+  _convertToInLawTitle(path, bloodPathLength, generationGap, generationDelta, targetGender, isUxorilocal = false, sourceMember = null) {
+    if (!this.kinshipTitles) return '姻亲';
+  
     const isOlder = generationDelta < 0;
+    const config = this.kinshipTitles.inLawTitles.配偶的血亲_类型B;
+    if (!config) return '姻亲';
+  
+    // 判断视角：入赘男性按男方视角，其他按性别判断    
+    const sourceGender = sourceMember?.gender || '男';  
     
-    // 配偶的同辈血亲
-    if (generationGap === 0 && bloodPathLength === 2) {
-      if (targetGender === '男') {
-        return '大伯/小叔';
-      } else {
-        return '大姑/小姑';
-      }
+    // 🆕 完整调试
+    console.log('🔍 配偶的血亲详细:', {
+      sourceName: sourceMember?.name,
+      sourceGender,
+      targetGender,
+      bloodPathLength,
+      generationGap,
+      generationDelta,
+      isOlder,
+      isUxorilocal,
+      path路径: path.map((p, i) => `[${i}] ${p.from}->${p.to} (${p.relationType})`)
+    });
+  
+    let perspective;
+    if (isUxorilocal) {
+      perspective = '男方视角_妻子家';
+    } else {
+      perspective = sourceGender === '男' ? '男方视角_妻子家' : '女方视角_夫家';
+    }
+  
+    console.log('📍 选择视角:', perspective);
+    
+    const perspectiveConfig = config[perspective];
+    if (!perspectiveConfig) {
+      console.error('❌ 配置中找不到视角:', perspective);
+      return '姻亲';
     }
     
-    // 配偶的长辈
+    const genderKey = targetGender === '男' ? 'male' : 'female';
+    
+    // 同辈
+    if (generationGap === 0) {
+      let key;
+      if (bloodPathLength === 2) {
+        // 直系兄弟姐妹
+        key = `同辈_pathLength_${bloodPathLength}_gap_${generationGap}`;
+      } else {
+        // 远房堂/表兄弟
+        key = `同辈_远房_gap_${generationGap}`;
+      }
+      console.log('→ 同辈查询:', key, perspectiveConfig[key]);
+      return perspectiveConfig[key]?.[genderKey] || '姻亲';
+    }
+    
+    // 长辈
     if (isOlder && generationGap === 1) {
-      return targetGender === '男' ? '公公' : '婆婆';
-    }
-    
-    // 配偶的晚辈 - 区分侄/外甥
-    if (!isOlder && generationGap === 1) {
-      const bloodPath = path.slice(1); // 去掉第一步marriage
-      const hasFatherChild = bloodPath.some(step => step.relationType === 'father_child');
-      
-      if (hasFatherChild) {
-        // 父系:侄子/侄女 → 我是叔母/伯母
-        return targetGender === '男' ? '侄子' : '叔母';
+      if (bloodPathLength === 1) {
+        // 直系长辈：公公/婆婆
+        return perspectiveConfig.长辈_gap_1?.[genderKey] || '姻亲';
       } else {
-        // 母系:外甥/外甥女 → 我是姨母
-        return targetGender === '男' ? '外甥' : '姨母';
+        // 旁系长辈：大伯/小叔/大姑/小姑
+        return perspectiveConfig.长辈_旁系_gap_1?.[genderKey] || '姻亲';
       }
     }
     
+    // 祖辈
+    if (isOlder && generationGap === 2) {
+      console.log('→ 祖辈查询: 祖辈_gap_2', perspectiveConfig.祖辈_gap_2);
+      return perspectiveConfig.祖辈_gap_2?.[genderKey] || '姻亲';
+    }
+    
+    // 晚辈（仅女方视角需区分父系/母系）
+    if (!isOlder && generationGap === 1) {
+      console.log('→ 晚辈查询');
+      if (perspective === '女方视角_夫家') {
+        const bloodPath = path.slice(1);
+        const hasFatherChild = bloodPath.some(step => step.relationType === 'father_child');
+        const pathType = hasFatherChild ? '晚辈_父系' : '晚辈_母系';
+        console.log('  晚辈类型:', pathType);
+        return perspectiveConfig[pathType]?.[genderKey] || '姻亲';
+      } else {
+        return perspectiveConfig.晚辈_gap_1?.[genderKey] || '姻亲';
+      }
+    }
+    
+    console.warn('⚠️ 未匹配任何规则，返回默认"姻亲"');
     return '姻亲';
   }
 
@@ -1400,9 +1436,52 @@ class FamilySystem {
   }
 
 
+  /**
+   * 标准化路径类型（处理同姓优先规则）
+   * @param {Array} path - 路径
+   * @param {string} pathType - 初步分类的路径类型
+   * @param {Object} sourceMember - 源成员
+   * @param {Object} targetMember - 目标成员
+   * @param {string} familyName - 家族姓名
+   * @returns {string} 标准化后的路径类型
+   */
+  _normalizePathType(path, pathType, sourceMember, targetMember, familyName) {
+    // 如果是姻亲，不修改
+    if (pathType === 'in_law') {
+      return pathType;
+    }
+    
+    // 检查是否同姓
+    const sourceSurname = this._getMemberSurname(sourceMember, familyName);
+    const targetSurname = this._getMemberSurname(targetMember, familyName);
+    
+    // 同姓优先判定为父系
+    if (sourceSurname && targetSurname && sourceSurname === targetSurname) {
+      return 'paternal';
+    }
+    
+    return pathType;
+  }
+
+  /**
+   * 获取成员姓氏
+   * @param {Object} member - 成员对象
+   * @param {string} fallbackSurname - 降级姓氏
+   * @returns {string|null} 姓氏
+   */
+  _getMemberSurname(member, fallbackSurname) {
+    if (!member) return fallbackSurname;
+    
+    // 优先使用originalFamily，其次familyName，最后降级
+    return member.originalFamily || 
+          member.familyName || 
+          member.surname || 
+          fallbackSurname;
+  }
+
   _describeKinshipFromPath(path, sourceMember, targetMember, members, familyName) {
-    const familyMembers = members;  // ← 添加这行，创建别名
-    const fallbackSurname = familyName ? familyName.replace(/氏$/, '') : null;  // ← 也添加这行
+    const familyMembers = members;
+    const fallbackSurname = familyName ? familyName.replace(/氏$/, '') : null;
     
     if (!path || path.length === 0) {
       return { 
@@ -1415,7 +1494,6 @@ class FamilySystem {
     }
   
     const pathLength = path.length;
-    // 负数表示长辈，正数表示晚辈
     const generationDelta = (targetMember?.generation ?? 0) - (sourceMember?.generation ?? 0);
     const generationGap = Math.abs(generationDelta);
     const targetGender = targetMember?.gender || '男';
@@ -1423,22 +1501,45 @@ class FamilySystem {
     // 🆕 路径分类
     const pathType = this._classifyPath(path);
 
-     // 根据路径类型调用不同的称谓判断
+    // 🆕 添加调试
+    console.log('🔍 路径分类结果:', {
+      targetName: targetMember?.name,
+      pathType,
+      pathLength,
+      path: path.map((p, i) => `[${i}] ${p.relationType}`)
+    });
+
+    
+    // 🔧 修正1：添加normalizedPathType
+    const normalizedPathType = this._normalizePathType(
+      path,
+      pathType,
+      sourceMember,
+      targetMember,
+      familyName
+    );
+  
+    // 根据路径类型调用不同的称谓判断
     let title;
-    if (pathType === 'in_law') {
-      // 🔧 姻亲称谓判断
-      title = this._determineInLawTitle(path, pathLength, generationGap, generationDelta, targetGender, {
-        sourceMember,
-        targetMember,
-        familyMembers,
-        fallbackSurname
-      });
-    } else if (pathType === 'maternal') {
+    if (normalizedPathType === 'in_law') {  // 🔧 修正2：使用normalizedPathType
+      title = this._determineInLawTitle(
+        path, 
+        pathLength, 
+        generationGap, 
+        generationDelta, 
+        targetGender, 
+        {
+          sourceMember,          
+          familyMembers,
+          fallbackSurname,  // 🔧 修正3：改为fallbackSurname而非familyName
+          pathType: normalizedPathType
+        }
+      );
+    } else if (normalizedPathType === 'maternal') {
       title = this._determineMaternalTitle(pathLength, generationGap, generationDelta, targetGender);
     } else {
       title = this._determineKinshipByPathLength(pathLength, generationGap, generationDelta, targetGender);
     }
-       
     
     // 根据称谓推导relationType
     const relationType = this._getRelationTypeFromTitle(title);
@@ -1447,7 +1548,7 @@ class FamilySystem {
       title,
       relationType,
       generationGap,
-      pathType,
+      pathType: normalizedPathType,
       generationDelta
     };
   }
@@ -1962,19 +2063,52 @@ class FamilySystem {
     const generationDiff = fromGen !== null && toGen !== null ? toGen - fromGen : null;
 
     const resolveAncestorTitle = gap => {
-      const cfg = this.kinshipTitles.ancestor_titles[Math.abs(gap)] || this.kinshipTitles.ancestor_titles[1];
-      if (cfg) return cfg[toGenderKey] || (toGender === '男' ? '父亲' : '母亲');
+      if (!this.kinshipTitles?.paternalTitles?.直系) {
+        return toGender === '男' ? '父亲' : '母亲';
+      }
+      
+      const absGap = Math.abs(gap);
+      const key = `pathLength_${absGap}_gap_${absGap}`;
+      const config = this.kinshipTitles.paternalTitles.直系[key];
+      
+      if (config) {
+        const genderKey = toGender === '男' ? 'male' : 'female';
+        return config[`${genderKey}_older`] || (toGender === '男' ? '父亲' : '母亲');
+      }
+      
       return toGender === '男' ? '父亲' : '母亲';
     };
+    
 
     const resolveDescendantTitle = gap => {
-      const cfg = this.kinshipTitles.descendant_titles[Math.abs(gap)] || this.kinshipTitles.descendant_titles[1];
-      if (cfg) return cfg[toGenderKey] || (toGender === '男' ? '儿子' : '女儿');
+      if (!this.kinshipTitles?.paternalTitles?.直系) {
+        return toGender === '男' ? '儿子' : '女儿';
+      }
+      
+      const absGap = Math.abs(gap);
+      const key = `pathLength_${absGap}_gap_${absGap}`;
+      const config = this.kinshipTitles.paternalTitles.直系[key];
+      
+      if (config) {
+        const genderKey = toGender === '男' ? 'male' : 'female';
+        return config[`${genderKey}_younger`] || (toGender === '男' ? '儿子' : '女儿');
+      }
+      
       return toGender === '男' ? '儿子' : '女儿';
     };
 
     const resolveSiblingTitle = () => {
-      if (!fromPerson || !toPerson) return toGender === '男' ? '兄弟' : '姐妹';
+      const genderKey = toGender === '男' ? 'male' : 'female';
+      
+      if (!this.kinshipTitles?.paternalTitles?.旁系) {
+        return toGender === '男' ? '兄弟' : '姐妹';
+      }
+      
+      if (!fromPerson || !toPerson) {
+        return toGender === '男' ? '兄弟' : '姐妹';
+      }
+      
+      // 判断长幼
       const ageDiff = (toPerson.age ?? 0) - (fromPerson.age ?? 0);
       let isOlder;
       if (Math.abs(ageDiff) >= 1) {
@@ -1988,14 +2122,32 @@ class FamilySystem {
       } else {
         isOlder = ageDiff > 0;
       }
-      const category = isOlder ? 'older' : 'younger';
-      const cfg = this.kinshipTitles.sibling_titles[category];
-      if (cfg) return cfg[toGenderKey] || (toGender === '男' ? '兄弟' : '姐妹');
-      return toGender === '男' ? '兄弟' : '姐妹';
+      
+      // 🆕 使用长幼区分
+      const ageCategory = isOlder ? 'older' : 'younger';
+      const baseTitle = toGender === '男' ? '兄弟' : '姐妹';
+      
+      if (this.kinshipTitles.长幼区分?.[baseTitle]) {
+        return this.kinshipTitles.长幼区分[baseTitle][ageCategory] || baseTitle;
+      }
+      
+      // 降级：返回基础称谓
+      const config = this.kinshipTitles.paternalTitles.旁系.pathLength_2_gap_0;
+      return config?.[genderKey] || baseTitle;
     };
 
     const resolveCousinTitle = () => {
-      if (!fromPerson || !toPerson) return toGender === '男' ? '堂兄弟' : '堂姐妹';
+      const genderKey = toGender === '男' ? 'male' : 'female';
+      
+      if (!this.kinshipTitles?.paternalTitles?.旁系) {
+        return toGender === '男' ? '堂兄弟' : '堂姐妹';
+      }
+      
+      if (!fromPerson || !toPerson) {
+        return toGender === '男' ? '堂兄弟' : '堂姐妹';
+      }
+      
+      // 判断长幼（同上）
       const ageDiff = (toPerson.age ?? 0) - (fromPerson.age ?? 0);
       let isOlder;
       if (Math.abs(ageDiff) >= 1) {
@@ -2009,10 +2161,18 @@ class FamilySystem {
       } else {
         isOlder = ageDiff > 0;
       }
-      const category = isOlder ? 'older' : 'younger';
-      const cfg = this.kinshipTitles.collateral_titles.cousin_titles[category];
-      if (cfg) return cfg[toGenderKey] || '堂亲';
-      return '堂亲';
+      
+      // 🆕 使用长幼区分
+      const ageCategory = isOlder ? 'older' : 'younger';
+      const baseTitle = toGender === '男' ? '堂兄弟' : '堂姐妹';
+      
+      if (this.kinshipTitles.长幼区分?.[baseTitle]) {
+        return this.kinshipTitles.长幼区分[baseTitle][ageCategory] || baseTitle;
+      }
+      
+      // 降级：返回基础称谓
+      const config = this.kinshipTitles.paternalTitles.旁系.pathLength_4_gap_0;
+      return config?.[genderKey] || baseTitle;
     };
 
     switch (bloodRelationType) {

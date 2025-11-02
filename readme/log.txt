@@ -545,3 +545,159 @@ character_names.csv - 需扩充
 单向/双向索引问题已理清：数据单向，索引双向
 配偶缺失问题根源是过滤逻辑，不是数据缺失
 数字后缀是重名处理的副作用，需从源头避免重名
+
+
+2025-10-31 AM 8:54
+**## 当前进度记录 - 辈分字命名系统调试阶段**
+
+---
+
+### ✅ 已完成的修改
+
+#### 1. **CSV结构重构**
+- ✅ 创建 `character_surname.csv`（字段：social_class, surname_type, surname）
+- ✅ 创建 `character_name.csv`（字段：social_class, gender, name）
+- ✅ 创建 `generation_name.json`（包含 commonGenerationNames 和 eliteGenerationNames）
+
+#### 2. **NameGenerator 完整重构**
+- ✅ 修改构造函数：添加 `surnameData`, `generationData`, `familyGenerationMap`, `usedCommonSequences`, `usedEliteSequences`
+- ✅ 修改 `loadConfigurations()`：并行加载三个配置文件
+- ✅ 新增 `processSurnameData()`：处理姓氏CSV
+- ✅ 修改 `processNameData()`：处理名字CSV（按 socialClass -> gender 组织）
+- ✅ 修改 `generateName()`：实现辈分字逻辑和胡族特殊处理
+- ✅ 新增 `_getGenerationChar()`：获取辈分字
+- ✅ 新增 `_assignGenerationSequence()`：为家族分配辈分序列
+- ✅ 新增 `_getNameFromPool()`：从名字池获取单字名
+- ✅ 修改 `_generateSurname()`：适配Map结构
+- ✅ 修改 `initializeFallbackData()`：使用Map结构
+
+#### 3. **DataTableManager 扩展**
+- ✅ 添加 `getCharacterSurnameConfig()` 方法
+- ✅ 添加 `getCharacterNameConfig()` 方法
+- ✅ 添加 `getGenerationNameConfig()` 方法
+
+#### 4. **清理旧API调用**
+- ✅ `FamilyNetworkService._generateFamilyName()`：改为调用 `nameGenerator.generateSurname()`
+- ✅ `FamilyNetworkService._generateSpouseFamilyName()`：同上，并添加配置自动加载
+- ✅ `UnifiedDataManager.createCharacter()`：删除 `nameConfig` 参数
+- ✅ `UnifiedDataManager.generateRandomName()`：改为调用 `nameGenerator.generateName()`
+- ✅ `GameEngine.loadExternalData()`：删除旧API，添加三个新配置加载
+
+---
+
+### ⚠️ 当前发现的问题（待修复）
+
+#### 问题1：不同generation共用同一个辈分字
+**现象：**
+```
+曾祖辈：李礼机（G1）
+祖父辈：李礼礼（G2）、李礼朗（G2）、李礼毅（G2）
+```
+所有世代都用了"礼"作为辈分字。
+
+**可能原因：**
+- `generation` 参数传值错误
+- `_getGenerationChar()` 的 index 计算有误
+- 辈分序列分配有问题
+
+**待诊断：**
+需要在 `_getGenerationChar()` 开头添加日志：
+```javascript
+console.log(`🔍 获取辈分字: 家族=${familyName}, 阶层=${socialClass}, 世代=${generation}`);
+```
+
+---
+
+#### 问题2：跨阶层错误借用名字
+**现象：**
+```
+刘菩萨奴 - 刘(非胡族姓) + 菩萨奴(胡族名)
+```
+
+**原因：**
+`_getNameFromPool()` 在找不到对应阶层名字时，会遍历其他阶层借用，错误地使用了胡族名字。
+
+**修复方案：**
+删除跨阶层借用逻辑，改为直接返回降级默认值：
+```javascript
+if (!namePool || namePool.length === 0) {
+  console.warn(`⚠️ 未找到${socialClass}/${gender}的名字池，使用默认名字`);
+  return genderKey === 'male' ? '明' : '华';
+}
+```
+
+---
+
+#### 问题3：辈分字与名字相同
+**现象：**
+```
+李礼礼 - 辈分字"礼" + 名字"礼"
+```
+
+**修复方案：**
+在 `generateName()` 中生成单字名后添加去重检查：
+```javascript
+let singleName = this._getNameFromPool(socialClass, gender);
+
+// 去重检查（最多尝试5次）
+let attempts = 0;
+while (singleName === generationChar && attempts < 5) {
+  console.warn(`⚠️ 辈分字与名字重复，重新生成`);
+  singleName = this._getNameFromPool(socialClass, gender);
+  attempts++;
+}
+
+// 强制修改
+if (singleName === generationChar) {
+  singleName = gender === '男' ? '之' : '华';
+}
+```
+
+---
+
+### 📝 下次对话继续的任务
+
+1. **诊断问题1**：添加日志查看 `generation` 传值是否正确
+2. **修复问题2**：修改 `_getNameFromPool()` 方法
+3. **修复问题3**：在 `generateName()` 中添加去重逻辑
+4. **测试验证**：确认所有问题修复后，检查：
+   - 同家族不同世代使用不同辈分字
+   - 同家族同世代使用相同辈分字
+   - 姓氏与名字阶层匹配
+   - 无重复字（辈分字≠名字）
+   - 胡族名字无辈分字
+
+---
+
+### 🔧 关键文件位置
+- `name_generator.js` - 核心逻辑
+- `unified_data_manager.js` - DataTableManager
+- `family_network_service.js` - 家族生成服务
+- `game_engine.js` - 数据加载
+- `data_tables/character_surname.csv`
+- `data_tables/character_name.csv`
+- `data_tables/generation_name.json`
+
+---
+
+### 💡 命名系统设计总结
+
+**命名格式：**
+- 门阀士族/寒门士人/豪强地主：姓 + 辈分字 + 名
+- 自耕农/佃农：姓 + 辈分字 + 名
+- 胡族：姓 + 名（无辈分字）
+
+**辈分字分配：**
+- 士族使用 `eliteGenerationNames`（15组高雅序列）
+- 平民使用 `commonGenerationNames`（8组朴实序列）
+- 每个家族分配一组序列，不重复使用
+
+**预期效果：**
+- 王国之、王家文、王兴德（王家第1/2/3代）
+- 李富牛、李贵福、李荣花（李家平民第1/2/3代）
+- 拓跋跋、慕容律（胡族无辈分字）
+
+---
+
+**重开对话时可以直接引用本记录继续调试。**
+
