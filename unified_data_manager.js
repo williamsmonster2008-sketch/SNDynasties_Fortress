@@ -484,10 +484,24 @@ class DataValidator {
       }
     }
 
-    // 检查数据类型
+    // 🔧 修复：检查数据类型 - 正确处理数组类型
     for (const [field, expectedType] of Object.entries(validator.types || {})) {
       if (data[field] !== undefined) {
-        const actualType = typeof data[field];
+        let actualType = typeof data[field];
+        
+        // 🔧 关键修复：正确检测数组类型
+        if (expectedType === 'array') {
+          if (!Array.isArray(data[field])) {
+            errors.push({
+              field,
+              type: 'type_mismatch',
+              message: `字段 ${field} 类型错误，期望 array，实际 ${actualType}`
+            });
+          }
+          continue; // 跳过常规类型检查
+        }
+        
+        // 常规类型检查
         if (actualType !== expectedType && expectedType !== 'object') {
           errors.push({
             field,

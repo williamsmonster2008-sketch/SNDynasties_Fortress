@@ -1,7 +1,7 @@
 {
   "$schema": "location_schema_v1",
-  "version": "1.0.0",
-  "lastModified": "2025-11-02",
+  "version": "1.0.1",
+  "lastModified": "2025-11-03",
   "description": "南北朝坞堡模拟器 - 地点蓝图配置表",
   
   "locations": [
@@ -11,20 +11,17 @@
       "displayName": "民居",
       "category": "residence",
       "description": "普通民居，可供家庭居住",
-      
       "capacity": {
         "maxOccupants": 6,
         "optimalOccupants": 4,
         "comfortLevel": 70
       },
-      
       "attributes": {
         "shelter": 80,
         "warmth": 60,
         "privacy": 50,
         "safety": 40
       },
-      
       "allowedActions": [
         "休息睡眠",
         "进食饮水",
@@ -34,13 +31,20 @@
         "照顾婴孺",
         "赡养老人"
       ],
-      
       "timeRestrictions": {
-        "夜晚": ["休息睡眠", "男欢女爱"],
-        "清晨": ["盥洗沐浴", "进食饮水"],
-        "白昼": ["照顾婴孺", "赡养老人"]
+        "夜晚": [
+          "休息睡眠",
+          "男欢女爱"
+        ],
+        "清晨": [
+          "盥洗沐浴",
+          "进食饮水"
+        ],
+        "白昼": [
+          "照顾婴孺",
+          "赡养老人"
+        ]
       },
-      
       "environmentalEffects": {
         "雨天": {
           "shelter": 1.2,
@@ -50,44 +54,51 @@
           "warmth": 0.7
         }
       },
-      
-      "connections": ["庭院", "街道"],
+      "connections": [
+        {
+          "to": "well_plaza_01",
+          "distance": 1
+        },
+        {
+          "to": "farmland_01",
+          "distance": 2
+        }
+      ],
       "movementCost": 1,
       "isPublic": false,
       "requiresOwnership": true
     },
-    
     {
       "id": "farmland_01",
       "name": "农田",
       "displayName": "农田",
       "category": "production",
       "description": "可耕种的农田，适合农业生产",
-      
       "capacity": {
         "maxOccupants": 10,
         "optimalOccupants": 5,
         "comfortLevel": 30
       },
-      
       "attributes": {
         "shelter": 0,
         "fertility": 70,
         "workEfficiency": 80,
         "safety": 60
       },
-      
       "allowedActions": [
         "垦荒耕钟",
         "休息睡眠",
         "进食饮水"
       ],
-      
       "timeRestrictions": {
-        "白昼": ["垦荒耕钟"],
-        "午间": ["休息睡眠", "进食饮水"]
+        "白昼": [
+          "垦荒耕钟"
+        ],
+        "午间": [
+          "休息睡眠",
+          "进食饮水"
+        ]
       },
-      
       "seasonalEffects": {
         "春季": {
           "fertility": 1.2,
@@ -105,33 +116,37 @@
           "workEfficiency": 0.5
         }
       },
-      
-      "connections": ["村道", "水渠"],
+      "connections": [
+        {
+          "to": "dwelling_01",
+          "distance": 2
+        },
+        {
+          "to": "workshop_01",
+          "distance": 1
+        }
+      ],
       "movementCost": 2,
       "isPublic": true,
       "requiresOwnership": false
     },
-    
     {
       "id": "well_plaza_01",
       "name": "井台",
       "displayName": "井台",
       "category": "social",
       "description": "村中心的公共井台，是社交聚集地",
-      
       "capacity": {
         "maxOccupants": 15,
         "optimalOccupants": 8,
         "comfortLevel": 50
       },
-      
       "attributes": {
         "shelter": 20,
         "socialActivity": 90,
         "waterAccess": 100,
         "safety": 70
       },
-      
       "allowedActions": [
         "进食饮水",
         "盥洗沐浴",
@@ -139,41 +154,55 @@
         "饮酒聚宴",
         "踏青出游"
       ],
-      
       "timeRestrictions": {
-        "清晨": ["进食饮水", "盥洗沐浴"],
-        "白昼": ["觅求好友"],
-        "傍晚": ["饮酒聚宴", "踏青出游"]
+        "清晨": [
+          "进食饮水",
+          "盥洗沐浴"
+        ],
+        "白昼": [
+          "觅求好友"
+        ],
+        "傍晚": [
+          "饮酒聚宴",
+          "踏青出游"
+        ]
       },
-      
       "socialMultiplier": 1.5,
-      
-      "connections": ["街道", "市集", "民居"],
+      "connections": [
+        {
+          "to": "dwelling_01",
+          "distance": 1
+        },
+        {
+          "to": "workshop_01",
+          "distance": 2
+        },
+        {
+          "to": "temple_01",
+          "distance": 3
+        }
+      ],
       "movementCost": 1,
       "isPublic": true,
       "requiresOwnership": false
     },
-    
     {
       "id": "workshop_01",
       "name": "作坊",
       "displayName": "手工作坊",
       "category": "production",
       "description": "手工业生产场所",
-      
       "capacity": {
         "maxOccupants": 8,
         "optimalOccupants": 4,
         "comfortLevel": 40
       },
-      
       "attributes": {
         "shelter": 70,
         "workEfficiency": 85,
         "toolQuality": 80,
         "safety": 50
       },
-      
       "allowedActions": [
         "手工雕琢",
         "刨锯木作",
@@ -182,43 +211,52 @@
         "工艺革新",
         "休息睡眠"
       ],
-      
       "timeRestrictions": {
-        "白昼": ["手工雕琢", "刨锯木作", "纺织缝纫", "熔炼铸锻"],
-        "午间": ["休息睡眠"]
+        "白昼": [
+          "手工雕琢",
+          "刨锯木作",
+          "纺织缝纫",
+          "熔炼铸锻"
+        ],
+        "午间": [
+          "休息睡眠"
+        ]
       },
-      
       "skillRequirements": {
         "手工雕琢": 20,
         "工艺革新": 40
       },
-      
-      "connections": ["街道", "仓库"],
+      "connections": [
+        {
+          "to": "well_plaza_01",
+          "distance": 2
+        },
+        {
+          "to": "farmland_01",
+          "distance": 1
+        }
+      ],
       "movementCost": 2,
       "isPublic": false,
       "requiresOwnership": true
     },
-    
     {
       "id": "temple_01",
       "name": "寺庙",
       "displayName": "寺庙",
       "category": "religious",
       "description": "宗教活动场所，可祈福礼拜",
-      
       "capacity": {
         "maxOccupants": 20,
         "optimalOccupants": 10,
         "comfortLevel": 60
       },
-      
       "attributes": {
         "shelter": 90,
         "spirituality": 95,
         "peacefulness": 85,
         "safety": 80
       },
-      
       "allowedActions": [
         "祝祷祭祀",
         "求神拜佛",
@@ -226,26 +264,38 @@
         "穷经悟道",
         "修身出家"
       ],
-      
       "timeRestrictions": {
-        "清晨": ["祝祷祭祀"],
-        "白昼": ["求神拜佛", "占卜起卦"],
-        "傍晚": ["穷经悟道"]
+        "清晨": [
+          "祝祷祭祀"
+        ],
+        "白昼": [
+          "求神拜佛",
+          "占卜起卦"
+        ],
+        "傍晚": [
+          "穷经悟道"
+        ]
       },
-      
       "emotionalEffects": {
         "anxiety": -20,
         "sadness": -15,
         "peacefulness": 25
       },
-      
-      "connections": ["广场", "街道"],
+      "connections": [
+        {
+          "to": "well_plaza_01",
+          "distance": 3
+        },
+        {
+          "to": "dwelling_01",
+          "distance": 4
+        }
+      ],
       "movementCost": 3,
       "isPublic": true,
       "requiresOwnership": false
     }
   ],
-  
   "blueprintCategories": {
     "residence": {
       "name": "居住类",

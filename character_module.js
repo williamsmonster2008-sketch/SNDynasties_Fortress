@@ -1828,6 +1828,84 @@ class Character {
   }
 
   /**
+   * 获取技能等级
+   * @param {string} skillName - 技能名称
+   * @returns {number} 技能等级 (0-100)
+   */
+  getSkillLevel(skillName) {
+    if (!this.skillSystem || !this.skillSystem.skills) {
+      return 0;
+    }
+    
+    const skill = this.skillSystem.skills.get(skillName);
+    return skill ? (skill.level || 0) : 0;
+  }
+
+  /**
+   * 检查是否拥有技能
+   * @param {string} skillName - 技能名称
+   * @returns {boolean}
+   */
+  hasSkill(skillName) {
+    return this.skillSystem?.skills?.has(skillName) || false;
+  }
+
+  /**
+   * 获取所有技能列表
+   * @returns {Array<{name: string, level: number}>}
+   */
+  getAllSkills() {
+    if (!this.skillSystem || !this.skillSystem.skills) {
+      return [];
+    }
+    
+    const skills = [];
+    for (const [name, skill] of this.skillSystem.skills) {
+      skills.push({
+        name: name,
+        level: skill.level || 0,
+        experience: skill.experience || 0
+      });
+    }
+    
+    return skills;
+  }
+
+  /**
+   * 执行行为的便捷方法
+   * @param {string} behaviorName - 行为名称
+   * @param {Object} context - 上下文
+   * @returns {Object} 执行结果
+   */
+  performBehavior(behaviorName, context = {}) {
+    if (!this.gameEngine || !this.gameEngine.behaviorSystem) {
+      console.warn('⚠️ BehaviorSystem 不可用');
+      return { success: false, reason: 'BehaviorSystem 不可用' };
+    }
+    
+    return this.gameEngine.behaviorSystem.startBehavior(behaviorName, this, {
+      ...context,
+      character: this,
+      location: this.currentLocation
+    });
+  }
+
+  /**
+   * 与其他角色互动的便捷方法
+   * @param {Character} target - 目标角色
+   * @param {string} interactionId - 互动ID
+   * @returns {Object} 互动结果
+   */
+  interactWith(target, interactionId) {
+    if (!this.gameEngine || !this.gameEngine.gameState || !this.gameEngine.gameState.interactionSystem) {
+      console.warn('⚠️ InteractionSystem 不可用');
+      return { success: false, reason: 'InteractionSystem 不可用' };
+    }
+    
+    return this.gameEngine.gameState.interactionSystem.executeInteraction(this, target, interactionId);
+  }
+
+  /**
    * 输出角色报告
    */
   printReport() {

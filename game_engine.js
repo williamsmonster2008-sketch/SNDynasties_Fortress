@@ -21,6 +21,8 @@ import { ActionProcessor } from './action_processor.js';
 import { BehaviorSystem } from './behavior_system.js';
 import { DecisionEngine } from './decision_engine.js';
 import { MemorySystem } from './memory_system.js';
+import { LocationManager } from './location_manager.js';
+import { InteractionSystem } from './interaction_system.js';
 
 // 导入新架构模块
 import EventBus from './event_bus.js';
@@ -73,6 +75,18 @@ export class GameEngine {
       // 人口状态
       population: 0,
       
+      // 地点系统
+      locationSystem: new LocationSystem(this, {
+        maxLocations: 50,
+        defaultCapacity: 20
+      }),
+    
+      // ✨ 新增：地点管理器
+      locationManager: new LocationManager(this),
+
+      // ✨ 互动系统 (新增)
+      interactionSystem: new InteractionSystem(this),
+     
       // 统计数据对象
       statistics: {
         population: 0,
@@ -214,6 +228,27 @@ export class GameEngine {
       this.gameState.isInitialized = true;
       
       console.log('✅ 游戏引擎完整初始化完成');
+
+      // ✨ 新增：初始化地点管理器
+      console.log('🗺️ 初始化地点管理器...');      
+
+      if (!this.gameState?.locationManager) {
+        throw new Error('locationManager 未初始化');
+      }
+
+      const locationInitResult = await this.gameState.locationManager.initialize();
+      if (!locationInitResult) {
+        console.warn('⚠️ 地点管理器初始化失败，使用默认地点');
+      }
+      console.log('✅ 地点管理器初始化完成');
+
+      // ✨ 初始化互动系统 (新增)
+      console.log('💬 初始化互动系统...');
+      const interactionInitResult = await this.gameState.interactionSystem.initialize();
+      if (!interactionInitResult) {
+        console.warn('⚠️ 互动系统初始化失败');
+      }
+      
       
       // 通知初始化完成
       this.eventBus.emit('engineInitialized', {
@@ -758,6 +793,38 @@ export class GameEngine {
     }
   }
   
+  /**
+   * 触发互动的便捷方法
+   * @param {Character} initiator - 发起者
+   * @param {Character} target - 目标
+   * @param {string} interactionId - 互动ID
+   * @returns {Object} 互动结果
+   */
+  triggerInteraction(initiator, target, interactionId) {
+    if (!this.gameState.interactionSystem) {
+      console.error('❌ InteractionSystem 未初始化');
+      return { success: false, reason: 'InteractionSystem 未初始化' };
+    }
+    
+    return this.gameState.interactionSystem.executeInteraction(initiator, target, interactionId);
+  }
+
+  /**
+   * 检查是否可以互动
+   * @param {Character} initiator - 发起者
+   * @param {Character} target - 目标
+   * @param {string} interactionId - 互动ID
+   * @returns {Object} 检查结果
+   */
+  canInteract(initiator, target, interactionId) {
+    if (!this.gameState.interactionSystem) {
+      return { canExecute: false, reason: 'InteractionSystem 未初始化' };
+    }
+    
+    return this.gameState.interactionSystem.canInteract(initiator, target, interactionId);
+  }
+
+
   processCharacterDecision(character) {
     if (this.decisionEngine && character.id) {
       try {
