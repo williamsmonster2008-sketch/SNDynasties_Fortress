@@ -774,3 +774,130 @@ if (singleName === generationChar) {
 🚀 下一步行动
 立即任务：完成最小Demo
 需要找到你项目中触发行为和互动的API。
+
+
+---
+
+## 🎉 M1 里程碑达成 - 最小Demo完成（2025-11-03-22:47）
+
+### ✅ Phase 1 完成度更新: 95%
+
+剩余任务:
+- ✅ 行为触发测试 - 已完成
+- ✅ 互动触发测试 - 已完成
+- ⏳ 角色状态域扩展（移至Phase 2）
+
+### 新增已完成功能
+
+#### 7. InteractionSystem - 互动系统
+- ✅ 创建完整的 interaction_system.js
+- ✅ 从 interaction_patterns.json 加载4个互动模式
+- ✅ 实现参与者要求检查（需求/状态/技能/德行）
+- ✅ 实现关系要求检查（熟悉度/相性）
+- ✅ 实现互动执行和效果应用
+- ✅ 实现互动历史记录和统计
+- ✅ 集成到 GameEngine.gameState.interactionSystem
+
+#### 8. Character 方法补充
+- ✅ 添加 getSkillLevel(skillName) - 获取技能等级
+- ✅ 添加 hasSkill(skillName) - 检查技能存在
+- ✅ 添加 getAllSkills() - 获取所有技能
+- ✅ 添加 performBehavior() - 执行行为便捷方法
+- ✅ 添加 interactWith() - 发起互动便捷方法
+
+#### 9. PhysicalState 方法补充
+- ✅ 添加 adjustState(stateName, value) - 调整状态值
+
+#### 10. M1 最小Demo测试
+- ✅ 角色移动: 谢明陵、崔志姬 → 井台
+- ✅ 问候互动: 成功 (寒暄问候)
+- ✅ 进食行为: hunger: 7.2 → 47.2 (+40)
+
+---
+
+### 📊 M1 测试结果
+
+**互动测试:**
+```
+💬 谢明陵 对 崔志姬 发起互动: 寒暄问候
+✅ success
+效果: social +10, happiness +5
+关系: familiarity +2, compatibility +1
+```
+
+**行为测试:**
+```
+🍽️ 谢明陵 进食饮水
+✅ success
+hunger: 7.2 → 47.2 (+40)
+```
+
+---
+
+### ⚠️ 发现的问题（待永久修复）
+
+#### 问题1: Character 是普通对象而非类实例
+**临时修复**: 运行时补丁 patchAllCharacters()
+**永久方案**: 修改角色创建流程添加必需方法
+**优先级**: 🔴 高
+
+#### 问题2: PhysicalState 缺少 adjustState
+**临时修复**: 运行时补丁 patchPhysicalState()
+**永久方案**: PhysicalState 初始化时添加方法
+**优先级**: 🔴 高
+
+#### 问题3: 角色缺少 gameEngine 引用
+**临时修复**: 运行时注入引用
+**永久方案**: 创建时注入 gameEngine
+**优先级**: 🔴 高
+
+#### 问题4: 地点名称ID不匹配
+**临时修复**: 修改 canInteract() 使用地点名称
+**永久方案**: 统一 validLocations 为英文ID
+**优先级**: 🟡 中
+
+#### 问题5: FamilySystem.getRelationship 不存在
+**临时修复**: 返回默认关系
+**永久方案**: 实现或适配此方法
+**优先级**: 🟡 中
+
+---
+
+### 🎯 下一步: 永久修复（预计1小时）
+
+### Phase 1.5 · 永久修复与稳固（~1周）
+**核心目标**: 将M1测试中发现的临时补丁转化为永久解决方案
+
+**修复任务**
+1. **Character 方法永久添加** (优先级: 🔴 高)
+   - 定位角色创建流程 (unified_data_manager.js 或 family_network_service.js)
+   - 在创建时添加: getSkillLevel, hasSkill, getAllSkills, performBehavior, interactWith
+   - 确保所有新建角色自动拥有这些方法
+
+2. **PhysicalState 初始化修复** (优先级: 🔴 高)
+   - 找到 PhysicalState 创建位置
+   - 添加 adjustState, setState 等状态操作方法
+   - 考虑创建 PhysicalState 类并实例化
+
+3. **gameEngine 引用注入** (优先级: 🔴 高)
+   - 在 createCharacter() 或角色加载时注入 gameEngine 引用
+   - 确保 performBehavior 和 interactWith 可用
+
+4. **地点配置统一** (优先级: 🟡 中)
+   - 将 interaction_patterns.json 的 validLocations 改为英文ID
+   - 或创建地点 ID↔名称 映射表
+   - 统一地点引用规范
+
+5. **FamilySystem 接口适配** (优先级: 🟡 中)
+   - 实现或适配 getRelationship() 方法
+   - 或修改 InteractionSystem 的关系获取逻辑
+
+**验收标准**
+- ✅ 刷新页面后无需运行时补丁即可触发互动和行为
+- ✅ 新创建的角色自动拥有所有必需方法
+- ✅ 所有核心测试用例通过
+- ✅ 代码审查通过，无临时补丁残留
+
+---
+
+下次对话: 从"永久修复Character和PhysicalState"继续。

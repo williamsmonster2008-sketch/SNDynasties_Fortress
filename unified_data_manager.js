@@ -11,7 +11,7 @@
 
 import { Utils } from './utils_module.js';
 import VirtueSystem from './virtue_system.js';
-import Character from './character_module.js';
+import { Character, PhysicalState, EmotionalState } from './character_module.js';
 
 // 数据管理错误类
 class DataManagerError extends Error {
@@ -672,6 +672,37 @@ export class UnifiedDataManager {
     // 1. 创建基础角色对象
     const character = new Character(config);  
 
+    // 🔧 2. 创建PhysicalState和EmotionalState
+    if (!character.physicalState) {
+      character.physicalState = new PhysicalState({
+        hunger: config.hunger || 50,
+        thirst: config.thirst || 50,
+        energy: config.energy || 70,
+        health: config.health || 80,
+        stamina: config.stamina || 70,
+        cleanliness: config.cleanliness || 60,
+        temperature: config.temperature || 50,
+        sleep: config.sleep || 70
+      });
+    }
+    
+    // 🔧 创建EmotionalState (完整8个情绪)
+    if (!character.emotionalState) {
+      character.emotionalState = new EmotionalState({
+        happiness: config.happiness || 50,
+        sadness: config.sadness || 20,
+        anger: config.anger || 20,
+        fear: config.fear || 20,
+        anxiety: config.anxiety || 30,
+        shame: config.shame || 20,
+        boredom: config.boredom || 30,
+        loneliness: config.loneliness || 30
+      });
+    }
+
+    // 🔧 注入 gameEngine 引用
+    character.gameEngine = this.gameEngine;
+
     // 确保characterId正确传递
     if (config.characterId && !character.characterId) {
       character.characterId = config.characterId;
@@ -717,8 +748,52 @@ export class UnifiedDataManager {
     this.ensureVirtueSystemMethods(character.virtueSystem);
     
     // 4. 创建其他系统
-    // 这里可以继续添加技能系统、物理状态等
-    
+    if (!character.getSkillLevel) {
+      character.getSkillLevel = function(skillName) {
+        return this.skillSystem?.getSkillLevel?.(skillName) || 0;
+      };
+    }
+
+    if (!character.hasSkill) {
+      character.hasSkill = function(skillName) {
+        return this.skillSystem?.hasSkill?.(skillName) || false;
+      };
+    }
+
+    if (!character.getAllSkills) {
+      character.getAllSkills = function() {
+        return this.skillSystem?.getAllSkills?.() || [];
+      };
+    }
+
+    if (!character.performBehavior) {
+      character.performBehavior = function(behaviorName, context = {}) {
+        if (!this.gameEngine) {
+          console.error('❌ 角色缺少 gameEngine 引用');
+          return { success: false, reason: '系统错误' };
+        }
+        return this.gameEngine.gameState.behaviorSystem.executeBehavior(
+          behaviorName,
+          this,
+          context
+        );
+      };
+    }
+
+    if (!character.interactWith) {
+      character.interactWith = function(target, interactionId) {
+        if (!this.gameEngine) {
+          console.error('❌ 角色缺少 gameEngine 引用');
+          return { success: false, reason: '系统错误' };
+        }
+        return this.gameEngine.gameState.interactionSystem.executeInteraction(
+          interactionId,
+          this,
+          target
+        );
+      };
+    }
+
     // 5. 最终验证
     const validationResult = this.validateCompleteCharacter(character);
     if (!validationResult.isValid) {

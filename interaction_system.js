@@ -9,6 +9,10 @@
 export class InteractionSystem {
   constructor(gameEngine) {
     this.gameEngine = gameEngine;
+
+    // 🔧 创建地点名称→ID映射表
+    this.locationNameToIdMap = new Map();
+    this._buildLocationNameMap();
     
     // 互动定义 (从 interaction_patterns.json 加载)
     this.interactions = new Map();
@@ -37,7 +41,32 @@ export class InteractionSystem {
     
     console.log('💬 InteractionSystem 初始化');
   }
-  
+
+  /**
+   * 构建地点名称到ID的映射
+   */
+  async _buildLocationNameMap() {
+    try {
+      const locationsData = await this.gameEngine.dataManager.dataTableManager.getLocations();
+      if (locationsData && locationsData.locations) {
+        locationsData.locations.forEach(loc => {
+          this.locationNameToIdMap.set(loc.name, loc.id);
+        });
+        console.log('✅ 地点名称映射表创建完成:', this.locationNameToIdMap.size, '个地点');
+      }
+    } catch (error) {
+      console.error('❌ 创建地点名称映射表失败:', error);
+    }
+  }
+
+  /**
+   * 将地点名称转换为ID
+   */
+  _convertLocationNameToId(locationName) {
+    return this.locationNameToIdMap.get(locationName) || locationName;
+  }
+
+
   /**
    * 初始化 - 加载互动配置
    */
@@ -181,7 +210,13 @@ export class InteractionSystem {
     
     // 检查地点
     if (interaction.validLocations.length > 0) {
-      if (!interaction.validLocations.includes(initiator.currentLocation)) {
+      // 🔧 转换地点名称为ID
+      const validLocationIds = interaction.validLocations.map(name => 
+        this._convertLocationNameToId(name)
+      );
+      const initiatorLocationId = this._convertLocationNameToId(initiator.currentLocation);
+      
+      if (!validLocationIds.includes(initiatorLocationId)) {
         return { canExecute: false, reason: '地点不符合' };
       }
     }
@@ -292,14 +327,29 @@ export class InteractionSystem {
    * @private
    */
   _getRelationship(char1, char2) {
-    // 尝试从角色的 relationships 获取
+    // 🔧 优先从角色的 relationships 获取
     if (char1.relationships && char1.relationships.has) {
-      return char1.relationships.get(char2.id) || null;
+      const rel = char1.relationships.get(char2.id);
+      if (rel) return rel;
     }
     
-    // 尝试从 FamilySystem 获取
-    if (this.gameEngine.familySystem) {
-      return this.gameEngine.familySystem.getRelationship(char1.id, char2.id) || null;
+    // 🔧 尝试从 FamilySystem 获取血缘关系
+    if (this.gameEngine.familySystem && char1.familyName && char2.familyName) {
+      const kinship = this.gameEngine.familySystem.getKinship(
+        char1.familyName,
+        char1.id,
+        char2.id
+      );
+      
+      if (kinship) {
+        // 返回兼容的关系数据结构
+        return {
+          familiarity: 50,  // 血亲默认熟悉度
+          compatibility: 30, // 血亲默认相性
+          cooperation: 0,
+          bloodRelation: kinship
+        };
+      }
     }
     
     return null;
@@ -447,26 +497,57 @@ export class InteractionSystem {
    * @private
    */
   _applyRelationshipEffects(char1, char2, effects) {
+    // 🔧 确保角色有 relationships Map
+    if (!char1.relationships) {
+      char1.relationships = new Map();
+    }
+    
     // 获取或创建关系
-    let relationship = this._getRelationship(char1, char2);
+    let relationship = char1.relationships.get(char2.id);
     
     if (!relationship) {
+      // 🔧 检查是否有血缘关系作为基础
+      const kinship = this.gameEngine.familySystem?.getKinship?.(
+        char1.familyName,
+        char1.id,
+        char2.id
+      );
+      
       relationship = {
-        familiarity: 0,
-        compatibility: 0,
-        cooperation: 0
+        familiarity: kinship ? 50 : 0,
+        compatibility: kinship ? 30 : 0,
+        cooperation: 0,
+        bloodRelation: kinship || null
       };
       
-      // 如果角色有 relationships Map，保存到那里
-      if (char1.relationships && char1.relationships.set) {
-        char1.relationships.set(char2.id, relationship);
-      }
+      char1.relationships.set(char2.id, relationship);
     }
     
     // 应用变化
     for (const [aspect, change] of Object.entries(effects)) {
       if (relationship[aspect] !== undefined) {
         relationship[aspect] += change;
+        // 限制范围 0-100
+        relationship[aspect] = Math.max(0, Math.min(100, relationship[aspect]));
+      }
+    }
+    
+    // 🔧 双向更新(char2对char1的关系)
+    if (!char2.relationships) {
+      char2.relationships = new Map();
+    }
+    
+    let reverseRelationship = char2.relationships.get(char1.id);
+    if (!reverseRelationship) {
+      reverseRelationship = { ...relationship };
+      char2.relationships.set(char1.id, reverseRelationship);
+    } else {
+      // 同步更新
+      for (const [aspect, change] of Object.entries(effects)) {
+        if (reverseRelationship[aspect] !== undefined) {
+          reverseRelationship[aspect] += change;
+          reverseRelationship[aspect] = Math.max(0, Math.min(100, reverseRelationship[aspect]));
+        }
       }
     }
   }
