@@ -217,15 +217,31 @@ export class GameEngine {
         maxSize: balanceConfig.refugee_population.population_size.max_size
       });
 
+      // 🔍 创建人口后检查
+      let char = this.dataManager.dataStore.values().next().value;
+      console.log('🔍 步骤7-创建人口后:', char.name, typeof char.getSkillLevel === 'function');
+
       // 8. 更新FamilySystem成员数据(补充name)
       this._updateFamilyMembersData();
 
+      // 🔍 更新成员数据后检查
+      char = this.dataManager.dataStore.values().next().value;
+      console.log('🔍 步骤8-更新成员数据后:', char.name, typeof char.getSkillLevel === 'function');
+
       // 9. 映射血缘关系到角色对象
       this._mapBloodRelationsToCharacters();
+
+      // 🔍 映射血缘关系后检查
+      char = this.dataManager.dataStore.values().next().value;
+      console.log('🔍 步骤9-映射血缘关系后:', char.name, typeof char.getSkillLevel === 'function');
       
       this.initializationProgress = 100;
       this.isInitialized = true;
       this.gameState.isInitialized = true;
+
+      // 🔍 initialize完成时检查
+      char = this.dataManager.dataStore.values().next().value;
+      console.log('🔍 initialize完成时:', char.name, typeof char.getSkillLevel === 'function');
       
       console.log('✅ 游戏引擎完整初始化完成');
 
@@ -398,7 +414,31 @@ export class GameEngine {
    * 获取所有角色
    */
   getAllCharacters() {
-    return Array.from(this.characters.values());
+    const characters = [];
+    
+    for (const [characterId, character] of this.dataStore) {      
+
+      // 🔍 检查dataStore中的原始对象
+      console.log('🔍 dataStore中的角色:', character.name, {
+        hasMethod: typeof character.getSkillLevel === 'function'
+      });
+      
+      try {
+        const validCharacter = this.getCharacter(characterId);
+        
+        // 🔍 检查getCharacter返回的对象
+        console.log('🔍 getCharacter返回:', validCharacter.name, {
+          hasMethod: typeof validCharacter.getSkillLevel === 'function',
+          isSame: validCharacter === character
+        });
+        
+        characters.push(validCharacter);
+      } catch (error) {
+        console.error(`跳过损坏的角色数据: ${characterId}`, error);
+      }
+    }
+    console.log('🚨🚨🚨 getAllCharacters 返回:', characters.length, '个角色');
+    return characters;
   }
 
   /**
@@ -428,18 +468,27 @@ export class GameEngine {
   // =============== 兼容性维护 ===============
   
   /**
-   * 同步角色Map - 保持向后兼容
+   * 同步角色Map - 增量更新,保留方法
    */
   syncCharactersMap() {
-    // 确保 this.characters 与数据管理器同步
-    this.characters.clear();
+    const allCharacters = this.dataManager.getAllCharacters();    
     
-    const allCharacters = this.dataManager.getAllCharacters();
+    // 🔧 关键改动: 不清空,只更新引用
     for (const character of allCharacters) {
-      this.characters.set(character.id, character);
+      const existing = this.characters.get(character.id);
+      
+      // 如果是同一个对象引用,跳过
+      if (existing === character) continue;
+      
+      // 🔧 如果是不同引用,但现有的有方法,保留现有的
+      if (existing && typeof existing.getSkillLevel === 'function') {
+        // 更新数据但保留方法
+        Object.assign(existing, character);
+      } else {
+        // 新角色或旧角色没方法,直接设置
+        this.characters.set(character.id, character);
+      }
     }
-    
-    //console.log(`🔄 角色Map同步完成: ${this.characters.size} 个角色`);
   }
   
   updatePopulationStats() {

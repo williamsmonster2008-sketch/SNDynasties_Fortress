@@ -25,6 +25,15 @@ export function addEventSupportToCharacter(character, eventBus) {
   if (character._eventSupported) {
     return;
   }
+
+  // 🔧 保存我们添加的方法
+  const ourMethods = {
+    getSkillLevel: character.getSkillLevel,
+    hasSkill: character.hasSkill,
+    getAllSkills: character.getAllSkills,
+    performBehavior: character.performBehavior,
+    interactWith: character.interactWith
+  };
   
   character._eventBus = eventBus;
   character._eventSupported = true;
@@ -32,6 +41,9 @@ export function addEventSupportToCharacter(character, eventBus) {
   
   // 包装现有方法，添加事件发射
   wrapCharacterMethods(character);
+
+  // 🔧 恢复我们的方法
+  Object.assign(character, ourMethods);
   
   console.log(`📡 角色 ${character.name} 已添加事件支持`);
 }

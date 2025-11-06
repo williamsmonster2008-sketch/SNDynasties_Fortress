@@ -418,13 +418,7 @@ export class FamilyNetworkService {
   
     for (const unitPlan of familyUnitPlans) {
       // 统一使用完整5代家族生成
-      const detailedUnit = await this._buildComplete5GenerationFamily(unitPlan);
-      console.log('详细单元构建结果:', {
-        unitId: detailedUnit.unitId,
-        hasCharacters: !!this._getUnitCharacters(detailedUnit),
-        hasFamilyStructure: !!detailedUnit.familyStructure,
-        marriagesCount: detailedUnit.familyStructure?.marriages?.length
-      });
+      const detailedUnit = await this._buildComplete5GenerationFamily(unitPlan);      
       detailedUnits.push(detailedUnit);
     }
     //console.log('_buildDetailedFamilyUnits最终返回:', detailedUnits.length, '个家族单元');
@@ -510,15 +504,7 @@ export class FamilyNetworkService {
     for (const [memberId, memberData] of members) {
       // 🔧 修复：外来配偶和母亲应该使用自己的originalFamily，而不是家族姓氏
       const isNativeMember = memberData?.hasOwnProperty('isNative') ? memberData.isNative : true;
-
-      // 🔧 调试：检查外来成员的originalFamily
-      if (!isNativeMember) {
-        console.log(`🔍 外来成员 ${memberData.characterId}:`, {
-          originalFamily: memberData.originalFamily,
-          currentFamily: memberData.currentFamily,
-          gender: memberData.gender
-        });
-      }
+     
 
       const character = {
         characterId: memberData.characterId, // 使用来自members Map的ID
@@ -1326,13 +1312,7 @@ export class FamilyNetworkService {
         // 第一个孩子
         const childAge = motherAge - currentBirthAge;
         const finalChildAge = Math.max(childAge, 1);
-
-        console.log(`🔍 第${i+1}个孩子:`, {
-          母亲生育年龄: currentBirthAge,
-          计算出的孩子年龄: childAge,
-          最终孩子年龄: finalChildAge,
-          是否异常: childAge < 1 || currentBirthAge < earliestBirth || currentBirthAge > latestBirth
-        });
+       
 
         children.push(finalChildAge);
       } else {
@@ -1348,15 +1328,7 @@ export class FamilyNetworkService {
 
         const childAge = motherAge - currentBirthAge;
         const finalChildAge = Math.max(childAge, 1);
-
-        console.log(`🔍 第${i+1}个孩子:`, {
-          生育间隔: nextGap,
-          母亲生育年龄: currentBirthAge,
-          计算出的孩子年龄: childAge,
-          最终孩子年龄: finalChildAge,
-          是否超出生育窗口: currentBirthAge > latestBirth,
-          是否异常: childAge < 1 || currentBirthAge < earliestBirth
-        });
+  
 
         children.push(finalChildAge);
       }
@@ -1375,15 +1347,7 @@ export class FamilyNetworkService {
     const maxAge = earliestBirth + Math.floor(ageRange * max_factor);
 
     const birthAge = Utils.Math.randomInt(minAge, maxAge);
-
-    // 🔍 详细调试：追踪生育年龄计算
-    console.log(`🔍 _getWeightedBirthAge 计算:`, {
-      输入: { earliestBirth, latestBirth, birthOrder, totalChildren },
-      配置: { orderKey, min_factor, max_factor },
-      计算: { ageRange, minAge, maxAge },
-      结果: birthAge,
-      是否异常: birthAge < earliestBirth || birthAge > latestBirth
-    });
+   
 
     return birthAge;
   }
@@ -1397,16 +1361,7 @@ export class FamilyNetworkService {
     const minGap = Math.max(1, Math.floor(baseGap * min_factor));
     const maxGap = Math.max(1, Math.floor(baseGap * max_factor));
 
-    const gap = Utils.Math.randomInt(minGap, maxGap);
-
-    // 🔍 详细调试：追踪生育间隔计算
-    console.log(`🔍 _getWeightedBirthGap 计算:`, {
-      输入: { birthOrder, remainingTime, remainingChildren },
-      配置: { orderKey, min_factor, max_factor },
-      计算: { baseGap, minGap, maxGap },
-      结果: gap,
-      是否异常: gap < 0 || gap > remainingTime
-    });
+    const gap = Utils.Math.randomInt(minGap, maxGap);   
 
     return gap;
   }

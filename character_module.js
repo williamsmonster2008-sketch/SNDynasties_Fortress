@@ -1925,8 +1925,7 @@ class Character {
   }
   createSubSystems() {
     this.virtueSystem = new VirtueSystem(this.id);
-    this.skillSystem = new SkillSystem(this.id);
-    console.log(`${this.name} 的子系统已创建`);
+    this.skillSystem = new SkillSystem(this.id);    
   }
   
 }

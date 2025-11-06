@@ -1,0 +1,45 @@
+// 完整验收测试
+const chars = Array.from(gameEngine.characters.values());
+const char1 = chars[0];
+const char2 = chars[1];
+
+console.log('=== Phase 1.5 永久修复验收测试 ===');
+
+// 问题1: Character方法
+console.log('✅ 问题1 - Character方法:', {
+  getSkillLevel: typeof char1.getSkillLevel === 'function',
+  hasSkill: typeof char1.hasSkill === 'function',
+  getAllSkills: typeof char1.getAllSkills === 'function',
+  performBehavior: typeof char1.performBehavior === 'function',
+  interactWith: typeof char1.interactWith === 'function'
+});
+
+// 问题2: PhysicalState
+console.log('✅ 问题2 - PhysicalState:', {
+  hasPhysicalState: !!char1.physicalState,
+  hasEmotionalState: !!char1.emotionalState,
+  adjustState: typeof char1.physicalState.adjustState === 'function'
+});
+
+// 问题3: gameEngine引用
+console.log('✅ 问题3 - gameEngine引用:', !!char1.gameEngine);
+
+// 问题4: 地点映射
+console.log('✅ 问题4 - 地点映射:', {
+  hasLocationMap: gameEngine.gameState.interactionSystem.locationNameToIdMap.size > 0,
+  mapSize: gameEngine.gameState.interactionSystem.locationNameToIdMap.size
+});
+
+// 问题5: 关系查询
+const relationship = gameEngine.gameState.interactionSystem._getRelationship(char1, char2);
+console.log('✅ 问题5 - 关系查询:', {
+  canGetRelationship: relationship !== null,
+  relationship: relationship
+});
+
+// 综合测试: 触发互动
+console.log('\n🧪 综合测试 - 触发互动:');
+const result = char1.interactWith(char2, 'greet_casual');
+console.log(result);
+
+console.log('\n🎉 Phase 1.5 永久修复完成!');

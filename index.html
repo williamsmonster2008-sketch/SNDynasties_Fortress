@@ -455,6 +455,10 @@
                     // 初始化游戏引擎（会自动初始化所有子系统）
                     console.log('开始初始化游戏引擎...');
                     await gameEngine.initialize();
+
+                    // 🔍 initialize()返回后立即检查
+                    const char = gameEngine.dataManager.dataStore.values().next().value;
+                    console.log('🔍 initialize()返回后:', char.name, typeof char.getSkillLevel === 'function');
                     
                     // 为现有模块添加事件支持
                     console.log('开始添加角色事件支持...');

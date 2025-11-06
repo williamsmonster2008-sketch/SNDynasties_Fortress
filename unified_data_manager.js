@@ -570,6 +570,7 @@ export class UnifiedDataManager {
   // =============== 数据创建接口 ===============
 
   async createCharacter(config) {   
+    //console.log('🔍 createCharacter 被调用:', config.name);
     
     try {
       // 1. 数据验证
@@ -582,10 +583,8 @@ export class UnifiedDataManager {
       // 3. 构建完整角色对象
       const character = await this.buildCompleteCharacter(validatedConfig, {
         virtueConfig
-      });
-      
-      
-      
+      });      
+            
       // 4. 分配版本和元数据
       character._version = ++this.versionCounter;
       character._createdAt = Date.now();
@@ -594,6 +593,14 @@ export class UnifiedDataManager {
       
       // 5. 存储到权威位置
       this.dataStore.set(character.id, character);
+
+      // 🔍 检查存储的对象是否是同一个
+      const stored = this.dataStore.get(character.id);
+      console.log('🔍 存储后检查标记:', stored._debugMark, {
+        hasMethod: typeof stored.getSkillLevel === 'function',
+        isSame: stored === character
+      });
+
       this.gameEngine.characters.set(character.id, character);
       
       // 6. 创建备份
@@ -608,9 +615,36 @@ export class UnifiedDataManager {
         character: character,
         timestamp: Date.now()
       });
+
+      console.log('🔍 notifyDataChange前:', character.name, {
+        hasMethod: typeof character.getSkillLevel === 'function'
+      });
+      
+      this.notifyDataChange('character_created', {
+        characterId: character.id,
+        character: character,
+        timestamp: Date.now()
+      });
+      
+      console.log('🔍 notifyDataChange后:', character.name, {
+        hasMethod: typeof character.getSkillLevel === 'function'
+      });
+
+      // 🔍 再次检查dataStore中的
+      const storedAfterNotify = this.dataStore.get(character.id);
+      console.log('🔍 notifyDataChange后dataStore中:', storedAfterNotify.name, {
+        hasMethod: typeof storedAfterNotify.getSkillLevel === 'function'
+      });
       
       // 9. 更新统计
       this.stats.createdCount++;
+
+      // 🔍 return前最后检查
+      const finalCheck = this.dataStore.get(character.id);
+      console.log('🔍 return前最后检查:', finalCheck.name, {
+        mark: finalCheck._debugMark,
+        hasMethod: typeof finalCheck.getSkillLevel === 'function'
+      });
       
       console.log(`✅ 角色创建完成: ${character.name} (ID: ${character.id})`);
       return character;
@@ -669,6 +703,7 @@ export class UnifiedDataManager {
   }
 
   async buildCompleteCharacter(config, externalConfig = {}) {
+    //console.log('🔍 buildCompleteCharacter 被调用:', config.name);
     // 1. 创建基础角色对象
     const character = new Character(config);  
 
@@ -705,35 +740,29 @@ export class UnifiedDataManager {
 
     // 确保characterId正确传递
     if (config.characterId && !character.characterId) {
-      character.characterId = config.characterId;
-      console.log(`🔧 手动修复角色characterId: ${character.name} → ${config.characterId}`);
+      character.characterId = config.characterId;      
     }
     
 
     // 🔧 修复：手动确保familyName和surname正确传递
     if (config.familyName && !character.familyName) {
-      character.familyName = config.familyName;
-      console.log(`🔧 手动修复角色familyName: ${character.name} → ${config.familyName}`);
+      character.familyName = config.familyName;      
     }
     
     if (config.surname && !character.surname) {
-      character.surname = config.surname;
-      console.log(`🔧 手动修复角色surname: ${character.name} → ${config.surname}`);
+      character.surname = config.surname;      
     }
     // 🔧 修复：手动确保所有家族相关字段正确传递
     if (config.originalFamily && !character.originalFamily) {
-      character.originalFamily = config.originalFamily;
-      console.log(`🔧 手动修复角色originalFamily: ${character.name} → ${config.originalFamily}`);
+      character.originalFamily = config.originalFamily;      
     }
 
     if (config.currentFamily && !character.currentFamily) {
-      character.currentFamily = config.currentFamily;
-      console.log(`🔧 手动修复角色currentFamily: ${character.name} → ${config.currentFamily}`);
+      character.currentFamily = config.currentFamily;      
     }
 
     if (config.socialClass && !character.socialClass) {
-      character.socialClass = config.socialClass;
-      console.log(`🔧 手动修复角色socialClass: ${character.name} → ${config.socialClass}`);
+      character.socialClass = config.socialClass;      
     }
 
 
@@ -801,23 +830,24 @@ export class UnifiedDataManager {
         errors: validationResult.errors
       });
     }
-    
+
+
+    // 🔍 在return前打上唯一标记
+    character._debugMark = `BUILT_${Date.now()}_${Math.random()}`;
+    console.log('🔍 buildCompleteCharacter返回,标记:', character._debugMark, {
+      hasMethod: typeof character.getSkillLevel === 'function'
+    });  
+
+
     return character;
   }
 
-  async createVirtueSystemForCharacter(characterId, config, externalConfig) {
-    console.log('DEBUG: VirtueSystem创建参数', { characterId, config, externalConfig });
+  async createVirtueSystemForCharacter(characterId, config, externalConfig) {    
     const virtueSystem = new VirtueSystem(characterId, {
       ...config,
       externalConfig
     });
-
-    console.log('DEBUG: VirtueSystem创建后状态', {
-      virtues: virtueSystem.virtues,
-      traits: virtueSystem.traits,
-      methods: typeof virtueSystem.getDominantVirtues
-    });
-
+    
     // 确保初始化完成
     if (!virtueSystem.virtues || !virtueSystem.traits) {
       throw new DataManagerError('德行系统初始化失败', 'system_error', {
@@ -971,6 +1001,7 @@ export class UnifiedDataManager {
       if (character) {
         // 同步到权威存储
         this.dataStore.set(characterId, character);
+        
       } else {
         throw new DataManagerError(`角色不存在: ${characterId}`, 'not_found');
       }

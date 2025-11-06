@@ -147,7 +147,6 @@ class PopulationRulesInterface {
     */
   getMarriageRules() {
     this._ensureInitialized();
-    console.log('🔍 getMarriageRules() 被调用');
     
     // 使用新的统一配置路径
     const marriageSystem = this.balanceConfig.population_generation?.marriage_system;
@@ -155,9 +154,7 @@ class PopulationRulesInterface {
     if (!marriageSystem) {
       console.warn('⚠️ marriage_system 配置未找到，使用默认配置');
       return this._getDefaultMarriageRules();
-    }
-    
-    console.log('📋 婚姻系统配置加载成功');
+    }   
     return marriageSystem;
   }
 

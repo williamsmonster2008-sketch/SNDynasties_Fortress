@@ -339,8 +339,7 @@ export default class UnifiedCharacterSystem {
     characters.forEach(char => {
       if (char.spouseId && idMapping.has(char.spouseId)) {
         const oldSpouseId = char.spouseId;
-        char.spouseId = idMapping.get(char.spouseId);
-        console.log(`✅ 转换配偶ID: ${char.name} 的配偶 ${oldSpouseId} → ${char.spouseId}`);
+        char.spouseId = idMapping.get(char.spouseId);        
       }
     });
     
