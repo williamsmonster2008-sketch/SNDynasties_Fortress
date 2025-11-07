@@ -34,17 +34,26 @@ export function addEventSupportToCharacter(character, eventBus) {
     performBehavior: character.performBehavior,
     interactWith: character.interactWith
   };
-  
+
+  const physicalMethods = character.physicalState ? {
+    adjustState: character.physicalState.adjustState
+  } : null;
+
   character._eventBus = eventBus;
   character._eventSupported = true;
   character._originalMethods = {};
-  
-  // 包装现有方法，添加事件发射
+
+  // 🔧包装现有方法，添加事件发射
   wrapCharacterMethods(character);
 
-  // 🔧 恢复我们的方法
-  Object.assign(character, ourMethods);
-  
+  // 🔧恢复我们的方法
+  Object.assign(character, ourMethods); 
+
+  // 🔧恢复PhysicalState的方法
+  if (physicalMethods.adjustState) {
+    character.physicalState.adjustState = physicalMethods.adjustState;
+  }
+
   console.log(`📡 角色 ${character.name} 已添加事件支持`);
 }
 

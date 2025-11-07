@@ -12,7 +12,7 @@ export class InteractionSystem {
 
     // 🔧 创建地点名称→ID映射表
     this.locationNameToIdMap = new Map();
-    this._buildLocationNameMap();
+    //this._buildLocationNameMap();
     
     // 互动定义 (从 interaction_patterns.json 加载)
     this.interactions = new Map();
@@ -74,7 +74,10 @@ export class InteractionSystem {
     console.log('📦 开始加载互动配置...');
     
     try {
-      // 从 DataTableManager 加载 interaction_patterns.json
+      // 🔧 1. 先构建地点映射
+      await this._buildLocationNameMap();
+
+      // 2. 从 DataTableManager 加载 interaction_patterns.json
       const data = await this.gameEngine.dataManager.dataTableManager.getInteractionPatterns();
       
       if (!data || !data.interactions) {
