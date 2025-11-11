@@ -380,6 +380,7 @@ export class GameEngine {
     
     // 设置系统间的依赖关系 - 需要验证这些属性是否存在
     if (this.decisionEngine) {
+      this.decisionEngine.gameEngine = this;
       this.decisionEngine.resourceSystem = this.resourceSystem;
       this.decisionEngine.memorySystem = this.memorySystem;
       this.decisionEngine.dataManager = this.dataManager;

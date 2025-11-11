@@ -901,3 +901,210 @@ hunger: 7.2 → 47.2 (+40)
 ---
 
 下次对话: 从"永久修复Character和PhysicalState"继续。
+
+
+
+# 📝 Phase 2.1 进度记录 (会话结束)
+
+**日期:** 2025年11月11日22:43 PM(当前会话)
+**当前任务:** Phase 2.1 任务1 - 需求驱动决策系统
+
+---
+
+## ✅ 本次会话完成的工作
+
+### 1. DecisionEngine 核心问题修复 ✅
+
+**问题1: `_getAvailableActions` 无法获取地点数据**
+- **根本原因:** 依赖不存在的 `LOCATIONS` 对象
+- **解决方案:** 改为从 `LocationManager` 动态获取
+- **状态:** ✅ 已修复,可以找到25个可用行为
+
+**问题2: DecisionEngine 缺少 gameEngine 引用**
+- **根本原因:** `decisionEngine.gameEngine` 是 undefined
+- **解决方案:** 在 `game_engine.js` 的 `initializeGameSystems()` 中添加 `this.decisionEngine.gameEngine = this`
+- **状态:** ✅ 已修复
+
+**问题3: 需求驱动评分系统不工作**
+- **根本原因:** `_evaluateNeedsSatisfaction` 方法评分太低
+- **解决方案:** 实现基于饥饿、疲劳、孤独等需求的高权重评分
+- **状态:** ✅ 已实现,盥洗沐浴获得20分
+
+**问题4: 约束过滤过于严格**
+- **根本原因:** `_checkLocationConstraints` 和 `_checkTimeConstraints` 返回false
+- **解决方案:** 临时注释掉这两个约束,等Phase 2.2再完善
+- **状态:** ⏳ 待测试
+
+---
+
+## 📊 当前系统状态
+
+### 决策引擎功能验证
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 获取可用行为 | ✅ 正常 | 从LocationManager获取25个行为 |
+| 需求评分系统 | ✅ 工作中 | 盥洗沐浴20分,其他2-3分 |
+| 约束过滤 | ⚠️ 需修复 | 地点和时间约束过严 |
+| 最终选择 | ❌ 待验证 | 约束修复后测试 |
+
+### 测试结果摘要
+
+```
+测试角色: 裴明贤
+需求状态: 饥饿48, 口渴48, 体力50, 孤独30
+
+可用行为: 25个 ✅
+评分后TOP3:
+  1. 盥洗沐浴 - 19.6分 ✅
+  2. 盥洗沐浴 - 19.6分 
+  3. 熔炼铸锻 - 2.6分
+
+约束后: 0个 ❌  (被地点和时间约束全部过滤)
+最终选择: 休息睡眠(应急方案) ❌
+```
+
+---
+
+## 🔧 已修改的文件
+
+### 1. decision_engine.js
+**修改内容:**
+- `_getAvailableActions()` - 从LocationManager获取地点数据
+- `_evaluateNeedsSatisfaction()` - 实现需求驱动评分逻辑
+  - 饥饿>60 → 进食饮水 +50-90分
+  - 疲劳<30 → 休息睡眠 +80-110分
+  - 孤独>50 → 社交行为 +40-90分
+  - 基础卫生需求 +20分
+- `_applyConstraints()` - 临时注释地点和时间约束
+
+### 2. game_engine.js
+**修改内容:**
+- `initializeGameSystems()` - 添加 `this.decisionEngine.gameEngine = this`
+
+---
+
+## 🎯 下一步行动 (新会话开始时)
+
+### 立即测试
+
+```javascript
+// 1. 测试约束修复后的效果
+const testChar = Array.from(gameEngine.characters.values())[0];
+const context = {
+  character: testChar,
+  currentTime: Date.now(),
+  timeOfDay: 'morning',
+  location: testChar.currentLocation
+};
+
+const decision = gameEngine.decisionEngine.makeDecision(testChar, context);
+console.log('决策结果:', decision);
+
+// 期望结果:
+// - 选择行为: 盥洗沐浴 (19.6分)
+// - 不是"休息睡眠"
+```
+
+### 任务1完成标准
+
+- [ ] 饥饿>60的角色自动选择"进食饮水"
+- [ ] 疲劳<30的角色自动选择"休息睡眠"
+- [ ] 孤独>50的角色优先社交行为
+- [ ] 决策不再返回0分的应急方案
+
+### 后续任务规划
+
+**任务1剩余工作 (0.5天):**
+1. 验证约束修复效果
+2. 测试不同需求状态的决策
+3. 调整评分权重
+
+**任务2: 时间敏感决策 (1天):**
+- 实现时辰行为权重系统
+- 早晨→工作, 中午→进食, 晚上→休息
+
+**任务3: 性格驱动决策 (1天):**
+- 德行特质影响行为选择
+- 高礼→社交, 高俭→劳作
+
+---
+
+## 💾 关键代码片段备份
+
+### 需求驱动评分逻辑
+
+```javascript
+_evaluateNeedsSatisfaction(character, option) {
+  let score = 0;
+  
+  // 安全检查
+  if (!character?.physicalState || !character?.emotionalState) {
+    return 0;
+  }
+  
+  const action = option.action;
+  
+  // 饥饿需求
+  const hunger = character.physicalState.hunger;
+  if (hunger > 60 && action === '进食饮水') {
+    score += 50 + (hunger - 60) * 2;
+  }
+  
+  // 疲劳需求
+  const energy = character.physicalState.energy;
+  if (energy < 30 && action === '休息睡眠') {
+    score += 80 + (30 - energy) * 2;
+  }
+  
+  // 卫生需求
+  if (action === '盥洗沐浴') {
+    score += 20;
+  }
+  
+  // 孤独需求
+  const loneliness = character.emotionalState.loneliness;
+  if (loneliness > 50 && this._isSocialAction(action)) {
+    score += 40 + (loneliness - 50) * 1.5;
+  }
+  
+  return score;
+}
+```
+
+---
+
+## 📈 Phase 2 整体进度
+
+| 阶段 | 任务 | 状态 | 完成度 |
+|------|------|------|--------|
+| Phase 1.5 | 核心系统修复 | ✅ 完成 | 100% |
+| Phase 2.1 | 任务1 需求驱动 | ⏳ 进行中 | 70% |
+| Phase 2.1 | 任务2 时间敏感 | ⏸️ 未开始 | 0% |
+| Phase 2.1 | 任务3 性格驱动 | ⏸️ 未开始 | 0% |
+| Phase 2.2 | 游戏循环 | ⏸️ 未开始 | 0% |
+
+**Phase 2.1 预计剩余时间:** 1.5天
+
+---
+
+## 🐛 已知问题清单
+
+1. **地点约束过严** - `_checkLocationConstraints` 需要重写
+2. **时间约束过严** - `_checkTimeConstraints` 需要重写  
+3. **行为重复** - "盥洗沐浴"在多个地点重复出现
+4. **评分权重** - 其他行为得分太低(2-3分)
+
+---
+
+## 💡 技术债务
+
+1. **LOCATIONS硬编码移除** - 已改用LocationManager动态获取 ✅
+2. **约束系统重构** - 需要更灵活的约束检查机制
+3. **评分系统完善** - 需要加入更多影响因素(德行、技能、记忆)
+
+---
+
+**会话结束时状态:** Phase 2.1 任务1 完成70%,约束修复待测试
+
+**新会话第一步:** 测试约束修复效果,验证需求驱动决策是否正常工作

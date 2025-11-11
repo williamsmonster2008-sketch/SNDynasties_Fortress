@@ -1,0 +1,39 @@
+// 测试修复后的决策引擎
+const testChar = Array.from(gameEngine.characters.values())[0];
+
+console.log('=== 修复后的决策引擎测试 ===');
+console.log('测试角色:', testChar.name);
+console.log('\n当前需求状态:');
+console.log('  饥饿:', testChar.physicalState.hunger);
+console.log('  口渴:', testChar.physicalState.thirst);
+console.log('  体力:', testChar.physicalState.energy);
+console.log('  孤独:', testChar.emotionalState.loneliness);
+
+const context = {
+  character: testChar,
+  currentTime: Date.now(),
+  timeOfDay: 'morning',
+  location: testChar.currentLocation
+};
+
+console.log('\n执行决策:');
+const decision = gameEngine.decisionEngine.makeDecision(testChar, context);
+
+console.log('\n决策结果:');
+console.log('  选择行为:', decision.action);
+console.log('  地点:', decision.location);
+console.log('  得分:', decision.score);
+console.log('  置信度:', decision.confidence);
+console.log('  理由:', decision.reasoning);
+
+if (decision.alternatives && decision.alternatives.length > 0) {
+  console.log('\n备选方案(前3个):');
+  decision.alternatives.slice(0, 3).forEach((alt, i) => {
+    console.log(`  ${i+1}. ${alt.action} (分数: ${Math.round(alt.score)})`);
+  });
+}
+
+// 验证是否能找到可用行为
+console.log('\n✅ 测试通过检查:');
+console.log('  找到可用行为:', decision.action !== '休息睡眠' || decision.score > 0);
+console.log('  有备选方案:', decision.alternatives && decision.alternatives.length > 1);

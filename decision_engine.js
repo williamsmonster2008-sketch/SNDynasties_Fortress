@@ -260,46 +260,72 @@ export class DecisionEngine {
   }
 
   /**
-   * 评估基本需求满足度
+   * 评估行为对需求的满足程度
    * @param {Object} character - 角色对象
    * @param {Object} option - 行为选项
-   * @returns {number} 需求满足得分
+   * @returns {number} 需求满足评分
    */
   _evaluateNeedsSatisfaction(character, option) {
     let score = 0;
-    const needs = character.needs || {};
+    
+    // 🔧 安全检查和获取完整角色对象
+    if (!character) {
+      console.warn('⚠️ character 为空');
+      return 0;
+    }
+    
+    // 如果传入的是 characterId (字符串),则获取完整对象
+    if (typeof character === 'string') {
+      character = this.gameEngine?.characters?.get(character);
+      if (!character) {
+        console.warn('⚠️ 无法找到角色:', character);
+        return 0;
+      }
+    }
+    
+    // 检查必需的状态对象
+    if (!character.physicalState || !character.emotionalState) {
+      console.warn('⚠️ 角色缺少状态对象:', character.name);
+      return 0;
+    }
+    
     const action = option.action;
     
-    // 生理需求评估
-    if (needs.hunger < 30 && this._isNutritionAction(action)) {
-      score += this.decisionWeights.survival * (30 - needs.hunger) / 30;
+    // 1. 饥饿需求 (hunger > 60 时紧急)
+    const hunger = character.physicalState.hunger;
+    if (hunger > 60 && action === '进食饮水') {
+      score += 50 + (hunger - 60) * 2;
     }
     
-    if (needs.thirst < 25 && this._isHydrationAction(action)) {
-      score += this.decisionWeights.survival * (25 - needs.thirst) / 25;
+    // 2. 口渴需求 (thirst > 60 时紧急)
+    const thirst = character.physicalState.thirst;
+    if (thirst > 60 && action === '进食饮水') {
+      score += 50 + (thirst - 60) * 2;
     }
     
-    if (needs.energy < 20 && this._isRestAction(action)) {
-      score += this.decisionWeights.survival * (20 - needs.energy) / 20;
+    // 3. 疲劳需求 (energy < 30 时需要休息)
+    const energy = character.physicalState.energy;
+    if (energy < 30 && action === '休息睡眠') {
+      score += 80 + (30 - energy) * 2; // 最高110分
     }
     
-    if (needs.cleanliness < 40 && this._isHygieneAction(action)) {
-      score += this.decisionWeights.safety * (40 - needs.cleanliness) / 40;
+    // 4. 卫生需求 (每天需要盥洗)
+    if (action === '盥洗沐浴') {
+      score += 20; // 基础卫生需求
     }
     
-    // 安全需求评估
-    if (needs.safety < 60 && this._isSafetyAction(action)) {
-      score += this.decisionWeights.safety * (60 - needs.safety) / 60;
+    // 5. 孤独需求 (loneliness > 50 时需要社交)
+    const loneliness = character.emotionalState.loneliness;
+    if (loneliness > 50 && this._isSocialAction(action)) {
+      score += 40 + (loneliness - 50) * 1.5;
     }
     
-    // 社交需求评估
-    if (needs.social < 50 && this._isSocialAction(action)) {
-      score += this.decisionWeights.social * (50 - needs.social) / 50;
-    }
-    
-    // 成就需求评估
-    if (needs.achievement < 40 && this._isAchievementAction(action)) {
-      score += this.decisionWeights.esteem * (40 - needs.achievement) / 40;
+    // 6. 压力需求 (stress > 60 时需要放松)
+    const stress = character.emotionalState.stress || 0;
+    if (stress > 60) {
+      if (action === '休息睡眠' || action === '踏青出游') {
+        score += 30 + (stress - 60);
+      }
     }
     
     return score;
@@ -729,21 +755,31 @@ export class DecisionEngine {
 
   // ==================== 辅助方法 - 最终修复版本 ====================
 
-  /**
-   * 获取可用行为列表 - 最终修复版本，严格过滤未配置行为
+   /**
+   * 获取可用行为列表 - 修复版本,从 LocationManager 获取
    */
   _getAvailableActions(character, context) {
     const availableActions = [];
     
-    // 严格按照配置的行为过滤
-    for (const [locationName, locationConfig] of Object.entries(LOCATIONS)) {
-      if (locationConfig.availableActions) {
-        for (const action of locationConfig.availableActions) {
+    // 🔧 从 LocationManager 获取真实地点数据
+    const locationManager = this.gameEngine?.gameState?.locationManager;
+    if (!locationManager) {
+      console.warn('⚠️ LocationManager 不可用');
+      return availableActions;
+    }
+    
+    const locations = locationManager.getAllLocations();
+    
+    // 遍历所有地点的可用行为
+    for (const [locationId, location] of locations) {
+      if (location.availableActions && location.availableActions.length > 0) {
+        for (const action of location.availableActions) {
           // 只包含配置中存在的行为
           if (this.configuredActions.has(action)) {
             availableActions.push({
-              action,
-              location: locationName,
+              action: action,
+              location: locationId,
+              locationName: location.name,
               category: this._getActionCategory(action)
             });
           }
@@ -751,6 +787,7 @@ export class DecisionEngine {
       }
     }
     
+    console.log(`✅ 找到 ${availableActions.length} 个可用行为`);
     return availableActions;
   }
 

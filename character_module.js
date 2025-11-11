@@ -1883,7 +1883,7 @@ class Character {
       return { success: false, reason: 'BehaviorSystem 不可用' };
     }
     
-    return this.gameEngine.behaviorSystem.startBehavior(behaviorName, this, {
+    return this.gameEngine.behaviorSystem.startBehavior(behaviorName, {
       ...context,
       character: this,
       location: this.currentLocation
